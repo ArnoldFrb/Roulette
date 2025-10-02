@@ -21,10 +21,10 @@ namespace Roulette.Domain.Entities
         public void IsValidBet()
         {
             if (Amount <= 0 && Amount > 10000)
-                throw new GenericException("Bet amount must be between 0 and 100000.");
+                throw new GenericException("Bet amount must be between 0 and 10000.");
             if (BetType == BetType.Color)
             {
-                if (Color is null || (!Color.Equals("red", StringComparison.CurrentCultureIgnoreCase) && !Color.Equals("black", StringComparison.CurrentCultureIgnoreCase)))
+                if (Color is null || (StrEquals(Color, nameof(BetColor.Red)) && StrEquals(Color, nameof(BetColor.Black))))
                     throw new GenericException("Invalid color bet. Must be 'red' or 'black'.");
             }
             else if (BetType == BetType.Number)
@@ -37,6 +37,8 @@ namespace Roulette.Domain.Entities
                 throw new GenericException("Invalid bet type.");
             }
         }
+
+        private static bool StrEquals(string? value, string color) => value?.Equals(color, StringComparison.CurrentCultureIgnoreCase) == false;
 
         public bool IsWinner()
         {
