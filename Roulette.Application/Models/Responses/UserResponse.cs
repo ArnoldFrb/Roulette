@@ -1,4 +1,4 @@
 ﻿namespace Roulette.Application.Models.Responses
 {
-    public record UserResponse(object Id, object UserName, string Message);
+    public record UserResponse(int? Id, string? UserName, string Message);
 }

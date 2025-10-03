@@ -7,6 +7,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Roulette.Domain", "Roulette
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Roulette.Domain.Test", "Roulette.Domain.Test\Roulette.Domain.Test.csproj", "{95651069-2D67-46EF-AFFA-1152675DCC3F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Roulette.Application", "Roulette.Application\Roulette.Application.csproj", "{ACDF869A-3E8F-4FBA-B1C5-74D3908224D8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Roulette.Application.Test", "Roulette.Application.Test\Roulette.Application.Test.csproj", "{0C5B5CD8-F7B8-4A8F-B9FF-0C11B3C7153C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +25,14 @@ Global
 		{95651069-2D67-46EF-AFFA-1152675DCC3F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{95651069-2D67-46EF-AFFA-1152675DCC3F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{95651069-2D67-46EF-AFFA-1152675DCC3F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ACDF869A-3E8F-4FBA-B1C5-74D3908224D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ACDF869A-3E8F-4FBA-B1C5-74D3908224D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ACDF869A-3E8F-4FBA-B1C5-74D3908224D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ACDF869A-3E8F-4FBA-B1C5-74D3908224D8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0C5B5CD8-F7B8-4A8F-B9FF-0C11B3C7153C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0C5B5CD8-F7B8-4A8F-B9FF-0C11B3C7153C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0C5B5CD8-F7B8-4A8F-B9FF-0C11B3C7153C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0C5B5CD8-F7B8-4A8F-B9FF-0C11B3C7153C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
