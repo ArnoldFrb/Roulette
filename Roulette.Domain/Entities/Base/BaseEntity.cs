@@ -1,4 +1,4 @@
-﻿using Roulette.Domain.Contracts.Entities;
+﻿using Roulette.Domain.Contracts.Base;
 
 namespace Roulette.Domain.Entities.Base
 {
@@ -6,6 +6,6 @@ namespace Roulette.Domain.Entities.Base
 
     public abstract class Entity<T> : IBaseEntity, IEntity<T>
     {
-        public required T Id { get; set; }
+        public virtual T? Id { get; set; }
     }
 }
