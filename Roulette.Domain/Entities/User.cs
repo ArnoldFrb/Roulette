@@ -11,34 +11,34 @@ namespace Roulette.Domain.Entities
 
         public void IsValidPassword(string password)
         {
-            if (Password != password || string.IsNullOrEmpty(password))
-                throw new GenericException("Invalid password.");
+            if (Password != password || string.IsNullOrWhiteSpace(password))
+                throw new InvalidPasswordException();
         }
 
         public void IsValidUsername(string username)
         {
-            if (Username != username || string.IsNullOrEmpty(username))
-                throw new GenericException("Invalid username.");
+            if (Username != username || string.IsNullOrWhiteSpace(username))
+                throw new InvalidUsernameException();
         }
-        
-        public void AddCredit(decimal amount)
+
+        public void IncreaseCredit(decimal amount)
         {
-            IsValidAmout(amount);
+            IsValidAmount(amount);
             Credit += amount;
         }
 
         public void DeductCredit(decimal amount)
         {
-            IsValidAmout(amount);
+            IsValidAmount(amount);
             if (Credit < amount)
-                throw new GenericException("Insufficient credits.");
+                throw new InsufficientCreditsException();
             Credit -= amount;
         }
 
-        private static void IsValidAmout(decimal amount)
+        private static void IsValidAmount(decimal amount)
         {
             if (amount <= 0)
-                throw new GenericException("Invalid credits amount. Must be greater than 0.");
+                throw new InsufficientCreditsException("Invalid credits amount. Must be greater than 0.");
         }
     }
 }

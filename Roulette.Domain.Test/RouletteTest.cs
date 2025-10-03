@@ -18,10 +18,10 @@ namespace Roulette.Domain.Test
             •	Entonces el estado de la ruleta es Open y la fecha de apertura se actualiza.
         */
         [Fact]
-        public void OpenBet()
+        public void OpenBet_WithCreatedStatus_ShouldSetStatusToOpenAndUpdateOpenedAt()
         {
             // Arrange
-            var roulette = new Entities.Roulette(100) { Id = 1 };
+            var roulette = new Entities.Roulette() { Id = 1 };
 
             // Act
             roulette.OpenBet();
@@ -35,34 +35,34 @@ namespace Roulette.Domain.Test
          2.	Abrir apuesta con estado abierto
             •	Dado una ruleta con estado Open
             •	Cuando se abre la apuesta
-            •	Entonces lanza GenericException con mensaje "Bet is not Created."
+            •	Entonces lanza InvalidRouletteStatusException con mensaje "Bet is not Created."
         */
         [Fact]
-        public void OpenBetOpened()
+        public void OpenBet_WithOpenStatus_ShouldThrowException()
         {
             // Arrange
-            var roulette = new Entities.Roulette(100) { Id = 1 };
+            var roulette = new Entities.Roulette() { Id = 1 };
             roulette.OpenBet();
 
             // Act
             var action = () => roulette.OpenBet();
 
             // Assert
-            action.Should().Throw<GenericException>()
+            action.Should().Throw<InvalidRouletteStatusException>()
                 .WithMessage("Bet is not Created.");
         }
 
         /*
-         2.	Abrir apuesta con estado Closed
+         3.	Abrir apuesta con estado Closed
             •	Dado una ruleta con estado Closed
             •	Cuando se abre la apuesta
-            •	Entonces lanza GenericException con mensaje "The bet is Closed."
+            •	Entonces lanza InvalidRouletteStatusException con mensaje "The bet is Closed."
         */
         [Fact]
-        public void OpenBetClosed()
+        public void OpenBet_WithClosedStatus_ShouldThrowException()
         {
             // Arrange
-            var roulette = new Entities.Roulette(100) { Id = 1 };
+            var roulette = new Entities.Roulette() { Id = 1 };
             roulette.OpenBet();
             roulette.CloseBet();
 
@@ -70,7 +70,7 @@ namespace Roulette.Domain.Test
             var action = () => roulette.OpenBet();
 
             // Assert
-            action.Should().Throw<GenericException>()
+            action.Should().Throw<InvalidRouletteStatusException>()
                 .WithMessage("The bet is Closed.");
         }
 
@@ -80,16 +80,16 @@ namespace Roulette.Domain.Test
         /// </summary>
 
         /*
-         3.	Cerrar apuesta correctamente
+         1.	Cerrar apuesta correctamente
             •	Dado una ruleta con estado distinto de Closed
             •	Cuando se cierra la apuesta
             •	Entonces el estado de la ruleta es Closed y la fecha de cierre se actualiza.
         */
         [Fact]
-        public void CloseBet()
+        public void CloseBet_WithOpenStatus_ShouldSetStatusToClosedAndUpdateClosedAt()
         {
             // Arrange
-            var roulette = new Entities.Roulette(100) { Id = 1 };
+            var roulette = new Entities.Roulette() { Id = 1 };
             roulette.OpenBet();
 
             // Act
@@ -104,19 +104,19 @@ namespace Roulette.Domain.Test
          2.	Cerrar apuesta con estado Created
             •	Dado una ruleta con estado Created
             •	Cuando se cierra la apuesta
-            •	Entonces lanza GenericException con mensaje "Bet is not Open."
+            •	Entonces lanza InvalidRouletteStatusException con mensaje "Bet is not Open."
         */
         [Fact]
-        public void ClosedBetCreated()
+        public void CloseBet_WithCreatedStatus_ShouldThrowException()
         {
             // Arrange
-            var roulette = new Entities.Roulette(100) { Id = 1 };
+            var roulette = new Entities.Roulette() { Id = 1 };
 
             // Act
             var action = () => roulette.CloseBet();
 
             // Assert
-            action.Should().Throw<GenericException>()
+            action.Should().Throw<InvalidRouletteStatusException>()
                 .WithMessage("Bet is not Open.");
         }
 
@@ -124,13 +124,13 @@ namespace Roulette.Domain.Test
          3.	Cerrar apuesta con estado Closed
             •	Dado una ruleta con estado Closed
             •	Cuando se cierra la apuesta
-            •	Entonces lanza GenericException con mensaje "The bet is Closed."
+            •	Entonces lanza InvalidRouletteStatusException con mensaje "The bet is Closed."
         */
         [Fact]
-        public void CloseBetClosed()
+        public void CloseBet_WithClosedStatus_ShouldThrowException()
         {
             // Arrange
-            var roulette = new Entities.Roulette(100) { Id = 1 };
+            var roulette = new Entities.Roulette() { Id = 1 };
             roulette.OpenBet();
             roulette.CloseBet();
 
@@ -138,7 +138,7 @@ namespace Roulette.Domain.Test
             var action = () => roulette.CloseBet();
 
             // Assert
-            action.Should().Throw<GenericException>()
+            action.Should().Throw<InvalidRouletteStatusException>()
                 .WithMessage("The bet is Closed.");
         }
 
@@ -149,21 +149,17 @@ namespace Roulette.Domain.Test
 
         /*
          1.	Crear nueva ruleta
-            •	Dado un monto válido
+            •	Dado una petición de creación de una ruleta
             •	Cuando se crea una nueva instancia de Roulette
             •	Entonces las propiedades deben inicializarse correctamente
         */
         [Fact]
-        public void CreateRoulette()
+        public void RouletteConstructor_WithValidAmount_ShouldInitializeProperties()
         {
-            // Arrange
-            const int amount = 100;
-
             // Act
-            var roulette = new Entities.Roulette(amount) { Id = 1 };
+            var roulette = new Entities.Roulette() { Id = 1 };
 
             // Assert
-            roulette.Amount.Should().Be(amount);
             roulette.NumberWinner.Should().BeInRange(0, 36);
             roulette.ColorWinner.Should().BeOneOf(BetColor.Red, BetColor.Black);
             roulette.Status.Should().Be(BetStatus.Created);
@@ -173,45 +169,85 @@ namespace Roulette.Domain.Test
         }
 
         /*
-         2.	Validar color ganador para número par
+         2.	Color ganador para número dentro de rango
+            •	Dado un número ganador mayor que 0 o menor que 36
+            •	Cuando se obtiene el color ganador
+            •	Entonces debería manejarse el caso (según la lógica de negocio).
+        */
+        [Fact]
+        public void IsValidNumberWinner_WithValidNumber_ShouldReturnNumber()
+        {
+            // Arrange
+            const int numberWinner = 15;
+
+            // Act
+            var number = Entities.Roulette.IsValidNumberWinner(numberWinner);
+
+            // Assert
+            number.Should().Be(numberWinner);
+        }
+
+        /*
+         3.	Validar número ganador para número fuera de rango
+            •	Dado un número ganador menor que 0 o mayor que 36
+            •	Cuando se obtiene el color ganador
+            •	Entonces debería manejarse el caso (según la lógica de negocio).
+        */
+        [Theory]
+        [InlineData(37)]
+        [InlineData(50)]
+        [InlineData(100)]
+        [InlineData(-10)]
+        [InlineData(-100)]
+        public void IsValidNumberWinner_WithOutOfRangeValue_ShouldThrowException(int numberWinner)
+        {
+            // Act
+            var action = () => Entities.Roulette.IsValidNumberWinner(numberWinner);
+
+            // Assert
+            action.Should().Throw<InvalidNumberWinnerException>().WithMessage("Invalid Number. Must be between 0 and 36.");
+        }
+
+        /*
+         4.	Validar color ganador para número par
             •	Dado un número ganador par
             •	Cuando se genera el color ganador
             •	Entonces el color debe ser Black
         */
-
-        [Fact]
-        public void EvenNumber()
+        [Theory]
+        [InlineData(0)]
+        [InlineData(2)]
+        [InlineData(4)]
+        [InlineData(10)]
+        [InlineData(36)]
+        public void GetWinnerColor_WithEvenNumber_ShouldReturnBlack(int numberWinner)
         {
-
-            // Arrange
-            const int numberWinner = 4;
-
             // Act
-            var color = GetWinnerColor(numberWinner);
+            var color = Entities.Roulette.GetWinnerColor(numberWinner);
 
             // Assert
             color.Should().Be(BetColor.Black);
         }
 
         /*
-         3.	Validar color ganador para número impar
+         5.	Validar color ganador para número impar
             •	Dado un número ganador impar
             •	Cuando se genera el color ganador
             •	Entonces el color debe ser Red
         */
-        [Fact]
-        public void OddNumber()
+        [Theory]
+        [InlineData(1)]
+        [InlineData(3)]
+        [InlineData(15)]
+        [InlineData(21)]
+        [InlineData(35)]
+        public void GetWinnerColor_WithOddNumber_ShouldReturnRed(int numberWinner)
         {
-            // Arrange
-            const int numberWinner = 15;
-
             // Act
-            var color = GetWinnerColor(numberWinner);
+            var color = Entities.Roulette.GetWinnerColor(numberWinner);
 
             // Assert
             color.Should().Be(BetColor.Red);
         }
-
-        private static BetColor GetWinnerColor(int numberWinner) => (numberWinner % 2 == 0) ? BetColor.Black : BetColor.Red;
     }
 }

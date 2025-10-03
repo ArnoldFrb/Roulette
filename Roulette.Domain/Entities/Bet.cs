@@ -9,42 +9,38 @@ namespace Roulette.Domain.Entities
         Color
     }
 
-    public class Bet(decimal amount, BetType betType, string? color, int? number, User user, Roulette roulette) : Entity<int>
+    public class Bet(decimal amount, BetType betType, BetColor? color, int? number, User user, Roulette roulette) : Entity<int>
     {
-        public decimal Amount { get; protected set; } = amount;
+        public decimal Amount { get; protected set; } = IsValidAmount(amount);
         public BetType BetType { get; protected set; } = betType;
-        public string? Color { get; protected set; } = color;
+        public BetColor? Color { get; protected set; } = color;
         public int? Number { get; protected set; } = number;
         public User User { get; protected set; } = user;
         public Roulette Roulette { get; protected set; } = roulette;
 
         public void IsValidBet()
         {
-            if (Amount <= 0 && Amount > 10000)
-                throw new GenericException("Bet amount must be between 0 and 10000.");
             if (BetType == BetType.Color)
             {
-                if (Color is null || (StrEquals(Color, nameof(BetColor.Red)) && StrEquals(Color, nameof(BetColor.Black))))
-                    throw new GenericException("Invalid color bet. Must be 'red' or 'black'.");
+                if (Color is null || (Color == BetColor.Red && Color == BetColor.Black))
+                    throw new InvalidBetColorException();
             }
             else if (BetType == BetType.Number)
             {
-                if (Number is null || Number < 0 || Number > 36)
-                    throw new GenericException("Invalid number bet. Must be between 0 and 36.");
+                if (Number is null || Number < RouletteConstants.MinNumber || Number > RouletteConstants.MaxNumber)
+                    throw new InvalidBetNumberException();
             }
             else
             {
-                throw new GenericException("Invalid bet type.");
+                throw new InvalidBetTypeException();
             }
         }
-
-        private static bool StrEquals(string? value, string color) => value?.Equals(color, StringComparison.CurrentCultureIgnoreCase) == false;
 
         public bool IsWinner()
         {
             if (BetType == BetType.Color)
             {
-                return Color?.Equals(Roulette.ColorWinner.ToString(), StringComparison.CurrentCultureIgnoreCase) ?? false;
+                return Color == Roulette.ColorWinner;
             }
             else if (BetType == BetType.Number)
             {
@@ -68,5 +64,20 @@ namespace Roulette.Domain.Entities
             }
             return 0;
         }
+
+        private static decimal IsValidAmount(decimal amount)
+        {
+            if (amount <= RouletteConstants.MinBet || amount > RouletteConstants.MaxBet)
+                throw new InvalidBetAmountException();
+            return amount;
+        }
+    }
+
+    public static class RouletteConstants
+    {
+        public const int MinNumber = 0;
+        public const int MaxNumber = 36;
+        public const decimal MinBet = 0;
+        public const decimal MaxBet = 10000;
     }
 }

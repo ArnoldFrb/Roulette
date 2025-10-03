@@ -20,11 +20,10 @@ namespace Roulette.Domain.Entities
     {
         private static readonly Random _random = new();
 
-        public Roulette(decimal amount)
+        public Roulette()
         {
-            NumberWinner = _random.Next(0, 36);
+            NumberWinner = IsValidNumberWinner(_random.Next(0, 36));
             ColorWinner = GetWinnerColor(NumberWinner);
-            Amount = amount;
             Status = BetStatus.Created;
             CreatedAt = DateTime.UtcNow;
             OpenedAt = DateTime.MinValue;
@@ -33,7 +32,6 @@ namespace Roulette.Domain.Entities
 
         public int NumberWinner { get; protected set; }
         public BetColor ColorWinner { get; protected set; }
-        public decimal Amount { get; protected set; }
         public BetStatus Status { get; protected set; }
         public DateTime CreatedAt { get; protected set; }
         public DateTime OpenedAt { get; protected set; }
@@ -56,13 +54,18 @@ namespace Roulette.Domain.Entities
         private void IsBetStatus(BetStatus value)
         {
             if (Status == BetStatus.Closed)
-                throw new GenericException("The bet is Closed.");
+                throw new InvalidRouletteStatusException("The bet is Closed.");
 
             if (Status != value)
-                throw new GenericException($"Bet is not {value}.");
+                throw new InvalidRouletteStatusException($"Bet is not {value}.");
         }
 
-        private static BetColor GetWinnerColor(int numberWinner) => (numberWinner % 2 == 0) ? BetColor.Black : BetColor.Red;
-        
+        public static BetColor GetWinnerColor(int numberWinner) => (numberWinner % 2 == 0) ? BetColor.Black : BetColor.Red;
+
+        public static int IsValidNumberWinner(int numberWinner) {
+            if (numberWinner < RouletteConstants.MinNumber || numberWinner > RouletteConstants.MaxNumber)
+                throw new InvalidNumberWinnerException();
+            return numberWinner;
+        }
     }
 }
