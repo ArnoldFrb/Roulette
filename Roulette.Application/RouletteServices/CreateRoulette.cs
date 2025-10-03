@@ -22,7 +22,6 @@ namespace Roulette.Application.RouletteServices
             catch (Exception ex)
             {
                 return new RouletteResponse(null, null, null, $"Error creating roulette: {ex.Message}");
-
             }
         }
     }

@@ -3,7 +3,7 @@ using Roulette.Domain.Contracts.Repositories;
 
 namespace Roulette.Application.UserServices
 {
-    public class AuthService(IUserRepository userRepository)
+    public class Authentication(IUserRepository userRepository)
     {
         private readonly IUserRepository _userRepository = userRepository;
 

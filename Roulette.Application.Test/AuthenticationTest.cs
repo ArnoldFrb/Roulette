@@ -7,17 +7,13 @@ using System.Linq.Expressions;
 
 namespace Roulette.Application.Test
 {
-    public class AuthTest
+    public class AuthenticationTest
     {
         private readonly User _defaultUser;
-        public AuthTest()
+        public AuthenticationTest()
         {
             _defaultUser = new User("Jose Carlos", "@#Hl1g2l34", 50000) { Id = 1 };
         }
-
-        /// <summary>
-        ///  PASSWORD TESTS
-        /// </summary>
 
         /*
          1.	Usuario no existe
@@ -36,7 +32,7 @@ namespace Roulette.Application.Test
             repository.Setup(repo => repo.FindSingleOrDefault(It.IsAny<Expression<Func<User, bool>>>()))
             .Returns(_defaultUser);
 
-            var service = new AuthService(repository.Object);
+            var service = new Authentication(repository.Object);
             
             // Act
             var response = service.Authenticate("pepe", "password123");
@@ -64,7 +60,7 @@ namespace Roulette.Application.Test
             repository.Setup(repo => repo.FindSingleOrDefault(It.IsAny<Expression<Func<User, bool>>>()))
             .Returns(_defaultUser);
 
-            var service = new AuthService(repository.Object);
+            var service = new Authentication(repository.Object);
 
             // Act
             var response = service.Authenticate("Jose Carlos", "@#Hl1g2l34");
@@ -92,7 +88,7 @@ namespace Roulette.Application.Test
             repository.Setup(repo => repo.FindSingleOrDefault(It.IsAny<Expression<Func<User, bool>>>()))
             .Returns(_defaultUser);
 
-            var service = new AuthService(repository.Object);
+            var service = new Authentication(repository.Object);
 
             // Act
             var response = service.Authenticate("Jose Carlos", "password123");
