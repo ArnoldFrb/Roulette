@@ -16,51 +16,53 @@ namespace Roulette.Domain.Entities
         Black
     }
 
-    public class Roulette(int numberWinner, BetColor colorWinner, decimal amount, BetStatus status, DateTime createdAt, DateTime openedAt, DateTime closedAt) : Entity<int>
+    public class Roulette : Entity<int>
     {
         private static readonly Random _random = new();
 
-        public int NumberWinner { get; protected set; } = numberWinner;
-        public BetColor ColorWinner { get; protected set; } = colorWinner;
-        public decimal Amount { get; protected set; } = amount;
-        public BetStatus Status { get; protected set; } = status;
-        public DateTime CreatedAt { get; protected set; } = createdAt;
-        public DateTime OpenedAt { get; protected set; } = openedAt;
-        public DateTime ClosedAt { get; protected set; } = closedAt;
+        public Roulette(decimal amount)
+        {
+            NumberWinner = _random.Next(0, 36);
+            ColorWinner = GetWinnerColor(NumberWinner);
+            Amount = amount;
+            Status = BetStatus.Created;
+            CreatedAt = DateTime.UtcNow;
+            OpenedAt = DateTime.MinValue;
+            ClosedAt = DateTime.MinValue;
+        }
+
+        public int NumberWinner { get; protected set; }
+        public BetColor ColorWinner { get; protected set; }
+        public decimal Amount { get; protected set; }
+        public BetStatus Status { get; protected set; }
+        public DateTime CreatedAt { get; protected set; }
+        public DateTime OpenedAt { get; protected set; }
+        public DateTime ClosedAt { get; protected set; }
 
         public void OpenBet()
         {
+            IsBetStatus(BetStatus.Created);
             Status = BetStatus.Open;
             OpenedAt = DateTime.UtcNow;
         }
 
         public void CloseBet()
         {
+            IsBetStatus(BetStatus.Open);
             Status = BetStatus.Closed;
             ClosedAt = DateTime.UtcNow;
         }
 
-        public void IsBetOpen()
+        private void IsBetStatus(BetStatus value)
         {
-            if (Status != BetStatus.Open)
-                throw new GenericException("Bet is not open.");
+            if (Status == BetStatus.Closed)
+                throw new GenericException("The bet is Closed.");
+
+            if (Status != value)
+                throw new GenericException($"Bet is not {value}.");
         }
 
-        public void IsBetClosed()
-        {
-            if (Status != BetStatus.Closed)
-                throw new GenericException("Bet is not closed.");
-        }
-
-        public void GetWinnerNumber()
-        {
-            NumberWinner = _random.Next(0, 36);
-            GetWinnerColor(NumberWinner);
-        }
-
-        private void GetWinnerColor(int numberWinner)
-        {
-            ColorWinner = (numberWinner % 2 == 0) ? BetColor.Black : BetColor.Red;
-        }
+        private static BetColor GetWinnerColor(int numberWinner) => (numberWinner % 2 == 0) ? BetColor.Black : BetColor.Red;
+        
     }
 }

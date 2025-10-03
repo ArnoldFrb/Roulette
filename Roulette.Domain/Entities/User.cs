@@ -3,10 +3,10 @@ using Roulette.Domain.Entities.Exceptions;
 
 namespace Roulette.Domain.Entities
 {
-    public class User(String username, String password, decimal credit) : Entity<int>
+    public class User(string username, string password, decimal credit) : Entity<int>
     {
-        public String Username { get; protected set; } = username;
-        public String Password { get; protected set; } = password;
+        public string Username { get; protected set; } = username;
+        public string Password { get; protected set; } = password;
         public decimal Credit { get; protected set; } = credit;
 
         public void IsValidPassword(string password)
@@ -23,18 +23,22 @@ namespace Roulette.Domain.Entities
         
         public void AddCredit(decimal amount)
         {
-            if (amount <= 0)
-                throw new GenericException("Invalid credits amount. Must be greater than 0.");
+            IsValidAmout(amount);
             Credit += amount;
         }
 
         public void DeductCredit(decimal amount)
         {
-            if (amount <= 0)
-                throw new GenericException("Invalid credits amount. Must be greater than 0.");
+            IsValidAmout(amount);
             if (Credit < amount)
                 throw new GenericException("Insufficient credits.");
             Credit -= amount;
+        }
+
+        private static void IsValidAmout(decimal amount)
+        {
+            if (amount <= 0)
+                throw new GenericException("Invalid credits amount. Must be greater than 0.");
         }
     }
 }

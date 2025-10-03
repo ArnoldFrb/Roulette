@@ -1,6 +1,5 @@
-using Roulette.Domain.Entities;
-using Xunit;
 using FluentAssertions;
+using Roulette.Domain.Entities;
 using Roulette.Domain.Entities.Exceptions;
 
 namespace Roulette.Domain.Test
