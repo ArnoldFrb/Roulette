@@ -15,7 +15,7 @@ namespace Roulette.Application.UserServices
                 if (user == null)
                     return new UserResponse(null, null, "User not found.");
 
-                if (!user.IsPassword(password))
+                if (!user.ValidatePassword(password))
                     return new UserResponse(null, null, "Invalid password.");
 
                 return new UserResponse(user.Id, user.Username, "Authentication successful.");

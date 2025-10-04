@@ -9,7 +9,7 @@ namespace Roulette.Domain.Entities
         public string Password { get; protected set; } = password;
         public decimal Credit { get; protected set; } = credit;
 
-        public bool IsPassword(string password)
+        public bool ValidatePassword(string password)
         {
             return Password.Equals(password);
         }
