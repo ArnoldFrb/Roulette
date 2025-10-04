@@ -1,6 +1,7 @@
 ﻿using Roulette.Application.Models.Responses;
 using Roulette.Domain.Contracts.Repositories;
 using Roulette.Domain.Contracts.Services;
+using Roulette.Domain.Entities;
 
 namespace Roulette.Application.RouletteServices
 {
@@ -13,7 +14,7 @@ namespace Roulette.Application.RouletteServices
         {
             try
             {
-                var roulette = new Domain.Entities.Roulette();
+                var roulette = new RouletteEntity();
                 _rouletteRepository.Add(roulette);
                 _unitOfWork.Commit();
 
