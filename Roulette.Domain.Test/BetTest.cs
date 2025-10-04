@@ -7,10 +7,12 @@ namespace Roulette.Domain.Test
     public class BetTest
     {
         private readonly int creditInitial = 50000;
-        private readonly User _defaultUser;
+        private readonly UserEntity _user;
+        private readonly RouletteEntity _roulette;
         public BetTest()
         {
-            _defaultUser = new User("Jose Carlos", "@#Hl1g2l34", creditInitial) { Id = 1 };
+            _user = new UserEntity("Jose Carlos", "@#Hl1g2l34", creditInitial) { Id = 1 };
+            _roulette = new RouletteEntity() { Id = 1 };
         }
 
         /// <summary>
@@ -26,9 +28,9 @@ namespace Roulette.Domain.Test
         [Fact]
         public void IsValidBet_WithValidColor_ShouldNotThrowAndDeductCredit()
         {
-            var user = _defaultUser;
-            var roulette = new Entities.Roulette() { Id = 1 };
-            var bet = new Bet(100, BetType.Color, BetColor.Red, null, user, roulette) { Id = 1 };
+            var user = _user;
+            var roulette = _roulette;
+            var bet = new BetEntity(100, BetType.Color, BetColor.Red, null, user, roulette) { Id = 1 };
 
             // Act
             var action = () => bet.IsValidBet();
@@ -48,9 +50,9 @@ namespace Roulette.Domain.Test
         [Fact]
         public void IsValidBet_WithNullColor_ShouldThrowException()
         {
-            var user = _defaultUser;
-            var roulette = new Entities.Roulette() { Id = 1 };
-            var bet = new Bet(100, BetType.Color, null, null, user, roulette) { Id = 1 };
+            var user = _user;
+            var roulette = _roulette;
+            var bet = new BetEntity(100, BetType.Color, null, null, user, roulette) { Id = 1 };
 
             // Act
             var action = () => bet.IsValidBet();
@@ -68,9 +70,9 @@ namespace Roulette.Domain.Test
         [Fact]
         public void IsValidBet_WithValidNumber_ShouldNotThrowAndDeductCredit()
         {
-            var user = _defaultUser;
-            var roulette = new Entities.Roulette() { Id = 1 };
-            var bet = new Bet(100, BetType.Number, null, 15, user, roulette) { Id = 1 };
+            var user = _user;
+            var roulette = _roulette;
+            var bet = new BetEntity(100, BetType.Number, null, 15, user, roulette) { Id = 1 };
 
             // Act
             var action = () => bet.IsValidBet();
@@ -90,9 +92,9 @@ namespace Roulette.Domain.Test
         [Fact]
         public void IsValidBet_WithNullNumber_ShouldThrowException()
         {
-            var user = _defaultUser;
-            var roulette = new Entities.Roulette() { Id = 1 };
-            var bet = new Bet(100, BetType.Number, null, null, user, roulette) { Id = 1 };
+            var user = _user;
+            var roulette = _roulette;
+            var bet = new BetEntity(100, BetType.Number, null, null, user, roulette) { Id = 1 };
 
             // Act
             var action = () => bet.IsValidBet();
@@ -110,9 +112,9 @@ namespace Roulette.Domain.Test
         [Fact]
         public void IsValidBet_WithNumberGreaterThanMax_ShouldThrowException()
         {
-            var user = _defaultUser;
-            var roulette = new Entities.Roulette() { Id = 1 };
-            var bet = new Bet(100, BetType.Number, null, 50, user, roulette) { Id = 1 };
+            var user = _user;
+            var roulette = _roulette;
+            var bet = new BetEntity(100, BetType.Number, null, 50, user, roulette) { Id = 1 };
 
             // Act
             var action = () => bet.IsValidBet();
@@ -130,9 +132,9 @@ namespace Roulette.Domain.Test
         [Fact]
         public void IsValidBet_WithNumberLessThanMin_ShouldThrowException()
         {
-            var user = _defaultUser;
-            var roulette = new Entities.Roulette() { Id = 1 };
-            var bet = new Bet(100, BetType.Number, null, -10, user, roulette) { Id = 1 };
+            var user = _user;
+            var roulette = _roulette;
+            var bet = new BetEntity(100, BetType.Number, null, -10, user, roulette) { Id = 1 };
 
             // Act
             var action = () => bet.IsValidBet();
@@ -150,9 +152,9 @@ namespace Roulette.Domain.Test
         [Fact]
         public void IsValidBet_WithValidAmount_ShouldNotThrowAndDeductCredit()
         {
-            var user = _defaultUser;
-            var roulette = new Entities.Roulette() { Id = 1 };
-            var bet = new Bet(105, BetType.Number, null, 15, user, roulette) { Id = 1 };
+            var user = _user;
+            var roulette = _roulette;
+            var bet = new BetEntity(105, BetType.Number, null, 15, user, roulette) { Id = 1 };
 
             // Act
             var action = () => bet.IsValidBet();
@@ -172,11 +174,11 @@ namespace Roulette.Domain.Test
         [Fact]
         public void IsValidBet_WithAmountGreaterThanMax_ShouldThrowException()
         {
-            var user = _defaultUser;
-            var roulette = new Entities.Roulette() { Id = 1 };
+            var user = _user;
+            var roulette = _roulette;
 
             // Act
-            var action = () => new Bet(10005, BetType.Number, null, 15, user, roulette) { Id = 1 };
+            var action = () => new BetEntity(10005, BetType.Number, null, 15, user, roulette) { Id = 1 };
 
             // Assert
             action.Should().Throw<InvalidBetAmountException>().WithMessage("Invalid amount. Must be between 0 and 10000.");
@@ -191,11 +193,11 @@ namespace Roulette.Domain.Test
         [Fact]
         public void IsValidBet_WithAmountLessThanMin_ShouldThrowException()
         {
-            var user = _defaultUser;
-            var roulette = new Entities.Roulette() { Id = 1 };
+            var user = _user;
+            var roulette = _roulette;
 
             // Act
-            var action = () => new Bet(-25, BetType.Number, null, 15, user, roulette) { Id = 1 };
+            var action = () => new BetEntity(-25, BetType.Number, null, 15, user, roulette) { Id = 1 };
 
             // Assert
             action.Should().Throw<InvalidBetAmountException>().WithMessage("Invalid amount. Must be between 0 and 10000.");
@@ -215,9 +217,9 @@ namespace Roulette.Domain.Test
         [Fact]
         public void IsWinner_WithColorBet_ShouldAssignWinningsOrZero()
         {
-            var user = _defaultUser;
-            var roulette = new Entities.Roulette() { Id = 1 };
-            var bet = new Bet(100, BetType.Color, BetColor.Red, null, user, roulette) { Id = 1 };
+            var user = _user;
+            var roulette = _roulette;
+            var bet = new BetEntity(100, BetType.Color, BetColor.Red, null, user, roulette) { Id = 1 };
 
             // Act
             var action = () => bet.IsValidBet();
@@ -252,9 +254,9 @@ namespace Roulette.Domain.Test
         [Fact]
         public void IsWinner_WithNumberBet_ShouldAssignWinningsOrZero()
         {
-            var user = _defaultUser;
-            var roulette = new Entities.Roulette() { Id = 1 };
-            var bet = new Bet(100, BetType.Number, null, 15, user, roulette) { Id = 1 };
+            var user = _user;
+            var roulette = _roulette;
+            var bet = new BetEntity(100, BetType.Number, null, 15, user, roulette) { Id = 1 };
 
             // Act
             var action = () => bet.IsValidBet();
@@ -295,9 +297,9 @@ namespace Roulette.Domain.Test
         [Fact]
         public void GetWinnings_WithWinningColorBet_ShouldReturnCorrectAmount()
         {
-            var user = _defaultUser;
-            var roulette = new Entities.Roulette() { Id = 1 };
-            var bet = new Bet(100, BetType.Color, BetColor.Red, null, user, roulette) { Id = 1 };
+            var user = _user;
+            var roulette = _roulette;
+            var bet = new BetEntity(100, BetType.Color, BetColor.Red, null, user, roulette) { Id = 1 };
 
             // Act
             var action = () => bet.IsValidBet();
@@ -334,9 +336,9 @@ namespace Roulette.Domain.Test
         [Fact]
         public void GetWinnings_WithWinningNumberBet_ShouldReturnCorrectAmount()
         {
-            var user = _defaultUser;
-            var roulette = new Entities.Roulette() { Id = 1 };
-            var bet = new Bet(100, BetType.Number, null, 15, user, roulette) { Id = 1 };
+            var user = _user;
+            var roulette = _roulette;
+            var bet = new BetEntity(100, BetType.Number, null, 15, user, roulette) { Id = 1 };
 
             // Act
             var action = () => bet.IsValidBet();

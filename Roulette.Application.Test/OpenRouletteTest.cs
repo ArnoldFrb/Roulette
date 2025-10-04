@@ -3,16 +3,17 @@ using Moq;
 using Roulette.Application.RouletteServices;
 using Roulette.Domain.Contracts.Repositories;
 using Roulette.Domain.Contracts.Services;
+using Roulette.Domain.Entities;
 using System.Linq.Expressions;
 
 namespace Roulette.Application.Test
 {
     public class OpenRouletteTest
     {
-        private readonly Domain.Entities.Roulette _defaultRoulette;
+        private readonly RouletteEntity _roulette;
         public OpenRouletteTest()
         {
-            _defaultRoulette = new Domain.Entities.Roulette() { Id = 1 };
+            _roulette = new RouletteEntity() { Id = 1 };
         }
 
         /*
@@ -28,7 +29,7 @@ namespace Roulette.Application.Test
             // Arrange
             var repository = new Mock<IRouletteRepository>();
             var unitOfWork = new Mock<IUnitOfWork>();
-            repository.Setup(r => r.Find(It.IsAny<int>())).Returns(_defaultRoulette);
+            repository.Setup(r => r.Find(It.IsAny<int>())).Returns(_roulette);
             var service = new OpenRoulette(repository.Object, unitOfWork.Object);
 
             // Act
@@ -54,7 +55,7 @@ namespace Roulette.Application.Test
             // Arrange
             var repository = new Mock<IRouletteRepository>();
             var unitOfWork = new Mock<IUnitOfWork>();
-            repository.Setup(r => r.FindSingleOrDefault(It.IsAny<Expression<Func<Domain.Entities.Roulette, bool>>>())).Returns(_defaultRoulette);
+            repository.Setup(r => r.FindSingleOrDefault(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).Returns(_roulette);
             var service = new OpenRoulette(repository.Object, unitOfWork.Object);
 
             // Act
@@ -80,7 +81,7 @@ namespace Roulette.Application.Test
             // Arrange
             var repository = new Mock<IRouletteRepository>();
             var unitOfWork = new Mock<IUnitOfWork>();
-            repository.Setup(r => r.FindSingleOrDefault(It.IsAny<Expression<Func<Domain.Entities.Roulette, bool>>>())).Throws(new Exception("DB error."));
+            repository.Setup(r => r.FindSingleOrDefault(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).Throws(new Exception("DB error."));
             var service = new OpenRoulette(repository.Object, unitOfWork.Object);
 
             // Act
@@ -106,8 +107,8 @@ namespace Roulette.Application.Test
             // Arrange
             var repository = new Mock<IRouletteRepository>();
             var unitOfWork = new Mock<IUnitOfWork>();
-            repository.Setup(r => r.FindSingleOrDefault(It.IsAny<Expression<Func<Domain.Entities.Roulette, bool>>>())).Returns(_defaultRoulette);
-            repository.Setup(r => r.Edit(It.IsAny<Domain.Entities.Roulette>())).Throws(new Exception("Update error."));
+            repository.Setup(r => r.FindSingleOrDefault(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).Returns(_roulette);
+            repository.Setup(r => r.Edit(It.IsAny<RouletteEntity>())).Throws(new Exception("Update error."));
             var service = new OpenRoulette(repository.Object, unitOfWork.Object);
 
             // Act
@@ -133,7 +134,7 @@ namespace Roulette.Application.Test
             // Arrange
             var repository = new Mock<IRouletteRepository>();
             var unitOfWork = new Mock<IUnitOfWork>();
-            repository.Setup(r => r.FindSingleOrDefault(It.IsAny<Expression<Func<Domain.Entities.Roulette, bool>>>())).Returns(_defaultRoulette);
+            repository.Setup(r => r.FindSingleOrDefault(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).Returns(_roulette);
             unitOfWork.Setup(u => u.Commit()).Throws(new Exception("Transaction error."));
             var service = new OpenRoulette(repository.Object, unitOfWork.Object);
 
@@ -160,14 +161,14 @@ namespace Roulette.Application.Test
             // Arrange
             var repository = new Mock<IRouletteRepository>();
             var unitOfWork = new Mock<IUnitOfWork>();
-            repository.Setup(r => r.FindSingleOrDefault(It.IsAny<Expression<Func<Domain.Entities.Roulette, bool>>>())).Returns(_defaultRoulette);
+            repository.Setup(r => r.FindSingleOrDefault(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).Returns(_roulette);
             var service = new OpenRoulette(repository.Object, unitOfWork.Object);
 
             // Act
             service.Execute(1);
 
             // Assert
-            repository.Verify(r => r.Edit(It.IsAny<Domain.Entities.Roulette>()), Times.Once);
+            repository.Verify(r => r.Edit(It.IsAny<RouletteEntity>()), Times.Once);
             unitOfWork.Verify(u => u.Commit(), Times.Once);
         }
     }

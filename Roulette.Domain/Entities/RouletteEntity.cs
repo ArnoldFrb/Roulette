@@ -16,11 +16,11 @@ namespace Roulette.Domain.Entities
         Black
     }
 
-    public class Roulette : Entity<int>
+    public class RouletteEntity : Entity<int>
     {
         private static readonly Random _random = new();
 
-        public Roulette()
+        public RouletteEntity()
         {
             NumberWinner = IsValidNumberWinner(_random.Next(0, 36));
             ColorWinner = GetWinnerColor(NumberWinner);

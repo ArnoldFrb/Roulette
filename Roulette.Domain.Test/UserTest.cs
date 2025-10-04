@@ -21,7 +21,7 @@ namespace Roulette.Domain.Test
         public void IsValidPassword_WithCorrectPassword_ShouldNotThrow()
         {
             // Arrange
-            var user = new User("Jose Carlos", "@#Hl1g2l34", 50000) { Id = 1 };
+            var user = new UserEntity("Jose Carlos", "@#Hl1g2l34", 50000) { Id = 1 };
 
             // Act
             var action = () => user.IsValidPassword("@#Hl1g2l34");
@@ -41,7 +41,7 @@ namespace Roulette.Domain.Test
         public void IsValidPassword_WithIncorrectPassword_ShouldThrowException()
         {
             // Arrange
-            var user = new User("Jose Carlos", "@#Hl1g2l34", 50000) { Id = 1 };
+            var user = new UserEntity("Jose Carlos", "@#Hl1g2l34", 50000) { Id = 1 };
 
             // Act
             var action = () => user.IsValidPassword("contraseña123");
@@ -62,7 +62,7 @@ namespace Roulette.Domain.Test
         public void IsValidPassword_WithEmptyPassword_ShouldThrowException()
         {
             // Arrange
-            var user = new User("Jose Carlos", "@#Hl1g2l34", 50000) { Id = 1 };
+            var user = new UserEntity("Jose Carlos", "@#Hl1g2l34", 50000) { Id = 1 };
 
             // Act
             var action = () => user.IsValidPassword("");
@@ -83,7 +83,7 @@ namespace Roulette.Domain.Test
         public void IsValidPassword_WithNullPassword_ShouldThrowException()
         {
             // Arrange
-            var user = new User("Jose Carlos", "@#Hl1g2l34", 50000) { Id = 1 };
+            var user = new UserEntity("Jose Carlos", "@#Hl1g2l34", 50000) { Id = 1 };
 
             // Act
             var action = () => user.IsValidPassword(null!);
@@ -109,7 +109,7 @@ namespace Roulette.Domain.Test
         public void IsValidUsername_WithCorrectUsername_ShouldNotThrow()
         {
             // Arrange
-            var user = new User("Jose Carlos", "@#Hl1g2l34", 50000) { Id = 1 };
+            var user = new UserEntity("Jose Carlos", "@#Hl1g2l34", 50000) { Id = 1 };
 
             // Act
             var action = () => user.IsValidUsername("Jose Carlos");
@@ -129,7 +129,7 @@ namespace Roulette.Domain.Test
         public void IsValidUsername_WithIncorrectUsername_ShouldThrowException()
         {
             // Arrange
-            var user = new User("Jose Carlos", "@#Hl1g2l34", 50000) { Id = 1 };
+            var user = new UserEntity("Jose Carlos", "@#Hl1g2l34", 50000) { Id = 1 };
 
             // Act
             var action = () => user.IsValidUsername("Carlos Jose");
@@ -150,7 +150,7 @@ namespace Roulette.Domain.Test
         public void IsValidUsername_WithEmptyUsername_ShouldThrowException()
         {
             // Arrange
-            var user = new User("Jose Carlos", "@#Hl1g2l34", 50000) { Id = 1 };
+            var user = new UserEntity("Jose Carlos", "@#Hl1g2l34", 50000) { Id = 1 };
 
             // Act
             var action = () => user.IsValidUsername("");
@@ -171,7 +171,7 @@ namespace Roulette.Domain.Test
         public void IsValidUsername_WithNullUsername_ShouldThrowException()
         {
             // Arrange
-            var user = new User("Jose Carlos", "@#Hl1g2l34", 50000) { Id = 1 };
+            var user = new UserEntity("Jose Carlos", "@#Hl1g2l34", 50000) { Id = 1 };
 
             // Act
             var action = () => user.IsValidUsername(null!);
@@ -197,7 +197,7 @@ namespace Roulette.Domain.Test
         public void IncreaseCredit_WithValidAmount_ShouldUpdateCredit()
         {
             // Arrange
-            var user = new User("Jose Carlos", "@#Hl1g2l34", 100) { Id = 1 };
+            var user = new UserEntity("Jose Carlos", "@#Hl1g2l34", 100) { Id = 1 };
 
             // Act
             user.IncreaseCredit(50);
@@ -217,7 +217,7 @@ namespace Roulette.Domain.Test
         public void IncreaseCredit_WithZeroAmount_ShouldThrowException()
         {
             // Arrange
-            var user = new User("Jose Carlos", "@#Hl1g2l34", 100) { Id = 1 };
+            var user = new UserEntity("Jose Carlos", "@#Hl1g2l34", 100) { Id = 1 };
 
             // Act
             var action = () => user.IncreaseCredit(0);
@@ -238,7 +238,7 @@ namespace Roulette.Domain.Test
         public void IncreaseCredit_WithNegativeAmount_ShouldThrowException()
         {
             // Arrange
-            var user = new User("Jose Carlos", "@#Hl1g2l34", 100) { Id = 1 };
+            var user = new UserEntity("Jose Carlos", "@#Hl1g2l34", 100) { Id = 1 };
 
             // Act
             var action = () => user.IncreaseCredit(-10);
@@ -264,7 +264,7 @@ namespace Roulette.Domain.Test
         public void DeductCredit_WithValidAmount_ShouldUpdateCredit()
         {
             // Arrange
-            var user = new User("Jose Carlos", "@#Hl1g2l34", 100) { Id = 1 };
+            var user = new UserEntity("Jose Carlos", "@#Hl1g2l34", 100) { Id = 1 };
 
             // Act
             user.DeductCredit(50);
@@ -284,7 +284,7 @@ namespace Roulette.Domain.Test
         public void DeductCredit_WithAmountEqualToCredit_ShouldSetCreditToZero()
         {
             // Arrange
-            var user = new User("Jose Carlos", "@#Hl1g2l34", 100) { Id = 1 };
+            var user = new UserEntity("Jose Carlos", "@#Hl1g2l34", 100) { Id = 1 };
 
             // Act
             user.DeductCredit(100);
@@ -304,7 +304,7 @@ namespace Roulette.Domain.Test
         public void DeductCredit_WithAmountExceedingCredit_ShouldThrowException()
         {
             // Arrange
-            var user = new User("Jose Carlos", "@#Hl1g2l34", 100) { Id = 1 };
+            var user = new UserEntity("Jose Carlos", "@#Hl1g2l34", 100) { Id = 1 };
 
             // Act
             var action = () => user.DeductCredit(150);
@@ -325,7 +325,7 @@ namespace Roulette.Domain.Test
         public void DeductCredit_WithZeroAmount_ShouldThrowException()
         {
             // Arrange
-            var user = new User("Jose Carlos", "@#Hl1g2l34", 100) { Id = 1 };
+            var user = new UserEntity("Jose Carlos", "@#Hl1g2l34", 100) { Id = 1 };
 
             // Act
             var action = () => user.DeductCredit(0);
@@ -346,7 +346,7 @@ namespace Roulette.Domain.Test
         public void DeductCredit_WithNegativeAmount_ShouldThrowException()
         {
             // Arrange
-            var user = new User("Jose Carlos", "@#Hl1g2l34", 100) { Id = 1 };
+            var user = new UserEntity("Jose Carlos", "@#Hl1g2l34", 100) { Id = 1 };
 
             // Act
             var action = () => user.DeductCredit(-10);

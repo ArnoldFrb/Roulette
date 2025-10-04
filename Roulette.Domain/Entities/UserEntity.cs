@@ -3,7 +3,7 @@ using Roulette.Domain.Entities.Exceptions;
 
 namespace Roulette.Domain.Entities
 {
-    public class User(string username, string password, decimal credit) : Entity<int>
+    public class UserEntity(string username, string password, decimal credit) : Entity<int>
     {
         public string Username { get; protected set; } = username;
         public string Password { get; protected set; } = password;
