@@ -13,7 +13,7 @@ namespace Roulette.Application.RouletteServices
         {
             try
             {
-                var roulette = _rouletteRepository.Find(rouletteId);
+                var roulette = _rouletteRepository.FindSingleOrDefault(r => r.Id == rouletteId);
                 if (roulette == null)
                     return new RouletteResponse(null, null, null, "Roulette not found.");
 
@@ -21,7 +21,7 @@ namespace Roulette.Application.RouletteServices
                 _rouletteRepository.Edit(roulette);
                 _unitOfWork.Commit();
 
-                return new RouletteResponse(roulette.Id, roulette.Status.ToString(), roulette.CreatedAt, "Roulette opened successfully.");
+                return new RouletteResponse(roulette.Id, roulette.Status.ToString(), roulette.OpenedAt, "Roulette opened successfully.");
             }
             catch (Exception ex)
             {
