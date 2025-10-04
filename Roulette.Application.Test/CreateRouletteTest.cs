@@ -29,7 +29,7 @@ namespace Roulette.Application.Test
             // Assert
             response.Id.Should().NotBeNull();
             response.Status.Should().Be("Created");
-            response.CreatedAt.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(5));
+            response.Date.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(5));
             response.Message.Should().Be("Roulette created successfully.");
         }
 
@@ -58,7 +58,7 @@ namespace Roulette.Application.Test
             // Assert
             response.Id.Should().BeNull();
             response.Status.Should().BeNull();
-            response.CreatedAt.Should().BeNull();
+            response.Date.Should().BeNull();
             response.Message.Should().Be("Error creating roulette: DB error");
         }
 
@@ -87,7 +87,7 @@ namespace Roulette.Application.Test
             // Assert
             response.Id.Should().BeNull();
             response.Status.Should().BeNull();
-            response.CreatedAt.Should().BeNull();
+            response.Date.Should().BeNull();
             response.Message.Should().Be("Error creating roulette: Transaction error");
         }
 
