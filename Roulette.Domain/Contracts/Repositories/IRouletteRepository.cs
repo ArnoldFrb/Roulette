@@ -2,5 +2,5 @@
 
 namespace Roulette.Domain.Contracts.Repositories
 {
-    public interface IRouletteRepository : ICoreRepository<Entities.Roulette>;
+    public interface IRouletteRepository : ICoreRepository<Entities.RouletteEntity>;
 }

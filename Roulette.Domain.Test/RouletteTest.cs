@@ -1,12 +1,17 @@
 ﻿using FluentAssertions;
 using Roulette.Domain.Entities;
 using Roulette.Domain.Entities.Exceptions;
-using System;
 
 namespace Roulette.Domain.Test
 {
     public class RouletteTest
     {
+        private readonly RouletteEntity _roulette;
+
+        public RouletteTest()
+        {
+            _roulette = new RouletteEntity() { Id = 1};
+        }
         /// <summary>
         ///  OPEN ROULETTE TESTS
         /// </summary>
@@ -21,7 +26,7 @@ namespace Roulette.Domain.Test
         public void OpenBet_WithCreatedStatus_ShouldSetStatusToOpenAndUpdateOpenedAt()
         {
             // Arrange
-            var roulette = new Entities.Roulette() { Id = 1 };
+            var roulette = _roulette;
 
             // Act
             roulette.OpenBet();
@@ -41,7 +46,7 @@ namespace Roulette.Domain.Test
         public void OpenBet_WithOpenStatus_ShouldThrowException()
         {
             // Arrange
-            var roulette = new Entities.Roulette() { Id = 1 };
+            var roulette = _roulette;
             roulette.OpenBet();
 
             // Act
@@ -62,7 +67,7 @@ namespace Roulette.Domain.Test
         public void OpenBet_WithClosedStatus_ShouldThrowException()
         {
             // Arrange
-            var roulette = new Entities.Roulette() { Id = 1 };
+            var roulette = _roulette;
             roulette.OpenBet();
             roulette.CloseBet();
 
@@ -89,7 +94,7 @@ namespace Roulette.Domain.Test
         public void CloseBet_WithOpenStatus_ShouldSetStatusToClosedAndUpdateClosedAt()
         {
             // Arrange
-            var roulette = new Entities.Roulette() { Id = 1 };
+            var roulette = _roulette;
             roulette.OpenBet();
 
             // Act
@@ -110,7 +115,7 @@ namespace Roulette.Domain.Test
         public void CloseBet_WithCreatedStatus_ShouldThrowException()
         {
             // Arrange
-            var roulette = new Entities.Roulette() { Id = 1 };
+            var roulette = _roulette;
 
             // Act
             var action = () => roulette.CloseBet();
@@ -130,7 +135,7 @@ namespace Roulette.Domain.Test
         public void CloseBet_WithClosedStatus_ShouldThrowException()
         {
             // Arrange
-            var roulette = new Entities.Roulette() { Id = 1 };
+            var roulette = _roulette;
             roulette.OpenBet();
             roulette.CloseBet();
 
@@ -157,7 +162,7 @@ namespace Roulette.Domain.Test
         public void RouletteConstructor_WithValidAmount_ShouldInitializeProperties()
         {
             // Act
-            var roulette = new Entities.Roulette() { Id = 1 };
+            var roulette = _roulette;
 
             // Assert
             roulette.NumberWinner.Should().BeInRange(0, 36);
@@ -181,7 +186,7 @@ namespace Roulette.Domain.Test
             const int numberWinner = 15;
 
             // Act
-            var number = Entities.Roulette.IsValidNumberWinner(numberWinner);
+            var number = RouletteEntity.IsValidNumberWinner(numberWinner);
 
             // Assert
             number.Should().Be(numberWinner);
@@ -202,7 +207,7 @@ namespace Roulette.Domain.Test
         public void IsValidNumberWinner_WithOutOfRangeValue_ShouldThrowException(int numberWinner)
         {
             // Act
-            var action = () => Entities.Roulette.IsValidNumberWinner(numberWinner);
+            var action = () => RouletteEntity.IsValidNumberWinner(numberWinner);
 
             // Assert
             action.Should().Throw<InvalidNumberWinnerException>().WithMessage("Invalid Number. Must be between 0 and 36.");
@@ -223,7 +228,7 @@ namespace Roulette.Domain.Test
         public void GetWinnerColor_WithEvenNumber_ShouldReturnBlack(int numberWinner)
         {
             // Act
-            var color = Entities.Roulette.GetWinnerColor(numberWinner);
+            var color = RouletteEntity.GetWinnerColor(numberWinner);
 
             // Assert
             color.Should().Be(BetColor.Black);
@@ -244,7 +249,7 @@ namespace Roulette.Domain.Test
         public void GetWinnerColor_WithOddNumber_ShouldReturnRed(int numberWinner)
         {
             // Act
-            var color = Entities.Roulette.GetWinnerColor(numberWinner);
+            var color = RouletteEntity.GetWinnerColor(numberWinner);
 
             // Assert
             color.Should().Be(BetColor.Red);

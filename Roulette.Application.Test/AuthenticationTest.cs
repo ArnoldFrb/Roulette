@@ -9,10 +9,10 @@ namespace Roulette.Application.Test
 {
     public class AuthenticationTest
     {
-        private readonly User _defaultUser;
+        private readonly UserEntity _user;
         public AuthenticationTest()
         {
-            _defaultUser = new User("Jose Carlos", "@#Hl1g2l34", 50000) { Id = 1 };
+            _user = new UserEntity("Jose Carlos", "@#Hl1g2l34", 50000) { Id = 1 };
         }
 
         /*
@@ -29,8 +29,8 @@ namespace Roulette.Application.Test
             // Arrange
             var repository = new Mock<IUserRepository>();
 
-            repository.Setup(repo => repo.FindSingleOrDefault(It.IsAny<Expression<Func<User, bool>>>()))
-            .Returns(_defaultUser);
+            repository.Setup(repo => repo.FindSingleOrDefault(It.IsAny<Expression<Func<UserEntity, bool>>>()))
+            .Returns(_user);
 
             var service = new Authentication(repository.Object);
             
@@ -57,8 +57,8 @@ namespace Roulette.Application.Test
             // Arrange
             var repository = new Mock<IUserRepository>();
 
-            repository.Setup(repo => repo.FindSingleOrDefault(It.IsAny<Expression<Func<User, bool>>>()))
-            .Returns(_defaultUser);
+            repository.Setup(repo => repo.FindSingleOrDefault(It.IsAny<Expression<Func<UserEntity, bool>>>()))
+            .Returns(_user);
 
             var service = new Authentication(repository.Object);
 
@@ -85,8 +85,8 @@ namespace Roulette.Application.Test
             // Arrange
             var repository = new Mock<IUserRepository>();
 
-            repository.Setup(repo => repo.FindSingleOrDefault(It.IsAny<Expression<Func<User, bool>>>()))
-            .Returns(_defaultUser);
+            repository.Setup(repo => repo.FindSingleOrDefault(It.IsAny<Expression<Func<UserEntity, bool>>>()))
+            .Returns(_user);
 
             var service = new Authentication(repository.Object);
 

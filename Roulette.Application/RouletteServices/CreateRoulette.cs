@@ -13,7 +13,7 @@ namespace Roulette.Application.RouletteServices
         {
             try
             {
-                var roulette = new Domain.Entities.Roulette();
+                var roulette = new Domain.Entities.RouletteEntity();
                 _rouletteRepository.Add(roulette);
                 _unitOfWork.Commit();
 
