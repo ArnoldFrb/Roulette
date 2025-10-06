@@ -1,2 +1,8 @@
-# Auto detect text files and perform LF normalization
+# Normaliza finales de línea automáticamente
 * text=auto
+
+# Fuerza los scripts y configuraciones a usar LF
+*.sh text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+Dockerfile text eol=lf

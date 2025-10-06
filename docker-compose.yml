@@ -1,0 +1,33 @@
+version: '3.9'
+
+services:
+  roulette.api:
+    build:
+      context: .
+      dockerfile: Roulette.API/Dockerfile
+    container_name: roulette.api
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Data Source=/app/data/roulette.db
+      - Redis__Connection=redis:6379
+    volumes:
+      - roulette_data:/app/data
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+  redis:
+    image: redis:7.4-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+volumes:
+  roulette_data:
+  redis_data:
