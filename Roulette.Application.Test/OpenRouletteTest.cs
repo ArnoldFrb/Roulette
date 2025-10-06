@@ -38,7 +38,7 @@ namespace Roulette.Application.Test
             // Assert
             response.Id.Should().BeNull();
             response.Status.Should().BeNull();
-            response.Date.Should().BeNull();
+            response.OpenedAt.Should().BeNull();
             response.Message.Should().Be("Roulette not found.");
         }
 
@@ -64,7 +64,7 @@ namespace Roulette.Application.Test
             // Assert
             response.Id.Should().Be(1);
             response.Status.Should().Be("Open");
-            response.Date.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(5));
+            response.OpenedAt.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(5));
             response.Message.Should().Be("Roulette opened successfully.");
         }
 
@@ -90,7 +90,7 @@ namespace Roulette.Application.Test
             // Assert
             response.Id.Should().BeNull();
             response.Status.Should().BeNull();
-            response.Date.Should().BeNull();
+            response.OpenedAt.Should().BeNull();
             response.Message.Should().Be("Error opening roulette: DB error.");
         }
 
@@ -117,7 +117,7 @@ namespace Roulette.Application.Test
             // Assert
             response.Id.Should().BeNull();
             response.Status.Should().BeNull();
-            response.Date.Should().BeNull();
+            response.OpenedAt.Should().BeNull();
             response.Message.Should().Be("Error opening roulette: Update error.");
         }
 
@@ -144,7 +144,7 @@ namespace Roulette.Application.Test
             // Assert
             response.Id.Should().BeNull();
             response.Status.Should().BeNull();
-            response.Date.Should().BeNull();
+            response.OpenedAt.Should().BeNull();
             response.Message.Should().Be("Error opening roulette: Transaction error.");
         }
 
