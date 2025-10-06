@@ -13,12 +13,14 @@ namespace Roulette.Application.RouletteServices
             try
             {
                 var roulettes = _rouletteRepository.GetAll();
-                var rouletteResponses = roulettes?.Select(MapRouletteToResponse).ToList() ?? [];
+                var rouletteResponses = roulettes?.Select(MapRouletteToResponse) ?? [];
+                if (!rouletteResponses.Any())
+                    return ErrorResponse("No roulettes found.");
                 return new ListRouletteResponse(rouletteResponses, "Roulettes retrieved successfully.");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return ErrorResponse("Error retrieving roulettes.");
+                return ErrorResponse($"Error retrieving roulettes: {ex.Message}");
             }
         }
 

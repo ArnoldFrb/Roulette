@@ -24,8 +24,6 @@ namespace Roulette.Application.Test
             _rouletteR = new Mock<IRouletteRepository>();
             _betR = new Mock<IBetRepository>();
             _unitOfWork = new Mock<IUnitOfWork>();
-            _roulette = new RouletteEntity() { Id = 1 };
-
 
             _user = new UserEntity("Jose Carlos", "@#Hl1g2l34", 50000) { Id = 1 };
             _roulette = new RouletteEntity() { Id = 1};
