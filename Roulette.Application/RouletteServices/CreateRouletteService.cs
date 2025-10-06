@@ -5,12 +5,12 @@ using Roulette.Domain.Entities;
 
 namespace Roulette.Application.RouletteServices
 {
-    public class CreateRoulette(IRouletteRepository rouletteRepository, IUnitOfWork unitOfWork)
+    public class CreateRouletteService(IRouletteRepository rouletteRepository, IUnitOfWork unitOfWork)
     {
         private readonly IRouletteRepository _rouletteRepository = rouletteRepository;
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
-        public RouletteResponse Execute()
+        public CreateRouletteResponse Execute()
         {
             try
             {
@@ -18,12 +18,15 @@ namespace Roulette.Application.RouletteServices
                 _rouletteRepository.Add(roulette);
                 _unitOfWork.Commit();
 
-                return new RouletteResponse(roulette.Id, roulette.Status.ToString(), roulette.CreatedAt, "Roulette created successfully.");
+                return new CreateRouletteResponse(roulette.Id, roulette.Status.ToString(), roulette.CreatedAt, "Roulette created successfully.");
             }
             catch (Exception ex)
             {
-                return new RouletteResponse(null, null, null, $"Error creating roulette: {ex.Message}");
+                return ErrorResponse($"Error creating roulette: {ex.Message}");
             }
         }
+
+        private static CreateRouletteResponse ErrorResponse(string message) =>
+            new(null, null, null, message);
     }
 }

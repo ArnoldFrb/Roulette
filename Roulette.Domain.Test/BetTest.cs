@@ -229,7 +229,7 @@ namespace Roulette.Domain.Test
             if (result)
             {
                 winnings = bet.GetWinnings();
-                user.IncreaseCredit(winnings);
+                user.PayCredit(winnings);
             }
 
             // Assert
@@ -266,7 +266,7 @@ namespace Roulette.Domain.Test
             if (result)
             {
                 winnings = bet.GetWinnings();
-                user.IncreaseCredit(winnings);
+                user.PayCredit(winnings);
             }
 
             // Assert
@@ -309,7 +309,7 @@ namespace Roulette.Domain.Test
             if (result)
             {
                 winnings = bet.GetWinnings();
-                user.IncreaseCredit(winnings);
+                user.PayCredit(winnings);
             }
 
             // Assert
@@ -348,7 +348,7 @@ namespace Roulette.Domain.Test
             if (result)
             {
                 winnings = bet.GetWinnings();
-                user.IncreaseCredit(winnings);
+                user.PayCredit(winnings);
             }
 
             // Assert

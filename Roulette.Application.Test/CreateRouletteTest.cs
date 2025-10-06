@@ -21,7 +21,7 @@ namespace Roulette.Application.Test
             // Arrange
             var repository = new Mock<IRouletteRepository>();
             var unitOfWork = new Mock<IUnitOfWork>();
-            var service = new CreateRoulette(repository.Object, unitOfWork.Object);
+            var service = new CreateRouletteService(repository.Object, unitOfWork.Object);
 
             // Act
             var response = service.Execute();
@@ -50,7 +50,7 @@ namespace Roulette.Application.Test
             repository.Setup(r => r.Add(It.IsAny<Domain.Entities.RouletteEntity>()))
                     .Throws(new Exception("DB error"));
 
-            var service = new CreateRoulette(repository.Object, unitOfWork.Object);
+            var service = new CreateRouletteService(repository.Object, unitOfWork.Object);
 
             // Act
             var response = service.Execute();
@@ -79,7 +79,7 @@ namespace Roulette.Application.Test
             unitOfWork.Setup(u => u.Commit())
                       .Throws(new Exception("Transaction error"));
 
-            var service = new CreateRoulette(repository.Object, unitOfWork.Object);
+            var service = new CreateRouletteService(repository.Object, unitOfWork.Object);
 
             // Act
             var response = service.Execute();
@@ -105,7 +105,7 @@ namespace Roulette.Application.Test
             var repository = new Mock<IRouletteRepository>();
             var unitOfWork = new Mock<IUnitOfWork>();
 
-            var service = new CreateRoulette(repository.Object, unitOfWork.Object);
+            var service = new CreateRouletteService(repository.Object, unitOfWork.Object);
 
             // Act
             service.Execute();

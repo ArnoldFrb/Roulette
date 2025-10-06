@@ -2,5 +2,5 @@
 
 namespace Roulette.Domain.Contracts.Repositories.Base
 {
-    public interface IBetRepository : ICoreRepository<Bet>;
+    public interface IBetRepository : ICoreRepository<BetEntity>;
 }

@@ -13,7 +13,8 @@ namespace Roulette.Domain.Entities
     public enum BetColor
     {
         Red,
-        Black
+        Black,
+        Colorless
     }
 
     public class RouletteEntity : Entity<int>
@@ -22,8 +23,8 @@ namespace Roulette.Domain.Entities
 
         public RouletteEntity()
         {
-            NumberWinner = IsValidNumberWinner(_random.Next(0, 36));
-            ColorWinner = GetWinnerColor(NumberWinner);
+            NumberWinner = -1;
+            ColorWinner = BetColor.Colorless;
             Status = BetStatus.Created;
             CreatedAt = DateTime.UtcNow;
             OpenedAt = DateTime.MinValue;
@@ -54,10 +55,15 @@ namespace Roulette.Domain.Entities
         private void IsBetStatus(BetStatus value)
         {
             if (Status == BetStatus.Closed)
-                throw new InvalidRouletteStatusException("The bet is Closed.");
+                throw new InvalidRouletteStatusException("The roulette is Closed.");
 
             if (Status != value)
-                throw new InvalidRouletteStatusException($"Bet is not {value}.");
+                throw new InvalidRouletteStatusException($"The roulette is not {value}.");
+        }
+        public void GenerateWinningBet()
+        {
+            NumberWinner = IsValidNumberWinner(_random.Next(0, 36));
+            ColorWinner = GetWinnerColor(NumberWinner);
         }
 
         public static BetColor GetWinnerColor(int numberWinner) => (numberWinner % 2 == 0) ? BetColor.Black : BetColor.Red;

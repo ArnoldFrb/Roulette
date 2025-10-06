@@ -32,8 +32,8 @@ namespace Roulette.Application.Test
             repository.Setup(repo => repo.FindSingleOrDefault(It.IsAny<Expression<Func<UserEntity, bool>>>()))
             .Returns(_user);
 
-            var service = new Authentication(repository.Object);
-            
+            var service = new AuthenticationService(repository.Object);
+
             // Act
             var response = service.Authenticate("pepe", "password123");
 
@@ -60,7 +60,7 @@ namespace Roulette.Application.Test
             repository.Setup(repo => repo.FindSingleOrDefault(It.IsAny<Expression<Func<UserEntity, bool>>>()))
             .Returns(_user);
 
-            var service = new Authentication(repository.Object);
+            var service = new AuthenticationService(repository.Object);
 
             // Act
             var response = service.Authenticate("Jose Carlos", "@#Hl1g2l34");
@@ -88,7 +88,7 @@ namespace Roulette.Application.Test
             repository.Setup(repo => repo.FindSingleOrDefault(It.IsAny<Expression<Func<UserEntity, bool>>>()))
             .Returns(_user);
 
-            var service = new Authentication(repository.Object);
+            var service = new AuthenticationService(repository.Object);
 
             // Act
             var response = service.Authenticate("Jose Carlos", "password123");

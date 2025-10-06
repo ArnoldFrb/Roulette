@@ -26,7 +26,7 @@ namespace Roulette.Domain.Entities
                 throw new InvalidUsernameException();
         }
 
-        public void IncreaseCredit(decimal amount)
+        public void PayCredit(decimal amount)
         {
             IsValidAmount(amount);
             Credit += amount;

@@ -200,7 +200,7 @@ namespace Roulette.Domain.Test
             var user = new UserEntity("Jose Carlos", "@#Hl1g2l34", 100) { Id = 1 };
 
             // Act
-            user.IncreaseCredit(50);
+            user.PayCredit(50);
 
             // Assert
             user.Credit.Should().Be(150);
@@ -220,7 +220,7 @@ namespace Roulette.Domain.Test
             var user = new UserEntity("Jose Carlos", "@#Hl1g2l34", 100) { Id = 1 };
 
             // Act
-            var action = () => user.IncreaseCredit(0);
+            var action = () => user.PayCredit(0);
 
             // Assert
             action.Should().Throw<InsufficientCreditsException>()
@@ -241,7 +241,7 @@ namespace Roulette.Domain.Test
             var user = new UserEntity("Jose Carlos", "@#Hl1g2l34", 100) { Id = 1 };
 
             // Act
-            var action = () => user.IncreaseCredit(-10);
+            var action = () => user.PayCredit(-10);
 
             // Assert
             action.Should().Throw<InsufficientCreditsException>()

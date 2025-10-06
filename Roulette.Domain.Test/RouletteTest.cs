@@ -40,7 +40,7 @@ namespace Roulette.Domain.Test
          2.	Abrir apuesta con estado abierto
             •	Dado una ruleta con estado Open
             •	Cuando se abre la apuesta
-            •	Entonces lanza InvalidRouletteStatusException con mensaje "Bet is not Created."
+            •	Entonces lanza InvalidRouletteStatusException con mensaje "The roulette is not Created."
         */
         [Fact]
         public void OpenBet_WithOpenStatus_ShouldThrowException()
@@ -54,7 +54,7 @@ namespace Roulette.Domain.Test
 
             // Assert
             action.Should().Throw<InvalidRouletteStatusException>()
-                .WithMessage("Bet is not Created.");
+                .WithMessage("The roulette is not Created.");
         }
 
         /*
@@ -76,7 +76,7 @@ namespace Roulette.Domain.Test
 
             // Assert
             action.Should().Throw<InvalidRouletteStatusException>()
-                .WithMessage("The bet is Closed.");
+                .WithMessage("The roulette is Closed.");
         }
 
 
@@ -109,7 +109,7 @@ namespace Roulette.Domain.Test
          2.	Cerrar apuesta con estado Created
             •	Dado una ruleta con estado Created
             •	Cuando se cierra la apuesta
-            •	Entonces lanza InvalidRouletteStatusException con mensaje "Bet is not Open."
+            •	Entonces lanza InvalidRouletteStatusException con mensaje "The roulette is not Open."
         */
         [Fact]
         public void CloseBet_WithCreatedStatus_ShouldThrowException()
@@ -122,14 +122,14 @@ namespace Roulette.Domain.Test
 
             // Assert
             action.Should().Throw<InvalidRouletteStatusException>()
-                .WithMessage("Bet is not Open.");
+                .WithMessage("The roulette is not Open.");
         }
 
         /*
          3.	Cerrar apuesta con estado Closed
             •	Dado una ruleta con estado Closed
             •	Cuando se cierra la apuesta
-            •	Entonces lanza InvalidRouletteStatusException con mensaje "The bet is Closed."
+            •	Entonces lanza InvalidRouletteStatusException con mensaje "The roulette is Closed."
         */
         [Fact]
         public void CloseBet_WithClosedStatus_ShouldThrowException()
@@ -144,7 +144,7 @@ namespace Roulette.Domain.Test
 
             // Assert
             action.Should().Throw<InvalidRouletteStatusException>()
-                .WithMessage("The bet is Closed.");
+                .WithMessage("The roulette is Closed.");
         }
 
 
@@ -161,8 +161,11 @@ namespace Roulette.Domain.Test
         [Fact]
         public void RouletteConstructor_WithValidAmount_ShouldInitializeProperties()
         {
-            // Act
+            // Arrange
             var roulette = _roulette;
+
+            // Act
+            roulette.GenerateWinningBet();
 
             // Assert
             roulette.NumberWinner.Should().BeInRange(0, 36);
