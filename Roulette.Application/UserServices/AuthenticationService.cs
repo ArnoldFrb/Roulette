@@ -1,5 +1,7 @@
-﻿using Roulette.Application.Models.Responses;
+﻿using Roulette.Application.Models.Requests;
+using Roulette.Application.Models.Responses;
 using Roulette.Domain.Contracts.Repositories;
+using Roulette.Domain.Entities;
 
 namespace Roulette.Application.UserServices
 {
@@ -7,26 +9,26 @@ namespace Roulette.Application.UserServices
     {
         private readonly IUserRepository _userRepository = userRepository;
 
-        public UserResponse Authenticate(string userName, string password)
+        public AuthenticationResponse Authenticate(AuthenticationRequest request)
         {
             try
             {
-                var user = _userRepository.FindSingleOrDefault(u => u.Username == userName);
+                UserEntity. IsValidUsername(request.UserName);
+                UserEntity.IsValidPassword(request.Password);
+
+                var user = _userRepository.FindSingleOrDefault(u => u.Username == request.UserName);
                 if (user == null)
-                    return ErrorResponse("User not found.");
+                    return AuthenticationResponse.Fail("User not found.");
 
-                if (!user.IsPassword(password))
-                    return ErrorResponse("Invalid password.");
+                if (!user.ValidatePassword(request.Password))
+                    return AuthenticationResponse.Fail("Invalid password.");
 
-                return new UserResponse(user.Id, user.Username, "Authentication successful.");
+                return AuthenticationResponse.Success(user.Id, user.Username);
             }
             catch (Exception ex)
             {
-                return ErrorResponse($"An error occurred during authentication.\nException: {ex.Message}");
+                return AuthenticationResponse.Fail($"An error occurred during authentication.\nException: {ex.Message}");
             }
         }
-
-        private static UserResponse ErrorResponse(string message) =>
-            new(null, null, message);
     }
 }

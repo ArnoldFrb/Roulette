@@ -9,21 +9,23 @@ namespace Roulette.Domain.Entities
         public string Password { get; protected set; } = password;
         public decimal Credit { get; protected set; } = credit;
 
-        public bool IsPassword(string password)
+        public bool ValidatePassword(string password)
         {
             return Password.Equals(password);
         }
 
-        public void IsValidPassword(string password)
+        public static bool IsValidPassword(string password)
         {
-            if (Password != password || string.IsNullOrWhiteSpace(password))
-                throw new InvalidPasswordException();
+            if (string.IsNullOrWhiteSpace(password))
+                throw new InvalidUsernameOrPasswordException();
+            return true;
         }
 
-        public void IsValidUsername(string username)
+        public static bool IsValidUsername(string username)
         {
-            if (Username != username || string.IsNullOrWhiteSpace(username))
-                throw new InvalidUsernameException();
+            if (string.IsNullOrWhiteSpace(username))
+                throw new InvalidUsernameOrPasswordException();
+            return true;
         }
 
         public void PayCredit(decimal amount)
@@ -34,6 +36,7 @@ namespace Roulette.Domain.Entities
 
         public void DeductCredit(decimal amount)
         {
+            EnsureHasSufficientCredit(amount);
             IsValidAmount(amount);
             if (Credit < amount)
                 throw new InsufficientCreditsException();
@@ -44,6 +47,12 @@ namespace Roulette.Domain.Entities
         {
             if (amount <= 0)
                 throw new InsufficientCreditsException("Invalid credits amount. Must be greater than 0.");
+        }
+
+        public void EnsureHasSufficientCredit(decimal amount)
+        {
+            if (Credit < amount)
+                throw new InsufficientCreditsException();
         }
     }
 }

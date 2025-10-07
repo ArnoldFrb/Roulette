@@ -3,6 +3,7 @@ using FluentAssertions;
 using Roulette.Domain.Contracts.Repositories;
 using Roulette.Domain.Entities;
 using Roulette.Application.UserServices;
+using Roulette.Application.Models.Requests;
 using System.Linq.Expressions;
 
 namespace Roulette.Application.Test
@@ -33,9 +34,10 @@ namespace Roulette.Application.Test
             .Returns(_user);
 
             var service = new AuthenticationService(repository.Object);
+            var request = new AuthenticationRequest("pepe", "password123");
 
             // Act
-            var response = service.Authenticate("pepe", "password123");
+            var response = service.Authenticate(request);
 
             // Assert
             response.Id.Should().BeNull();
@@ -61,9 +63,10 @@ namespace Roulette.Application.Test
             .Returns(_user);
 
             var service = new AuthenticationService(repository.Object);
+            var request = new AuthenticationRequest("Jose Carlos", "@#Hl1g2l34");
 
             // Act
-            var response = service.Authenticate("Jose Carlos", "@#Hl1g2l34");
+            var response = service.Authenticate(request);
 
             // Assert
             response.Id.Should().Be(1);
@@ -89,9 +92,10 @@ namespace Roulette.Application.Test
             .Returns(_user);
 
             var service = new AuthenticationService(repository.Object);
+            var request = new AuthenticationRequest("Jose Carlos", "password123");
 
             // Act
-            var response = service.Authenticate("Jose Carlos", "password123");
+            var response = service.Authenticate(request);
 
             // Assert
             response.Id.Should().BeNull();

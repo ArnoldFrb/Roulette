@@ -13,23 +13,23 @@ namespace Roulette.Application.RouletteServices
             try
             {
                 var roulettes = _rouletteRepository.GetAll();
-                var rouletteResponses = roulettes?.Select(MapRouletteToResponse) ?? [];
-                if (!rouletteResponses.Any())
-                    return ErrorResponse("No roulettes found.");
-                return new ListRouletteResponse(rouletteResponses, "Roulettes retrieved successfully.");
+                var rouletteResponses = roulettes?.Select(MapRouletteToResponse).ToList() ?? [];
+                if (rouletteResponses.Count == 0)
+                    return ListRouletteResponse.Fail("No roulettes found.");
+                return ListRouletteResponse.Success(rouletteResponses);
             }
             catch (Exception ex)
             {
-                return ErrorResponse($"Error retrieving roulettes: {ex.Message}");
+                return ListRouletteResponse.Fail($"Error retrieving roulettes: {ex.Message}");
             }
         }
 
         private static DateTime GetRouletteDate(RouletteEntity roulette) =>
             roulette.Status switch
             {
-                BetStatus.Created => roulette.CreatedAt,
-                BetStatus.Open => roulette.OpenedAt,
-                BetStatus.Closed => roulette.ClosedAt,
+                RouletteStatus.Created => roulette.CreatedAt,
+                RouletteStatus.Open => roulette.OpenedAt,
+                RouletteStatus.Closed => roulette.ClosedAt,
                 _ => DateTime.MinValue
             };
 
@@ -39,8 +39,5 @@ namespace Roulette.Application.RouletteServices
                 roulette.Status.ToString(),
                 GetRouletteDate(roulette)
             );
-
-        private static ListRouletteResponse ErrorResponse(string message) =>
-            new([], message);
     }
 }

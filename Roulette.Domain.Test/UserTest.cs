@@ -24,17 +24,17 @@ namespace Roulette.Domain.Test
             var user = new UserEntity("Jose Carlos", "@#Hl1g2l34", 50000) { Id = 1 };
 
             // Act
-            var action = () => user.IsValidPassword("@#Hl1g2l34");
+            var action = user.ValidatePassword(user.Password);
 
             // Assert
-            action.Should().NotThrow();
+            action.Should().BeTrue();
         }
 
         /*
          2.	Contraseña inválida
             •	Dado un usuario con contraseña "@#Hl1g2l34"
             •	Cuando se valida la contraseña ingresando "contraseña123"
-            •	Entonces se lanza una excepción con el mensaje "Invalid password."
+            •	Entonces se debe retornar false.
         */
         [Fact]
         [Trait("Category", "Password")]
@@ -44,18 +44,17 @@ namespace Roulette.Domain.Test
             var user = new UserEntity("Jose Carlos", "@#Hl1g2l34", 50000) { Id = 1 };
 
             // Act
-            var action = () => user.IsValidPassword("contraseña123");
+            var action = user.ValidatePassword("contraseña123");
 
             // Assert
-            action.Should().Throw<InvalidPasswordException>()
-                .WithMessage("Invalid password.");
+            action.Should().BeFalse();
         }
 
         /*
          3.	Contraseña vacía
             •	Dado un usuario con contraseña "@#Hl1g2l34"
             •	Cuando se valida la contraseña ingresando ""
-            •	Entonces se lanza una excepción con el mensaje "Invalid password."
+            •	Entonces se debe retornar false.
         */
         [Fact]
         [Trait("Category", "Password")]
@@ -65,18 +64,17 @@ namespace Roulette.Domain.Test
             var user = new UserEntity("Jose Carlos", "@#Hl1g2l34", 50000) { Id = 1 };
 
             // Act
-            var action = () => user.IsValidPassword("");
+            var action = user.ValidatePassword("");
 
             // Assert
-            action.Should().Throw<InvalidPasswordException>()
-                .WithMessage("Invalid password.");
+            action.Should().BeFalse();
         }
 
         /*
          4.	Contraseña nula
             •	Dado un usuario con contraseña "@#Hl1g2l34"
             •	Cuando se valida la contraseña ingresando null
-            •	Entonces se lanza una excepción (puede ser por error de referencia o "Invalid password." según implementación).
+            •	Entonces se debe retornar false.
         */
         [Fact]
         [Trait("Category", "Password")]
@@ -86,11 +84,10 @@ namespace Roulette.Domain.Test
             var user = new UserEntity("Jose Carlos", "@#Hl1g2l34", 50000) { Id = 1 };
 
             // Act
-            var action = () => user.IsValidPassword(null!);
+            var action = user.ValidatePassword(null!);
 
             // Assert
-            action.Should().Throw<InvalidPasswordException>()
-                .WithMessage("Invalid password.");
+            action.Should().BeFalse();
         }
 
 
@@ -99,86 +96,41 @@ namespace Roulette.Domain.Test
         /// </summary>
 
         /*
-         1.	Nombre de usuario válido
+         1.	Nombre de usuario vacío
             •	Dado un usuario con nombre "Jose Carlos"
-            •	Cuando se valida el nombre ingresando "Jose Carlos"
-            •	Entonces la validación es exitosa (no se lanza excepción).
-        */
-        [Fact]
-        [Trait("Category", "Usernames")]
-        public void IsValidUsername_WithCorrectUsername_ShouldNotThrow()
-        {
-            // Arrange
-            var user = new UserEntity("Jose Carlos", "@#Hl1g2l34", 50000) { Id = 1 };
-
-            // Act
-            var action = () => user.IsValidUsername("Jose Carlos");
-
-            // Assert
-            action.Should().NotThrow();
-        }
-
-        /*
-         2.	Nombre de usuario inválido
-            •	Dado un usuario con nombre "Jose Carlos"
-            •	Cuando se valida el nombre ingresando "Carlos Jose"
-            •	Entonces se lanza una excepción con el mensaje "Invalid username."
-        */
-        [Fact]
-        [Trait("Category", "Usernames")]
-        public void IsValidUsername_WithIncorrectUsername_ShouldThrowException()
-        {
-            // Arrange
-            var user = new UserEntity("Jose Carlos", "@#Hl1g2l34", 50000) { Id = 1 };
-
-            // Act
-            var action = () => user.IsValidUsername("Carlos Jose");
-
-            // Assert
-            action.Should().Throw<InvalidUsernameException>()
-                .WithMessage("Invalid username.");
-        }
-
-        /*
-         3.	Nombre de usuario vacío
-            •	Dado un usuario con nombre "Jose Carlos"
-            •	Cuando se valida el nombre ingresando ""
-            •	Entonces se lanza una excepción con el mensaje "Invalid username."
+            •	Cuando ingresa un nombre vacío ""
+            •	Entonces se lanza una excepción con el mensaje "Invalid username or password."
         */
         [Fact]
         [Trait("Category", "Usernames")]
         public void IsValidUsername_WithEmptyUsername_ShouldThrowException()
         {
-            // Arrange
-            var user = new UserEntity("Jose Carlos", "@#Hl1g2l34", 50000) { Id = 1 };
 
             // Act
-            var action = () => user.IsValidUsername("");
+            var action = () => UserEntity.IsValidUsername("");
 
             // Assert
-            action.Should().Throw<InvalidUsernameException>()
-                .WithMessage("Invalid username.");
+            action.Should().Throw<InvalidUsernameOrPasswordException>()
+                .WithMessage("Invalid username or password.");
         }
 
         /*
-         4.	Nombre de usuario nulo
+         2.	Nombre de usuario nulo
             •	Dado un usuario con nombre "Jose Carlos"
             •	Cuando se valida el nombre ingresando null
-            •	Entonces se lanza una excepción (puede ser por error de referencia o "Invalid username." según implementación).
+            •	Entonces se lanza una excepción (puede ser por error de referencia o "Invalid username or password." según implementación).
         */
         [Fact]
         [Trait("Category", "Usernames")]
         public void IsValidUsername_WithNullUsername_ShouldThrowException()
         {
-            // Arrange
-            var user = new UserEntity("Jose Carlos", "@#Hl1g2l34", 50000) { Id = 1 };
 
             // Act
-            var action = () => user.IsValidUsername(null!);
+            var action = () => UserEntity.IsValidUsername(null!);
 
             // Assert
-            action.Should().Throw<InvalidUsernameException>()
-                .WithMessage("Invalid username.");
+            action.Should().Throw<InvalidUsernameOrPasswordException>()
+                .WithMessage("Invalid username or password.");
         }
 
 

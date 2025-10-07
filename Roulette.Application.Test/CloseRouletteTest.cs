@@ -13,6 +13,7 @@ namespace Roulette.Application.Test
     {
         private readonly RouletteEntity _roulette;
         private readonly Mock<IRouletteRepository> _rouletteR;
+        private readonly Mock<IUserRepository> _userR;
         private readonly Mock<IBetRepository> _betR;
         private readonly Mock<IUnitOfWork> _unitOfWork;
         private readonly UserEntity _user;
@@ -22,6 +23,7 @@ namespace Roulette.Application.Test
         {
 
             _rouletteR = new Mock<IRouletteRepository>();
+            _userR = new Mock<IUserRepository>();
             _betR = new Mock<IBetRepository>();
             _unitOfWork = new Mock<IUnitOfWork>();
 
@@ -30,7 +32,7 @@ namespace Roulette.Application.Test
 
             _bet =
             [
-                new(100, BetType.Color, BetColor.Red, null, _user, _roulette) { Id = 1 },
+                new(100, BetType.Color, RouletteColor.Red, null, _user, _roulette) { Id = 1 },
             ];
         }
 
@@ -46,7 +48,7 @@ namespace Roulette.Application.Test
         {
             // Arrange
             _rouletteR.Setup(r => r.Find(It.IsAny<int>())).Returns(_roulette);
-            var service = new CloseRouletteService(_rouletteR.Object, _betR.Object, _unitOfWork.Object);
+            var service = new CloseRouletteService(_rouletteR.Object, _betR.Object, _userR.Object, _unitOfWork.Object);
 
             // Act
             var response = service.Execute(5);
@@ -75,7 +77,7 @@ namespace Roulette.Application.Test
             var serviceO = new OpenRouletteService(_rouletteR.Object, _unitOfWork.Object);
             serviceO.Execute(1);
 
-            var serviceC = new CloseRouletteService(_rouletteR.Object, _betR.Object, _unitOfWork.Object);
+            var serviceC = new CloseRouletteService(_rouletteR.Object, _betR.Object, _userR.Object, _unitOfWork.Object);
 
             // Act
             var response = serviceC.Execute(1);
@@ -105,7 +107,7 @@ namespace Roulette.Application.Test
             var serviceO = new OpenRouletteService(_rouletteR.Object, _unitOfWork.Object);
             serviceO.Execute(1);
 
-            var serviceC = new CloseRouletteService(_rouletteR.Object, _betR.Object, _unitOfWork.Object);
+            var serviceC = new CloseRouletteService(_rouletteR.Object, _betR.Object, _userR.Object, _unitOfWork.Object);
 
             // Act
             var response = serviceC.Execute(1);
@@ -130,7 +132,7 @@ namespace Roulette.Application.Test
         {
             // Arrange
             _rouletteR.Setup(r => r.FindSingleOrDefault(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).Throws(new Exception("DB error."));
-            var service = new CloseRouletteService(_rouletteR.Object, _betR.Object, _unitOfWork.Object);
+            var service = new CloseRouletteService(_rouletteR.Object, _betR.Object, _userR.Object, _unitOfWork.Object);
 
             // Act
             var response = service.Execute(1);
@@ -155,7 +157,7 @@ namespace Roulette.Application.Test
             // Arrange
             _rouletteR.Setup(r => r.FindSingleOrDefault(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).Returns(_roulette);
             _betR.Setup(r => r.FindBy(It.IsAny<Expression<Func<BetEntity, bool>>>())).Throws(new Exception("Search error."));
-            var service = new CloseRouletteService(_rouletteR.Object, _betR.Object, _unitOfWork.Object);
+            var service = new CloseRouletteService(_rouletteR.Object, _betR.Object, _userR.Object, _unitOfWork.Object);
 
             // Act
             var response = service.Execute(1);
@@ -180,7 +182,7 @@ namespace Roulette.Application.Test
             // Arrange
             _rouletteR.Setup(r => r.FindSingleOrDefault(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).Returns(_roulette);
             _betR.Setup(r => r.FindBy(It.IsAny<Expression<Func<BetEntity, bool>>>())).Returns(_bet);
-            var service = new CloseRouletteService(_rouletteR.Object, _betR.Object, _unitOfWork.Object);
+            var service = new CloseRouletteService(_rouletteR.Object, _betR.Object, _userR.Object, _unitOfWork.Object);
 
             // Act
             var response = service.Execute(1);
@@ -189,7 +191,7 @@ namespace Roulette.Application.Test
             response.Id.Should().BeNull();
             response.Status.Should().BeNull();
             response.ClosedAt.Should().BeNull();
-            response.Message.Should().Be("Error closing roulette: The roulette is not Open.");
+            response.Message.Should().Be("Error closing roulette: Expected status Open, but current is Created.");
         }
 
         /*
@@ -204,7 +206,7 @@ namespace Roulette.Application.Test
         {
             // Arrange
             _rouletteR.Setup(r => r.FindSingleOrDefault(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).Throws(new Exception("Db Error."));
-            var service = new CloseRouletteService(_rouletteR.Object, _betR.Object, _unitOfWork.Object);
+            var service = new CloseRouletteService(_rouletteR.Object, _betR.Object, _userR.Object, _unitOfWork.Object);
 
             // Act
             var response = service.Execute(1);

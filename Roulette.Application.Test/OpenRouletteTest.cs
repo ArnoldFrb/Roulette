@@ -135,7 +135,7 @@ namespace Roulette.Application.Test
             var repository = new Mock<IRouletteRepository>();
             var unitOfWork = new Mock<IUnitOfWork>();
             repository.Setup(r => r.FindSingleOrDefault(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).Returns(_roulette);
-            unitOfWork.Setup(u => u.Commit()).Throws(new Exception("Transaction error."));
+            unitOfWork.Setup(u => u.CommitTransaction()).Throws(new Exception("Transaction error."));
             var service = new OpenRouletteService(repository.Object, unitOfWork.Object);
 
             // Act
@@ -169,7 +169,7 @@ namespace Roulette.Application.Test
 
             // Assert
             repository.Verify(r => r.Edit(It.IsAny<RouletteEntity>()), Times.Once);
-            unitOfWork.Verify(u => u.Commit(), Times.Once);
+            unitOfWork.Verify(u => u.CommitTransaction(), Times.Once);
         }
     }
 }

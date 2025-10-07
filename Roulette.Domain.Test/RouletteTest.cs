@@ -32,7 +32,7 @@ namespace Roulette.Domain.Test
             roulette.OpenBet();
 
             // Assert
-            roulette.Status.Should().Be(BetStatus.Open);
+            roulette.Status.Should().Be(RouletteStatus.Open);
             roulette.OpenedAt.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(2));
         }
 
@@ -40,7 +40,7 @@ namespace Roulette.Domain.Test
          2.	Abrir apuesta con estado abierto
             •	Dado una ruleta con estado Open
             •	Cuando se abre la apuesta
-            •	Entonces lanza InvalidRouletteStatusException con mensaje "The roulette is not Created."
+            •	Entonces lanza InvalidRouletteStatusException con mensaje "Expected status Created, but current is Open."
         */
         [Fact]
         public void OpenBet_WithOpenStatus_ShouldThrowException()
@@ -54,14 +54,14 @@ namespace Roulette.Domain.Test
 
             // Assert
             action.Should().Throw<InvalidRouletteStatusException>()
-                .WithMessage("The roulette is not Created.");
+                .WithMessage("Expected status Created, but current is Open.");
         }
 
         /*
          3.	Abrir apuesta con estado Closed
             •	Dado una ruleta con estado Closed
             •	Cuando se abre la apuesta
-            •	Entonces lanza InvalidRouletteStatusException con mensaje "The bet is Closed."
+            •	Entonces lanza InvalidRouletteStatusException con mensaje "The roulette is already closed."
         */
         [Fact]
         public void OpenBet_WithClosedStatus_ShouldThrowException()
@@ -76,7 +76,7 @@ namespace Roulette.Domain.Test
 
             // Assert
             action.Should().Throw<InvalidRouletteStatusException>()
-                .WithMessage("The roulette is Closed.");
+                .WithMessage("The roulette is already closed.");
         }
 
 
@@ -101,7 +101,7 @@ namespace Roulette.Domain.Test
             roulette.CloseBet();
 
             // Assert
-            roulette.Status.Should().Be(BetStatus.Closed);
+            roulette.Status.Should().Be(RouletteStatus.Closed);
             roulette.ClosedAt.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(2));
         }
 
@@ -109,7 +109,7 @@ namespace Roulette.Domain.Test
          2.	Cerrar apuesta con estado Created
             •	Dado una ruleta con estado Created
             •	Cuando se cierra la apuesta
-            •	Entonces lanza InvalidRouletteStatusException con mensaje "The roulette is not Open."
+            •	Entonces lanza InvalidRouletteStatusException con mensaje "Expected status Open, but current is Created."
         */
         [Fact]
         public void CloseBet_WithCreatedStatus_ShouldThrowException()
@@ -122,14 +122,14 @@ namespace Roulette.Domain.Test
 
             // Assert
             action.Should().Throw<InvalidRouletteStatusException>()
-                .WithMessage("The roulette is not Open.");
+                .WithMessage("Expected status Open, but current is Created.");
         }
 
         /*
          3.	Cerrar apuesta con estado Closed
             •	Dado una ruleta con estado Closed
             •	Cuando se cierra la apuesta
-            •	Entonces lanza InvalidRouletteStatusException con mensaje "The roulette is Closed."
+            •	Entonces lanza InvalidRouletteStatusException con mensaje "The roulette is already closed."
         */
         [Fact]
         public void CloseBet_WithClosedStatus_ShouldThrowException()
@@ -144,7 +144,7 @@ namespace Roulette.Domain.Test
 
             // Assert
             action.Should().Throw<InvalidRouletteStatusException>()
-                .WithMessage("The roulette is Closed.");
+                .WithMessage("The roulette is already closed.");
         }
 
 
@@ -169,8 +169,8 @@ namespace Roulette.Domain.Test
 
             // Assert
             roulette.NumberWinner.Should().BeInRange(0, 36);
-            roulette.ColorWinner.Should().BeOneOf(BetColor.Red, BetColor.Black);
-            roulette.Status.Should().Be(BetStatus.Created);
+            roulette.ColorWinner.Should().BeOneOf(RouletteColor.Red, RouletteColor.Black);
+            roulette.Status.Should().Be(RouletteStatus.Created);
             roulette.CreatedAt.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(2));
             roulette.OpenedAt.Should().Be(DateTime.MinValue);
             roulette.ClosedAt.Should().Be(DateTime.MinValue);
@@ -220,7 +220,7 @@ namespace Roulette.Domain.Test
          4.	Validar color ganador para número par
             •	Dado un número ganador par
             •	Cuando se genera el color ganador
-            •	Entonces el color debe ser Black
+            •	Entonces el color debe ser Red
         */
         [Theory]
         [InlineData(0)]
@@ -228,20 +228,20 @@ namespace Roulette.Domain.Test
         [InlineData(4)]
         [InlineData(10)]
         [InlineData(36)]
-        public void GetWinnerColor_WithEvenNumber_ShouldReturnBlack(int numberWinner)
+        public void GetWinnerColor_WithEvenNumber_ShouldReturnRed(int numberWinner)
         {
             // Act
             var color = RouletteEntity.GetWinnerColor(numberWinner);
 
             // Assert
-            color.Should().Be(BetColor.Black);
+            color.Should().Be(RouletteColor.Red);
         }
 
         /*
          5.	Validar color ganador para número impar
             •	Dado un número ganador impar
             •	Cuando se genera el color ganador
-            •	Entonces el color debe ser Red
+            •	Entonces el color debe ser Black
         */
         [Theory]
         [InlineData(1)]
@@ -249,13 +249,13 @@ namespace Roulette.Domain.Test
         [InlineData(15)]
         [InlineData(21)]
         [InlineData(35)]
-        public void GetWinnerColor_WithOddNumber_ShouldReturnRed(int numberWinner)
+        public void GetWinnerColor_WithOddNumber_ShouldReturnBlack(int numberWinner)
         {
             // Act
             var color = RouletteEntity.GetWinnerColor(numberWinner);
 
             // Assert
-            color.Should().Be(BetColor.Red);
+            color.Should().Be(RouletteColor.Black);
         }
     }
 }

@@ -3,28 +3,15 @@
     /// <summary>
     /// USER EXCEPTIONS
     /// </summary>
-    public class InvalidUsernameException : Exception
+    public class InvalidUsernameOrPasswordException : Exception
     {
-        public InvalidUsernameException() : base("Invalid username.") { }
+        public InvalidUsernameOrPasswordException() : base("Invalid username or password.") { }
 
-        public InvalidUsernameException(string? message) : base(message)
+        public InvalidUsernameOrPasswordException(string? message) : base(message)
         {
         }
 
-        public InvalidUsernameException(string? message, Exception? innerException) : base(message, innerException)
-        {
-        }
-    }
-
-    public class InvalidPasswordException : Exception
-    {
-        public InvalidPasswordException() : base("Invalid password.") { }
-
-        public InvalidPasswordException(string? message) : base(message)
-        {
-        }
-
-        public InvalidPasswordException(string? message, Exception? innerException) : base(message, innerException)
+        public InvalidUsernameOrPasswordException(string? message, Exception? innerException) : base(message, innerException)
         {
         }
     }

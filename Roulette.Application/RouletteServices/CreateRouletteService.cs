@@ -12,21 +12,20 @@ namespace Roulette.Application.RouletteServices
 
         public CreateRouletteResponse Execute()
         {
+            _unitOfWork.BeginTransaction();
             try
             {
                 var roulette = new RouletteEntity();
                 _rouletteRepository.Add(roulette);
-                _unitOfWork.Commit();
+                _unitOfWork.CommitTransaction();
 
-                return new CreateRouletteResponse(roulette.Id, roulette.Status.ToString(), roulette.CreatedAt, "Roulette created successfully.");
+                return CreateRouletteResponse.Success(roulette.Id, roulette.Status.ToString(), roulette.CreatedAt);
             }
             catch (Exception ex)
             {
-                return ErrorResponse($"Error creating roulette: {ex.Message}");
+                _unitOfWork.RollbackTransaction();
+                return CreateRouletteResponse.Fail($"Error creating roulette: {ex.Message}");
             }
         }
-
-        private static CreateRouletteResponse ErrorResponse(string message) =>
-            new(null, null, null, message);
     }
 }

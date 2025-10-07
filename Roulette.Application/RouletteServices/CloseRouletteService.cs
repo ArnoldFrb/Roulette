@@ -1,60 +1,69 @@
 ﻿using Roulette.Application.Models.Responses;
 using Roulette.Domain.Contracts.Repositories;
-using Roulette.Domain.Contracts.Repositories.Base;
 using Roulette.Domain.Contracts.Services;
 using Roulette.Domain.Entities;
 
 namespace Roulette.Application.RouletteServices
 {
-    public class CloseRouletteService(IRouletteRepository rouletteRepository, IBetRepository betRepository, IUnitOfWork unitOfWork)
+    public class CloseRouletteService(IRouletteRepository rouletteRepository, IBetRepository betRepository, IUserRepository userRepository, IUnitOfWork unitOfWork)
     {
         private readonly IRouletteRepository _rouletteRepository = rouletteRepository;
+        private readonly IUserRepository _userRepository = userRepository;
         private readonly IBetRepository _betRepository = betRepository;
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
         public CloseRouletteResponse Execute(int rouletteId)
         {
+            _unitOfWork.BeginTransaction();
             try
             {
                 var roulette = _rouletteRepository.FindSingleOrDefault(r => r.Id == rouletteId);
                 if (roulette == null)
-                    return ErrorResponse("Roulette not found.");
+                    return CloseRouletteResponse.Fail("Roulette not found.");
 
-                var bets = _betRepository.FindBy(b => b.Roulette.Id == rouletteId);
+                var bets = _betRepository.FindBy(b => b.Roulette.Id == rouletteId).ToList() ?? [];
 
                 roulette.CloseBet();
                 roulette.GenerateWinningBet();
 
-                ProcessBets(bets ?? []);
+                ApplyBetResults(bets);
+
+                foreach (var bet in bets)
+                {
+                    _userRepository.Edit(bet.User);
+                    _betRepository.Edit(bet);
+                }
 
                 _rouletteRepository.Edit(roulette);
-                _unitOfWork.Commit();
+                _unitOfWork.CommitTransaction();
 
-                var betResponses = bets?.Select(MapBetToResponse).ToList();
+                var message = bets.Count != 0
+                    ? "Roulette closed successfully."
+                    : "Roulette closed successfully. No bets found for this roulette.";
 
-                var message = !bets?.Any() ?? true ? "Roulette closed successfully. No bets found for this roulette." : "Roulette closed successfully.";
-
-                return new CloseRouletteResponse(roulette.Id, roulette.Status.ToString(), roulette.ClosedAt, roulette.NumberWinner, roulette.ColorWinner, betResponses, message);
+                return CloseRouletteResponse.Success(
+                    roulette.Id,
+                    roulette.Status.ToString(),
+                    roulette.CreatedAt, roulette.OpenedAt,
+                    roulette.ClosedAt,
+                    roulette.NumberWinner,
+                    roulette.ColorWinner,
+                    bets?.Select(MapBetToResponse).ToList(),
+                    message);
             }
             catch (Exception ex)
             {
-                return ErrorResponse($"Error closing roulette: {ex.Message}");
+                _unitOfWork.RollbackTransaction();
+                return CloseRouletteResponse.Fail($"Error closing roulette: {ex.Message}");
             }
         }
 
-        private static void ProcessBets(IEnumerable<BetEntity> bets)
+        private static void ApplyBetResults(IEnumerable<BetEntity> bets)
         {
             foreach (var bet in bets)
             {
                 if (!bet.IsWinner()) continue;
-
-                decimal payout = bet.BetType switch
-                {
-                    BetType.Number => bet.Amount * 5,
-                    BetType.Color => bet.Amount * 1.8m,
-                    _ => 0
-                };
-
+                decimal payout = bet.GetWinnings();
                 bet.User.PayCredit(payout);
             }
         }
@@ -67,8 +76,5 @@ namespace Roulette.Application.RouletteServices
                 bet.BetType == BetType.Number ? bet.Number?.ToString() ?? "N/A" : bet.Color?.ToString() ?? "N/A",
                 bet.IsWinner()
             );
-
-        private static CloseRouletteResponse ErrorResponse(string message) =>
-            new(null, null, null, null, null, null, message);
     }
 }
