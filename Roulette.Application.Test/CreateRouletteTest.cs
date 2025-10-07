@@ -3,6 +3,7 @@ using Moq;
 using Roulette.Application.RouletteServices;
 using Roulette.Domain.Contracts.Repositories;
 using Roulette.Domain.Contracts.Services;
+using Roulette.Domain.Entities;
 
 namespace Roulette.Application.Test
 {
@@ -21,7 +22,7 @@ namespace Roulette.Application.Test
             // Arrange
             var repository = new Mock<IRouletteRepository>();
             var unitOfWork = new Mock<IUnitOfWork>();
-            var service = new CreateRoulette(repository.Object, unitOfWork.Object);
+            var service = new CreateRouletteService(repository.Object, unitOfWork.Object);
 
             // Act
             var response = service.Execute();
@@ -47,10 +48,10 @@ namespace Roulette.Application.Test
             var repository = new Mock<IRouletteRepository>();
             var unitOfWork = new Mock<IUnitOfWork>();
 
-            repository.Setup(r => r.Add(It.IsAny<Domain.Entities.RouletteEntity>()))
+            repository.Setup(r => r.Add(It.IsAny<RouletteEntity>()))
                     .Throws(new Exception("DB error"));
 
-            var service = new CreateRoulette(repository.Object, unitOfWork.Object);
+            var service = new CreateRouletteService(repository.Object, unitOfWork.Object);
 
             // Act
             var response = service.Execute();
@@ -76,10 +77,10 @@ namespace Roulette.Application.Test
             var repository = new Mock<IRouletteRepository>();
             var unitOfWork = new Mock<IUnitOfWork>();
 
-            unitOfWork.Setup(u => u.Commit())
+            unitOfWork.Setup(u => u.CommitTransaction())
                       .Throws(new Exception("Transaction error"));
 
-            var service = new CreateRoulette(repository.Object, unitOfWork.Object);
+            var service = new CreateRouletteService(repository.Object, unitOfWork.Object);
 
             // Act
             var response = service.Execute();
@@ -105,14 +106,14 @@ namespace Roulette.Application.Test
             var repository = new Mock<IRouletteRepository>();
             var unitOfWork = new Mock<IUnitOfWork>();
 
-            var service = new CreateRoulette(repository.Object, unitOfWork.Object);
+            var service = new CreateRouletteService(repository.Object, unitOfWork.Object);
 
             // Act
             service.Execute();
 
             // Assert
             repository.Verify(r => r.Add(It.IsAny<Domain.Entities.RouletteEntity>()), Times.Once);
-            unitOfWork.Verify(u => u.Commit(), Times.Once);
+            unitOfWork.Verify(u => u.CommitTransaction(), Times.Once);
         }
     }
 }

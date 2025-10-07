@@ -30,10 +30,10 @@ namespace Roulette.Domain.Test
         {
             var user = _user;
             var roulette = _roulette;
-            var bet = new BetEntity(100, BetType.Color, BetColor.Red, null, user, roulette) { Id = 1 };
+            var bet = new BetEntity(100, BetType.Color, RouletteColor.Red, null, user, roulette) { Id = 1 };
 
             // Act
-            var action = () => bet.IsValidBet();
+            var action = () => bet.ValidateBet();
             user.DeductCredit(bet.Amount);
 
             // Assert
@@ -55,7 +55,7 @@ namespace Roulette.Domain.Test
             var bet = new BetEntity(100, BetType.Color, null, null, user, roulette) { Id = 1 };
 
             // Act
-            var action = () => bet.IsValidBet();
+            var action = () => bet.ValidateBet();
 
             // Assert
             action.Should().Throw<InvalidBetColorException>().WithMessage("Invalid color bet. Must be 'red' or 'black'.");
@@ -75,7 +75,7 @@ namespace Roulette.Domain.Test
             var bet = new BetEntity(100, BetType.Number, null, 15, user, roulette) { Id = 1 };
 
             // Act
-            var action = () => bet.IsValidBet();
+            var action = () => bet.ValidateBet();
             user.DeductCredit(bet.Amount);
 
             // Assert
@@ -97,7 +97,7 @@ namespace Roulette.Domain.Test
             var bet = new BetEntity(100, BetType.Number, null, null, user, roulette) { Id = 1 };
 
             // Act
-            var action = () => bet.IsValidBet();
+            var action = () => bet.ValidateBet();
 
             // Assert
             action.Should().Throw<InvalidBetNumberException>().WithMessage("Invalid number bet. Must be between 0 and 36.");
@@ -117,7 +117,7 @@ namespace Roulette.Domain.Test
             var bet = new BetEntity(100, BetType.Number, null, 50, user, roulette) { Id = 1 };
 
             // Act
-            var action = () => bet.IsValidBet();
+            var action = () => bet.ValidateBet();
 
             // Assert
             action.Should().Throw<InvalidBetNumberException>().WithMessage("Invalid number bet. Must be between 0 and 36.");
@@ -137,7 +137,7 @@ namespace Roulette.Domain.Test
             var bet = new BetEntity(100, BetType.Number, null, -10, user, roulette) { Id = 1 };
 
             // Act
-            var action = () => bet.IsValidBet();
+            var action = () => bet.ValidateBet();
 
             // Assert
             action.Should().Throw<InvalidBetNumberException>().WithMessage("Invalid number bet. Must be between 0 and 36.");
@@ -157,7 +157,7 @@ namespace Roulette.Domain.Test
             var bet = new BetEntity(105, BetType.Number, null, 15, user, roulette) { Id = 1 };
 
             // Act
-            var action = () => bet.IsValidBet();
+            var action = () => bet.ValidateBet();
             user.DeductCredit(bet.Amount);
 
             // Assert
@@ -169,7 +169,7 @@ namespace Roulette.Domain.Test
          8. Validar apuesta con monto inválido mayor a 10000
             •	Dado una apuesta de tipo Number con valor 15 y monto 10005
             •	Cuando se valida la apuesta
-            •	Entonces debe lanzar excepción con mensaje "Bet amount must be between 0 and 10000."
+            •	Entonces debe lanzar excepción con mensaje "Bet amount must be between $ 1,00 and $ 10.000,00."
         */
         [Fact]
         public void IsValidBet_WithAmountGreaterThanMax_ShouldThrowException()
@@ -181,14 +181,14 @@ namespace Roulette.Domain.Test
             var action = () => new BetEntity(10005, BetType.Number, null, 15, user, roulette) { Id = 1 };
 
             // Assert
-            action.Should().Throw<InvalidBetAmountException>().WithMessage("Invalid amount. Must be between 0 and 10000.");
+            action.Should().Throw<InvalidBetAmountException>().WithMessage("Bet amount must be between $ 1,00 and $ 10.000,00.");
         }
 
         /*
          9. Validar apuesta con monto inválido menor a 0
             •	Dado una apuesta de tipo Number con valor 15 y monto -25
             •	Cuando se valida la apuesta
-            •	Entonces debe lanzar excepción con mensaje "Bet amount must be between 0 and 10000."
+            •	Entonces debe lanzar excepción con mensaje "Bet amount must be between $ 1,00 and $ 10.000,00."
         */
         [Fact]
         public void IsValidBet_WithAmountLessThanMin_ShouldThrowException()
@@ -200,7 +200,7 @@ namespace Roulette.Domain.Test
             var action = () => new BetEntity(-25, BetType.Number, null, 15, user, roulette) { Id = 1 };
 
             // Assert
-            action.Should().Throw<InvalidBetAmountException>().WithMessage("Invalid amount. Must be between 0 and 10000.");
+            action.Should().Throw<InvalidBetAmountException>().WithMessage("Bet amount must be between $ 1,00 and $ 10.000,00.");
         }
 
 
@@ -219,17 +219,17 @@ namespace Roulette.Domain.Test
         {
             var user = _user;
             var roulette = _roulette;
-            var bet = new BetEntity(100, BetType.Color, BetColor.Red, null, user, roulette) { Id = 1 };
+            var bet = new BetEntity(100, BetType.Color, RouletteColor.Red, null, user, roulette) { Id = 1 };
 
             // Act
-            var action = () => bet.IsValidBet();
+            var action = () => bet.ValidateBet();
             user.DeductCredit(bet.Amount);
             var result = bet.IsWinner();
             decimal winnings = 0;
             if (result)
             {
                 winnings = bet.GetWinnings();
-                user.IncreaseCredit(winnings);
+                user.PayCredit(winnings);
             }
 
             // Assert
@@ -259,14 +259,14 @@ namespace Roulette.Domain.Test
             var bet = new BetEntity(100, BetType.Number, null, 15, user, roulette) { Id = 1 };
 
             // Act
-            var action = () => bet.IsValidBet();
+            var action = () => bet.ValidateBet();
             user.DeductCredit(bet.Amount);
             var result = bet.IsWinner();
             decimal winnings = 0;
             if (result)
             {
                 winnings = bet.GetWinnings();
-                user.IncreaseCredit(winnings);
+                user.PayCredit(winnings);
             }
 
             // Assert
@@ -299,17 +299,17 @@ namespace Roulette.Domain.Test
         {
             var user = _user;
             var roulette = _roulette;
-            var bet = new BetEntity(100, BetType.Color, BetColor.Red, null, user, roulette) { Id = 1 };
+            var bet = new BetEntity(100, BetType.Color, RouletteColor.Red, null, user, roulette) { Id = 1 };
 
             // Act
-            var action = () => bet.IsValidBet();
+            var action = () => bet.ValidateBet();
             user.DeductCredit(bet.Amount);
             var result = bet.IsWinner();
             decimal winnings = 0;
             if (result)
             {
                 winnings = bet.GetWinnings();
-                user.IncreaseCredit(winnings);
+                user.PayCredit(winnings);
             }
 
             // Assert
@@ -341,14 +341,14 @@ namespace Roulette.Domain.Test
             var bet = new BetEntity(100, BetType.Number, null, 15, user, roulette) { Id = 1 };
 
             // Act
-            var action = () => bet.IsValidBet();
+            var action = () => bet.ValidateBet();
             user.DeductCredit(bet.Amount);
             var result = bet.IsWinner();
             decimal winnings = 0;
             if (result)
             {
                 winnings = bet.GetWinnings();
-                user.IncreaseCredit(winnings);
+                user.PayCredit(winnings);
             }
 
             // Assert
