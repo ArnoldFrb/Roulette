@@ -1,11 +1,12 @@
 ﻿using Roulette.Application.Models.Responses;
 using Roulette.Domain.Contracts.Repositories;
 using Roulette.Domain.Contracts.Services;
+using Roulette.Domain.Contracts.Services.Roulette;
 using Roulette.Domain.Entities;
 
 namespace Roulette.Application.RouletteServices
 {
-    public class CreateRouletteService(IRouletteRepository rouletteRepository, IUnitOfWork unitOfWork)
+    public class CreateRouletteService(IRouletteRepository rouletteRepository, IUnitOfWork unitOfWork) : ICreateRouletteService<CreateRouletteResponse>
     {
         private readonly IRouletteRepository _rouletteRepository = rouletteRepository;
         private readonly IUnitOfWork _unitOfWork = unitOfWork;

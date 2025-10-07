@@ -34,7 +34,7 @@ namespace Roulette.Application.Test
             var request = new AuthenticationRequest("pepe", "password123");
 
             // Act
-            var response = service.Authenticate(request);
+            var response = service.Execute(request);
 
             // Assert
             response.Id.Should().BeNull();
@@ -63,7 +63,7 @@ namespace Roulette.Application.Test
             var request = new AuthenticationRequest("Jose Carlos", "@#Hl1g2l34");
 
             // Act
-            var response = service.Authenticate(request);
+            var response = service.Execute(request);
 
             // Assert
             response.Id.Should().Be(1);
@@ -92,7 +92,7 @@ namespace Roulette.Application.Test
             var request = new AuthenticationRequest("Jose Carlos", "password123");
 
             // Act
-            var response = service.Authenticate(request);
+            var response = service.Execute(request);
 
             // Assert
             response.Id.Should().BeNull();

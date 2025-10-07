@@ -1,15 +1,16 @@
 ﻿using Roulette.Application.Models.Requests;
 using Roulette.Application.Models.Responses;
 using Roulette.Domain.Contracts.Repositories;
+using Roulette.Domain.Contracts.Services.User;
 using Roulette.Domain.Entities;
 
 namespace Roulette.Application.UserServices
 {
-    public class AuthenticationService(IUserRepository userRepository)
+    public class AuthenticationService(IUserRepository userRepository) : IAuthenticationService<AuthenticationRequest, AuthenticationResponse>
     {
         private readonly IUserRepository _userRepository = userRepository;
 
-        public AuthenticationResponse Authenticate(AuthenticationRequest request)
+        public AuthenticationResponse Execute(AuthenticationRequest request)
         {
             try
             {

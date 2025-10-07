@@ -3,11 +3,12 @@ using Roulette.Domain.Entities.Exceptions;
 
 namespace Roulette.Domain.Entities
 {
-    public class UserEntity(string username, string password, decimal credit) : Entity<int>
+    public class UserEntity(string username, string password, decimal credit, bool isAdmin = false) : Entity<int>
     {
         public string Username { get; protected set; } = username;
         public string Password { get; protected set; } = password;
         public decimal Credit { get; protected set; } = credit;
+        public bool IsAdmin { get; protected set; } = isAdmin;
 
         public bool ValidatePassword(string password)
         {

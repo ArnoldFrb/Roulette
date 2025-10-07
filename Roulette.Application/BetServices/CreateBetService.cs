@@ -2,12 +2,13 @@
 using Roulette.Application.Models.Responses;
 using Roulette.Domain.Contracts.Repositories;
 using Roulette.Domain.Contracts.Services;
+using Roulette.Domain.Contracts.Services.Bet;
 using Roulette.Domain.Entities;
 using Roulette.Domain.Entities.Exceptions;
 
 namespace Roulette.Application.BetServices
 {
-    public class CreateBetService(IBetRepository betRepository, IUserRepository userRepository, IRouletteRepository rouletteRepository, IUnitOfWork unitOfWork)
+    public class CreateBetService(IBetRepository betRepository, IUserRepository userRepository, IRouletteRepository rouletteRepository, IUnitOfWork unitOfWork) : ICreateBetService<CreateBetRequest, CreateBetResponse>
     {
         private readonly IBetRepository _betRepository = betRepository;
         private readonly IUserRepository _userRepository = userRepository;

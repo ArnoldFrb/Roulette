@@ -1,11 +1,12 @@
 ﻿using Roulette.Application.Models.Responses;
 using Roulette.Domain.Contracts.Repositories;
 using Roulette.Domain.Contracts.Services;
+using Roulette.Domain.Contracts.Services.Roulette;
 using Roulette.Domain.Entities;
 
 namespace Roulette.Application.RouletteServices
 {
-    public class CloseRouletteService(IRouletteRepository rouletteRepository, IBetRepository betRepository, IUserRepository userRepository, IUnitOfWork unitOfWork)
+    public class CloseRouletteService(IRouletteRepository rouletteRepository, IBetRepository betRepository, IUserRepository userRepository, IUnitOfWork unitOfWork) : ICloseRouletteService<CloseRouletteResponse>
     {
         private readonly IRouletteRepository _rouletteRepository = rouletteRepository;
         private readonly IUserRepository _userRepository = userRepository;
