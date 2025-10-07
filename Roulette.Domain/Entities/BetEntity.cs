@@ -65,12 +65,18 @@ namespace Roulette.Domain.Entities
             return 0;
         }
 
-        private static decimal IsValidAmount(decimal amount)
+        public static decimal IsValidAmount(decimal amount)
         {
             if (amount <= RouletteConstants.MinBet || amount > RouletteConstants.MaxBet)
                 throw new InvalidBetAmountException();
             return amount;
         }
+
+        public static bool IsValidNumber(int number) => number >= RouletteConstants.MinNumber && number <= RouletteConstants.MaxNumber;
+
+        public static bool IsValidColor(string color) =>
+            color.Equals(nameof(BetColor.Red), StringComparison.CurrentCultureIgnoreCase) ||
+            color.Equals(nameof(BetColor.Black), StringComparison.CurrentCultureIgnoreCase);
     }
 
     public static class RouletteConstants
