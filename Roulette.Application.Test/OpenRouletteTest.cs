@@ -20,7 +20,7 @@ namespace Roulette.Application.Test
          1.	Debe devolver error si la ruleta no existe
             •	Dado una una petición para abrir una ruleta con Id 5 que no existe en la base de datos
             •	Cuando se llama al método Execute del servicio OpenRoulette
-            •	Entonces se debe devolver un RouletteResponse con Id null, Status null, Date null y Message "Roulette not found."
+            •	Entonces se debe devolver un RouletteResponse con Id null, Status null, Date null y Message "Error opening roulette: Roulette not found."
         */
         [Fact]
         [Trait("Category", "OpenRoulette")]
@@ -30,7 +30,7 @@ namespace Roulette.Application.Test
             var repository = new Mock<IRouletteRepository>();
             var unitOfWork = new Mock<IUnitOfWork>();
             repository.Setup(r => r.Find(It.IsAny<int>())).Returns(_roulette);
-            var service = new OpenRoulette(repository.Object, unitOfWork.Object);
+            var service = new OpenRouletteService(repository.Object, unitOfWork.Object);
 
             // Act
             var response = service.Execute(5);
@@ -38,8 +38,8 @@ namespace Roulette.Application.Test
             // Assert
             response.Id.Should().BeNull();
             response.Status.Should().BeNull();
-            response.CreatedAt.Should().BeNull();
-            response.Message.Should().Be("Roulette not found.");
+            response.OpenedAt.Should().BeNull();
+            response.Message.Should().Be("Error opening roulette: Roulette not found.");
         }
 
         /*
@@ -56,7 +56,7 @@ namespace Roulette.Application.Test
             var repository = new Mock<IRouletteRepository>();
             var unitOfWork = new Mock<IUnitOfWork>();
             repository.Setup(r => r.FindSingleOrDefault(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).Returns(_roulette);
-            var service = new OpenRoulette(repository.Object, unitOfWork.Object);
+            var service = new OpenRouletteService(repository.Object, unitOfWork.Object);
 
             // Act
             var response = service.Execute(1);
@@ -64,7 +64,7 @@ namespace Roulette.Application.Test
             // Assert
             response.Id.Should().Be(1);
             response.Status.Should().Be("Open");
-            response.CreatedAt.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(5));
+            response.OpenedAt.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(5));
             response.Message.Should().Be("Roulette opened successfully.");
         }
 
@@ -82,7 +82,7 @@ namespace Roulette.Application.Test
             var repository = new Mock<IRouletteRepository>();
             var unitOfWork = new Mock<IUnitOfWork>();
             repository.Setup(r => r.FindSingleOrDefault(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).Throws(new Exception("DB error."));
-            var service = new OpenRoulette(repository.Object, unitOfWork.Object);
+            var service = new OpenRouletteService(repository.Object, unitOfWork.Object);
 
             // Act
             var response = service.Execute(1);
@@ -90,7 +90,7 @@ namespace Roulette.Application.Test
             // Assert
             response.Id.Should().BeNull();
             response.Status.Should().BeNull();
-            response.CreatedAt.Should().BeNull();
+            response.OpenedAt.Should().BeNull();
             response.Message.Should().Be("Error opening roulette: DB error.");
         }
 
@@ -109,7 +109,7 @@ namespace Roulette.Application.Test
             var unitOfWork = new Mock<IUnitOfWork>();
             repository.Setup(r => r.FindSingleOrDefault(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).Returns(_roulette);
             repository.Setup(r => r.Edit(It.IsAny<RouletteEntity>())).Throws(new Exception("Update error."));
-            var service = new OpenRoulette(repository.Object, unitOfWork.Object);
+            var service = new OpenRouletteService(repository.Object, unitOfWork.Object);
 
             // Act
             var response = service.Execute(1);
@@ -117,7 +117,7 @@ namespace Roulette.Application.Test
             // Assert
             response.Id.Should().BeNull();
             response.Status.Should().BeNull();
-            response.CreatedAt.Should().BeNull();
+            response.OpenedAt.Should().BeNull();
             response.Message.Should().Be("Error opening roulette: Update error.");
         }
 
@@ -135,8 +135,8 @@ namespace Roulette.Application.Test
             var repository = new Mock<IRouletteRepository>();
             var unitOfWork = new Mock<IUnitOfWork>();
             repository.Setup(r => r.FindSingleOrDefault(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).Returns(_roulette);
-            unitOfWork.Setup(u => u.Commit()).Throws(new Exception("Transaction error."));
-            var service = new OpenRoulette(repository.Object, unitOfWork.Object);
+            unitOfWork.Setup(u => u.CommitTransaction()).Throws(new Exception("Transaction error."));
+            var service = new OpenRouletteService(repository.Object, unitOfWork.Object);
 
             // Act
             var response = service.Execute(1);
@@ -144,7 +144,7 @@ namespace Roulette.Application.Test
             // Assert
             response.Id.Should().BeNull();
             response.Status.Should().BeNull();
-            response.CreatedAt.Should().BeNull();
+            response.OpenedAt.Should().BeNull();
             response.Message.Should().Be("Error opening roulette: Transaction error.");
         }
 
@@ -162,14 +162,14 @@ namespace Roulette.Application.Test
             var repository = new Mock<IRouletteRepository>();
             var unitOfWork = new Mock<IUnitOfWork>();
             repository.Setup(r => r.FindSingleOrDefault(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).Returns(_roulette);
-            var service = new OpenRoulette(repository.Object, unitOfWork.Object);
+            var service = new OpenRouletteService(repository.Object, unitOfWork.Object);
 
             // Act
             service.Execute(1);
 
             // Assert
             repository.Verify(r => r.Edit(It.IsAny<RouletteEntity>()), Times.Once);
-            unitOfWork.Verify(u => u.Commit(), Times.Once);
+            unitOfWork.Verify(u => u.CommitTransaction(), Times.Once);
         }
     }
 }

@@ -1,31 +1,34 @@
 ﻿using Roulette.Application.Models.Responses;
 using Roulette.Domain.Contracts.Repositories;
 using Roulette.Domain.Contracts.Services;
+using Roulette.Domain.Contracts.Services.Roulette;
 
 namespace Roulette.Application.RouletteServices
 {
-    public class OpenRoulette(IRouletteRepository rouletteRepository, IUnitOfWork unitOfWork)
+    public class OpenRouletteService(IRouletteRepository rouletteRepository, IUnitOfWork unitOfWork) : IOpenRouletteService<OpenRouletteResponse>
     {
         private readonly IRouletteRepository _rouletteRepository = rouletteRepository;
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
-        public RouletteResponse Execute(int rouletteId)
+        public OpenRouletteResponse Execute(int rouletteId)
         {
+            _unitOfWork.BeginTransaction();
             try
             {
                 var roulette = _rouletteRepository.FindSingleOrDefault(r => r.Id == rouletteId);
                 if (roulette == null)
-                    return new RouletteResponse(null, null, null, "Roulette not found.");
+                    return OpenRouletteResponse.Fail("Roulette not found.");
 
                 roulette.OpenBet();
                 _rouletteRepository.Edit(roulette);
-                _unitOfWork.Commit();
+                _unitOfWork.CommitTransaction();
 
-                return new RouletteResponse(roulette.Id, roulette.Status.ToString(), roulette.OpenedAt, "Roulette opened successfully.");
+                return OpenRouletteResponse.Success(roulette.Id, roulette.Status.ToString(), roulette.CreatedAt, roulette.OpenedAt);
             }
             catch (Exception ex)
             {
-                return new RouletteResponse(null, null, null, $"Error opening roulette: {ex.Message}");
+                _unitOfWork.RollbackTransaction();
+                return OpenRouletteResponse.Fail(ex.Message);
             }
         }
     }

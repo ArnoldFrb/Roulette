@@ -9,20 +9,20 @@ namespace Roulette.Domain.Entities
         Color
     }
 
-    public class BetEntity(decimal amount, BetType betType, BetColor? color, int? number, UserEntity user, RouletteEntity roulette) : Entity<int>
+    public class BetEntity(decimal amount, BetType betType, RouletteColor? color, int? number, UserEntity user, RouletteEntity roulette) : Entity<int>
     {
-        public decimal Amount { get; protected set; } = IsValidAmount(amount);
+        public decimal Amount { get; protected set; } = ValidateAmount(amount);
         public BetType BetType { get; protected set; } = betType;
-        public BetColor? Color { get; protected set; } = color;
+        public RouletteColor? Color { get; protected set; } = color;
         public int? Number { get; protected set; } = number;
         public UserEntity User { get; protected set; } = user;
         public RouletteEntity Roulette { get; protected set; } = roulette;
 
-        public void IsValidBet()
+        public void ValidateBet()
         {
             if (BetType == BetType.Color)
             {
-                if (Color is null || (Color == BetColor.Red && Color == BetColor.Black))
+                if (Color is null || (Color != RouletteColor.Red && Color != RouletteColor.Black))
                     throw new InvalidBetColorException();
             }
             else if (BetType == BetType.Number)
@@ -65,19 +65,19 @@ namespace Roulette.Domain.Entities
             return 0;
         }
 
-        private static decimal IsValidAmount(decimal amount)
+        public static decimal ValidateAmount(decimal amount)
         {
-            if (amount <= RouletteConstants.MinBet || amount > RouletteConstants.MaxBet)
+            if (!IsValidAmount(amount))
                 throw new InvalidBetAmountException();
             return amount;
         }
-    }
 
-    public static class RouletteConstants
-    {
-        public const int MinNumber = 0;
-        public const int MaxNumber = 36;
-        public const decimal MinBet = 0;
-        public const decimal MaxBet = 10000;
+        public static bool IsValidAmount(decimal amount) => amount > RouletteConstants.MinBet && amount <= RouletteConstants.MaxBet;
+
+        public static bool IsValidNumber(int number) => number >= RouletteConstants.MinNumber && number <= RouletteConstants.MaxNumber;
+
+        public static bool IsValidColor(string color) =>
+            color.Equals(nameof(RouletteColor.Red), StringComparison.CurrentCultureIgnoreCase) ||
+            color.Equals(nameof(RouletteColor.Black), StringComparison.CurrentCultureIgnoreCase);
     }
 }

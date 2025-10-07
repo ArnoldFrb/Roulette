@@ -1,28 +1,31 @@
 ﻿using Roulette.Application.Models.Responses;
 using Roulette.Domain.Contracts.Repositories;
 using Roulette.Domain.Contracts.Services;
+using Roulette.Domain.Contracts.Services.Roulette;
 using Roulette.Domain.Entities;
 
 namespace Roulette.Application.RouletteServices
 {
-    public class CreateRoulette(IRouletteRepository rouletteRepository, IUnitOfWork unitOfWork)
+    public class CreateRouletteService(IRouletteRepository rouletteRepository, IUnitOfWork unitOfWork) : ICreateRouletteService<CreateRouletteResponse>
     {
         private readonly IRouletteRepository _rouletteRepository = rouletteRepository;
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
-        public RouletteResponse Execute()
+        public CreateRouletteResponse Execute()
         {
+            _unitOfWork.BeginTransaction();
             try
             {
                 var roulette = new RouletteEntity();
                 _rouletteRepository.Add(roulette);
-                _unitOfWork.Commit();
+                _unitOfWork.CommitTransaction();
 
-                return new RouletteResponse(roulette.Id, roulette.Status.ToString(), roulette.CreatedAt, "Roulette created successfully.");
+                return CreateRouletteResponse.Success(roulette.Id, roulette.Status.ToString(), roulette.CreatedAt);
             }
             catch (Exception ex)
             {
-                return new RouletteResponse(null, null, null, $"Error creating roulette: {ex.Message}");
+                _unitOfWork.RollbackTransaction();
+                return CreateRouletteResponse.Fail(ex.Message);
             }
         }
     }
