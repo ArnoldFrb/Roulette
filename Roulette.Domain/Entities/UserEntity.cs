@@ -30,20 +30,20 @@ namespace Roulette.Domain.Entities
 
         public void PayCredit(decimal amount)
         {
-            IsValidAmount(amount);
+            ValidateCredit(amount);
             Credit += amount;
         }
 
         public void DeductCredit(decimal amount)
         {
+            ValidateCredit(amount);
             EnsureHasSufficientCredit(amount);
-            IsValidAmount(amount);
             if (Credit < amount)
                 throw new InsufficientCreditsException();
             Credit -= amount;
         }
 
-        private static void IsValidAmount(decimal amount)
+        private static void ValidateCredit(decimal amount)
         {
             if (amount <= 0)
                 throw new InsufficientCreditsException("Invalid credits amount. Must be greater than 0.");

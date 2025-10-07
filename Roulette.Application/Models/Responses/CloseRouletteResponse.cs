@@ -8,6 +8,6 @@ namespace Roulette.Application.Models.Responses
             new(id, status, createdAt, openedAt, closedAt, numberWinner, colorWinner, bets, message);
 
         public static CloseRouletteResponse Fail(string message) =>
-            new(null, null, null, null, null, null, null, null, message);
+            new(null, null, null, null, null, null, null, null, $"Error closing roulette: {message}");
     }
 }

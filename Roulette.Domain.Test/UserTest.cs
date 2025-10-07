@@ -9,7 +9,7 @@ namespace Roulette.Domain.Test
         /// <summary>
         ///  PASSWORD TESTS
         /// </summary>
-        
+
         /*
          1.	Contraseña válida
             •	Dado un usuario con contraseña "@#Hl1g2l34"
@@ -137,10 +137,10 @@ namespace Roulette.Domain.Test
         /// <summary>
         ///  ADD CREDIT TESTS
         /// </summary>
-        
+
         /*
          1.	Agregar crédito válido
-            •	Dado un usuario con 100 de crédito
+            •	Dado un usuario con 100 de crédito×
             •	Cuando agrega 50 de crédito
             •	Entonces el crédito del usuario es 150.
         */

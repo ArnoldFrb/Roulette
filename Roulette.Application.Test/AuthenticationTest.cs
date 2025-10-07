@@ -20,7 +20,7 @@ namespace Roulette.Application.Test
          1.	Usuario no existe
             •	Dado un usuario con Username "pepe" y Password "password123" que no existe en la base de datos
             •	Cuando se llama al método de autentificación con Username "pepe" y Password "password123"
-            •	Entonces se debe devolver un UserResponse con Id null, UserName null y Message "User not found"
+            •	Entonces se debe devolver un UserResponse con Id null, UserName null y Message "An error occurred during authentication.\nException: User not found"
         */
         [Fact]
         [Trait("Category", "Auth")]
@@ -29,9 +29,6 @@ namespace Roulette.Application.Test
 
             // Arrange
             var repository = new Mock<IUserRepository>();
-
-            repository.Setup(repo => repo.FindSingleOrDefault(It.IsAny<Expression<Func<UserEntity, bool>>>()))
-            .Returns(_user);
 
             var service = new AuthenticationService(repository.Object);
             var request = new AuthenticationRequest("pepe", "password123");
@@ -42,7 +39,7 @@ namespace Roulette.Application.Test
             // Assert
             response.Id.Should().BeNull();
             response.UserName.Should().BeNull();
-            response.Message.Should().Be("Invalid password.");
+            response.Message.Should().Be("An error occurred during authentication.\nException: User not found.");
         }
 
         /*
@@ -78,7 +75,7 @@ namespace Roulette.Application.Test
          3.	Usuario existe pero contraseña inválida
             •	Dado un usuario con Username "Jose Carlos" y Password "password123" que existe en la base de datos
             •	Cuando se llama al método de autentificación con Username "Jose Carlos" y Password "password123"
-            •	Entonces se debe devolver un UserResponse con Id null, UserName Jose Carlos y Message "Invalid password"
+            •	Entonces se debe devolver un UserResponse con Id null, UserName Jose Carlos y Message "An error occurred during authentication.\nException: Invalid password"
         */
         [Fact]
         [Trait("Category", "Auth")]
@@ -100,7 +97,7 @@ namespace Roulette.Application.Test
             // Assert
             response.Id.Should().BeNull();
             response.UserName.Should().BeNull();
-            response.Message.Should().Be("Invalid password.");
+            response.Message.Should().Be("An error occurred during authentication.\nException: Invalid password.");
         }
     }
 }

@@ -169,7 +169,7 @@ namespace Roulette.Domain.Test
          8. Validar apuesta con monto inválido mayor a 10000
             •	Dado una apuesta de tipo Number con valor 15 y monto 10005
             •	Cuando se valida la apuesta
-            •	Entonces debe lanzar excepción con mensaje "Bet amount must be between 0 and 10000."
+            •	Entonces debe lanzar excepción con mensaje "Bet amount must be between $ 1,00 and $ 10.000,00."
         */
         [Fact]
         public void IsValidBet_WithAmountGreaterThanMax_ShouldThrowException()
@@ -181,14 +181,14 @@ namespace Roulette.Domain.Test
             var action = () => new BetEntity(10005, BetType.Number, null, 15, user, roulette) { Id = 1 };
 
             // Assert
-            action.Should().Throw<InvalidBetAmountException>().WithMessage("Invalid amount. Must be between 1 and 10000.");
+            action.Should().Throw<InvalidBetAmountException>().WithMessage("Bet amount must be between $ 1,00 and $ 10.000,00.");
         }
 
         /*
          9. Validar apuesta con monto inválido menor a 0
             •	Dado una apuesta de tipo Number con valor 15 y monto -25
             •	Cuando se valida la apuesta
-            •	Entonces debe lanzar excepción con mensaje "Bet amount must be between 0 and 10000."
+            •	Entonces debe lanzar excepción con mensaje "Bet amount must be between $ 1,00 and $ 10.000,00."
         */
         [Fact]
         public void IsValidBet_WithAmountLessThanMin_ShouldThrowException()
@@ -200,7 +200,7 @@ namespace Roulette.Domain.Test
             var action = () => new BetEntity(-25, BetType.Number, null, 15, user, roulette) { Id = 1 };
 
             // Assert
-            action.Should().Throw<InvalidBetAmountException>().WithMessage("Invalid amount. Must be between 1 and 10000.");
+            action.Should().Throw<InvalidBetAmountException>().WithMessage("Bet amount must be between $ 1,00 and $ 10.000,00.");
         }
 
 

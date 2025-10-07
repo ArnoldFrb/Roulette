@@ -20,7 +20,7 @@ namespace Roulette.Application.RouletteServices
             }
             catch (Exception ex)
             {
-                return ListRouletteResponse.Fail($"Error retrieving roulettes: {ex.Message}");
+                return ListRouletteResponse.Fail(ex.Message);
             }
         }
 

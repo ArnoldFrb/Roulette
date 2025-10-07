@@ -50,7 +50,7 @@ namespace Roulette.Application.Test
          2.	No hay ruletas registradas
             •	Dado que no existen ruletas registradas
             •	Cuando se ejecuta el método Execute()
-            •	Entonces se debe devolver un RouletteListResponse con una lista vacía y Message "No roulettes found."
+            •	Entonces se debe devolver un RouletteListResponse con una lista vacía y Message "Error retrieving roulettes: No roulettes found."
         */
         [Fact]
         [Trait("Category", "GetAllRoulette")]
@@ -65,7 +65,7 @@ namespace Roulette.Application.Test
 
             // Assert
             response.Roulettes.Should().BeEmpty();
-            response.Message.Should().Be("No roulettes found.");
+            response.Message.Should().Be("Error retrieving roulettes: No roulettes found.");
         }
 
         /*

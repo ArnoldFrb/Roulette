@@ -20,7 +20,7 @@ namespace Roulette.Application.Test
          1.	Debe devolver error si la ruleta no existe
             •	Dado una una petición para abrir una ruleta con Id 5 que no existe en la base de datos
             •	Cuando se llama al método Execute del servicio OpenRoulette
-            •	Entonces se debe devolver un RouletteResponse con Id null, Status null, Date null y Message "Roulette not found."
+            •	Entonces se debe devolver un RouletteResponse con Id null, Status null, Date null y Message "Error opening roulette: Roulette not found."
         */
         [Fact]
         [Trait("Category", "OpenRoulette")]
@@ -39,7 +39,7 @@ namespace Roulette.Application.Test
             response.Id.Should().BeNull();
             response.Status.Should().BeNull();
             response.OpenedAt.Should().BeNull();
-            response.Message.Should().Be("Roulette not found.");
+            response.Message.Should().Be("Error opening roulette: Roulette not found.");
         }
 
         /*

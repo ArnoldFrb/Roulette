@@ -63,7 +63,7 @@
     /// </summary>
     public class InvalidBetAmountException : Exception
     {
-        public InvalidBetAmountException() : base($"Invalid amount. Must be between {RouletteConstants.MinBet} and {RouletteConstants.MaxBet}.") { }
+        public InvalidBetAmountException() : base($"Bet amount must be between {RouletteConstants.MinBet:C} and {RouletteConstants.MaxBet:C}.") { }
 
         public InvalidBetAmountException(string? message) : base(message)
         {

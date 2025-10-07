@@ -6,6 +6,6 @@
             new(roulettes, "Roulettes retrieved successfully.");
 
         public static ListRouletteResponse Fail(string message) =>
-            new([], message);
+            new([], $"Error retrieving roulettes: {message}");
     }
 }

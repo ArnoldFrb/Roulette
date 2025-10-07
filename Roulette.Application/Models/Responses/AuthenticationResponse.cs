@@ -6,6 +6,6 @@
             new(id, userName, "Authentication successful.");
 
         public static AuthenticationResponse Fail(string message) =>
-            new(null, null, message);
+            new(null, null, $"An error occurred during authentication.\nException: {message}");
     }
 }

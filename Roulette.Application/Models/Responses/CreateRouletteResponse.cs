@@ -6,6 +6,6 @@
             new(id, status, createdAt, "Roulette created successfully.");
 
         public static CreateRouletteResponse Fail(string message) =>
-            new(null, null, null, message);
+            new(null, null, null, $"Error creating roulette: {message}");
     }
 }

@@ -33,11 +33,11 @@ namespace Roulette.Application.BetServices
                 if (existingBet != null)
                     return CreateBetResponse.Fail("You already placed a bet on this roulette.");
 
-                user.DeductCredit(request.Amount);
-                _userRepository.Edit(user);
-
                 var bet = CreateBet(request, user, roulette);
                 bet.ValidateBet();
+
+                user.DeductCredit(request.Amount);
+                _userRepository.Edit(user);
 
                 _betRepository.Add(bet);
                 _unitOfWork.CommitTransaction();

@@ -2,5 +2,5 @@
 
 namespace Roulette.Application.Models.Requests
 {
-    public record CreateBetRequest(decimal Amount, BetType Type, string Value, int UserId, int RouletteId);
+    public record CreateBetRequest(decimal Amount, BetType Type, string Value, int RouletteId);
 }

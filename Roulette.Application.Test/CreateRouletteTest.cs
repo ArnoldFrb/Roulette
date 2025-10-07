@@ -3,6 +3,7 @@ using Moq;
 using Roulette.Application.RouletteServices;
 using Roulette.Domain.Contracts.Repositories;
 using Roulette.Domain.Contracts.Services;
+using Roulette.Domain.Entities;
 
 namespace Roulette.Application.Test
 {
@@ -47,7 +48,7 @@ namespace Roulette.Application.Test
             var repository = new Mock<IRouletteRepository>();
             var unitOfWork = new Mock<IUnitOfWork>();
 
-            repository.Setup(r => r.Add(It.IsAny<Domain.Entities.RouletteEntity>()))
+            repository.Setup(r => r.Add(It.IsAny<RouletteEntity>()))
                     .Throws(new Exception("DB error"));
 
             var service = new CreateRouletteService(repository.Object, unitOfWork.Object);

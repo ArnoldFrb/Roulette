@@ -27,7 +27,7 @@ namespace Roulette.Application.UserServices
             }
             catch (Exception ex)
             {
-                return AuthenticationResponse.Fail($"An error occurred during authentication.\nException: {ex.Message}");
+                return AuthenticationResponse.Fail(ex.Message);
             }
         }
     }

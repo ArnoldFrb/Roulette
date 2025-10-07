@@ -6,6 +6,6 @@
             new(amount, betType, value, "Bet created successfully.");
 
         public static CreateBetResponse Fail(string message) =>
-            new(null, null, null, message);
+            new(null, null, null, $"Error creating bet: {message}");
     }
 }

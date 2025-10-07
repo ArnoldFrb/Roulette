@@ -27,7 +27,7 @@ namespace Roulette.Application.RouletteServices
             catch (Exception ex)
             {
                 _unitOfWork.RollbackTransaction();
-                return OpenRouletteResponse.Fail($"Error opening roulette: {ex.Message}");
+                return OpenRouletteResponse.Fail(ex.Message);
             }
         }
     }
