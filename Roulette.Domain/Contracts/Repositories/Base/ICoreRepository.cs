@@ -2,17 +2,16 @@
 
 namespace Roulette.Domain.Contracts.Repositories.Base
 {
-    public interface ICoreRepository<T>
+    public interface ICoreRepository<T> where T : class
     {
-        T Find(object id);
-        void Add(T entity);
-        void Edit(T entity);
-        void Remove(T entity);
-        void AddRange(IEnumerable<T> entities);
-        void RemoveRange(IEnumerable<T> entities);
-        IEnumerable<T> GetAll();
-        T FindSingleOrDefault(Expression<Func<T, bool>> predicate);
-        IEnumerable<T> FindBy(Expression<Func<T, bool>> predicate);
-        IEnumerable<T> FindBy(Expression<Func<T, bool>>? predicate = null, Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, string includeProperties = "");
+        Task AddAsync(T entity);
+        Task EditAsync(T entity);
+        Task RemoveAsync(T entity);
+        Task AddRangeAsync(IEnumerable<T> entities);
+        Task RemoveRangeAsync(IEnumerable<T> entities);
+        Task<IEnumerable<T>> GetAllAsync();
+        Task<T?> FindSingleOrDefaultAsync(Expression<Func<T, bool>> predicate);
+        Task<IEnumerable<T>> FindByAsync(Expression<Func<T, bool>> predicate);
+        Task<IEnumerable<T>> FindByAsync(Expression<Func<T, bool>>? predicate = null, Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, string includeProperties = "");
     }
 }

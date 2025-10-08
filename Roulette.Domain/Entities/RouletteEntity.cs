@@ -23,6 +23,7 @@ namespace Roulette.Domain.Entities
 
         public RouletteEntity()
         {
+            RouletteId = 0;
             NumberWinner = -1;
             ColorWinner = RouletteColor.Colorless;
             Status = RouletteStatus.Created;
@@ -31,6 +32,7 @@ namespace Roulette.Domain.Entities
             ClosedAt = DateTime.MinValue;
         }
 
+        public int RouletteId { get; protected set; }
         public int NumberWinner { get; protected set; }
         public RouletteColor ColorWinner { get; protected set; }
         public RouletteStatus Status { get; protected set; }

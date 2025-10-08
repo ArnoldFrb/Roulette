@@ -15,22 +15,22 @@ namespace Roulette.Application.BetServices
         private readonly IRouletteRepository _rouletteRepository = rouletteRepository;
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
-        public CreateBetResponse Execute(int userId, CreateBetRequest request)
+        public async Task<CreateBetResponse> ExecuteAsync(int userId, CreateBetRequest request)
         {
-            _unitOfWork.BeginTransaction();
+            await _unitOfWork.BeginTransactionAsync();
             try
             {
-                var user = _userRepository.FindSingleOrDefault(u => u.Id == userId);
+                var user = await _userRepository.FindSingleOrDefaultAsync(u => u.Id == userId);
                 if (user == null)
                     return CreateBetResponse.Fail("User not found.");
 
-                var roulette = _rouletteRepository.FindSingleOrDefault(r => r.Id == request.RouletteId);
+                var roulette = await _rouletteRepository.FindSingleOrDefaultAsync(r => r.Id == request.RouletteId);
                 if (roulette == null)
                     return CreateBetResponse.Fail("Roulette not found.");
 
                 roulette.EnsureIsOpenForBets();
 
-                var existingBet = _betRepository.FindSingleOrDefault(b => b.Roulette.Id == roulette.Id && b.User.Id == user.Id);
+                var existingBet = await _betRepository.FindSingleOrDefaultAsync(b => b.Roulette.Id == roulette.Id && b.User.Id == user.Id);
                 if (existingBet != null)
                     return CreateBetResponse.Fail("You already placed a bet on this roulette.");
 
@@ -38,10 +38,12 @@ namespace Roulette.Application.BetServices
                 bet.ValidateBet();
 
                 user.DeductCredit(request.Amount);
-                _userRepository.Edit(user);
+                await _userRepository.EditAsync(user);
 
-                _betRepository.Add(bet);
-                _unitOfWork.CommitTransaction();
+                await _betRepository.AddAsync(bet);
+
+                await _unitOfWork.CommitAsync();
+                await _unitOfWork.CommitTransactionAsync();
 
                 return CreateBetResponse.Success(
                     bet.Amount,
@@ -51,7 +53,7 @@ namespace Roulette.Application.BetServices
             }
             catch (Exception ex)
             {
-                _unitOfWork.RollbackTransaction();
+                await _unitOfWork.RollbackTransactionAsync();
                 return CreateBetResponse.Fail(ex.Message);
             }
         }

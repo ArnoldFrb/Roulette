@@ -1,7 +1,7 @@
 ﻿namespace Roulette.Domain.Contracts.Services.User
 {
-    public interface IAuthenticationService<in Request, out Response>
+    public interface IAuthenticationService<in Request, Response>
     {
-        public Response Execute(Request request);
+        public Task<Response> ExecuteAsync(Request request);
     }
 }

@@ -9,14 +9,16 @@ namespace Roulette.Application.RouletteServices
     {
         private readonly IRouletteRepository _rouletteRepository = rouletteRepository;
 
-        public ListRouletteResponse Execute()
+        public async Task<ListRouletteResponse> ExecuteAsync()
         {
             try
             {
-                var roulettes = _rouletteRepository.GetAll();
+                var roulettes = await _rouletteRepository.GetAllAsync();
+
                 var rouletteResponses = roulettes?.Select(MapRouletteToResponse).ToList() ?? [];
                 if (rouletteResponses.Count == 0)
                     return ListRouletteResponse.Fail("No roulettes found.");
+
                 return ListRouletteResponse.Success(rouletteResponses);
             }
             catch (Exception ex)

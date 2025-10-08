@@ -1,7 +1,7 @@
 ﻿namespace Roulette.Domain.Contracts.Services.Roulette
 {
-    public interface IGetAllRouletteService<out Response>
+    public interface IGetAllRouletteService<Response>
     {
-        public Response Execute();
+        public Task<Response> ExecuteAsync();
     }
 }

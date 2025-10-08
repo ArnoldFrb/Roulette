@@ -24,7 +24,7 @@ namespace Roulette.Application.Test
         */
         [Fact]
         [Trait("Category", "Auth")]
-        public void Authenticate_WithNonExistentUser_ShouldReturnUserNotFound()
+        public async Task Authenticate_WithNonExistentUser_ShouldReturnUserNotFound()
         {
 
             // Arrange
@@ -34,7 +34,7 @@ namespace Roulette.Application.Test
             var request = new AuthenticationRequest("pepe", "password123");
 
             // Act
-            var response = service.Execute(request);
+            var response = await service.ExecuteAsync(request);
 
             // Assert
             response.Id.Should().BeNull();
@@ -50,20 +50,20 @@ namespace Roulette.Application.Test
         */
         [Fact]
         [Trait("Category", "Auth")]
-        public void Authenticate_WithValidCredentials_ShouldReturnSuccess()
+        public async Task Authenticate_WithValidCredentials_ShouldReturnsSuccess()
         {
 
             // Arrange
             var repository = new Mock<IUserRepository>();
 
-            repository.Setup(repo => repo.FindSingleOrDefault(It.IsAny<Expression<Func<UserEntity, bool>>>()))
-            .Returns(_user);
+            repository.Setup(repo => repo.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<UserEntity, bool>>>()))
+            .ReturnsAsync(_user);
 
             var service = new AuthenticationService(repository.Object);
             var request = new AuthenticationRequest("Jose Carlos", "@#Hl1g2l34");
 
             // Act
-            var response = service.Execute(request);
+            var response = await service.ExecuteAsync(request);
 
             // Assert
             response.Id.Should().Be(1);
@@ -79,20 +79,20 @@ namespace Roulette.Application.Test
         */
         [Fact]
         [Trait("Category", "Auth")]
-        public void Authenticate_WithInvalidPassword_ShouldReturnAuthenticationError()
+        public async Task Authenticate_WithInvalidPassword_ShouldReturnAuthenticationError()
         {
 
             // Arrange
             var repository = new Mock<IUserRepository>();
 
-            repository.Setup(repo => repo.FindSingleOrDefault(It.IsAny<Expression<Func<UserEntity, bool>>>()))
-            .Returns(_user);
+            repository.Setup(repo => repo.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<UserEntity, bool>>>()))
+            .ReturnsAsync(_user);
 
             var service = new AuthenticationService(repository.Object);
             var request = new AuthenticationRequest("Jose Carlos", "password123");
 
             // Act
-            var response = service.Execute(request);
+            var response = await service.ExecuteAsync(request);
 
             // Assert
             response.Id.Should().BeNull();

@@ -11,20 +11,22 @@ namespace Roulette.Application.RouletteServices
         private readonly IRouletteRepository _rouletteRepository = rouletteRepository;
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
-        public CreateRouletteResponse Execute()
+        public async Task<CreateRouletteResponse> ExecuteAsync()
         {
-            _unitOfWork.BeginTransaction();
+            await _unitOfWork.BeginTransactionAsync();
             try
             {
                 var roulette = new RouletteEntity();
-                _rouletteRepository.Add(roulette);
-                _unitOfWork.CommitTransaction();
+                await _rouletteRepository.AddAsync(roulette);
+
+                await _unitOfWork.CommitAsync();
+                await _unitOfWork.CommitTransactionAsync();
 
                 return CreateRouletteResponse.Success(roulette.Id, roulette.Status.ToString(), roulette.CreatedAt);
             }
             catch (Exception ex)
             {
-                _unitOfWork.RollbackTransaction();
+                await _unitOfWork.RollbackTransactionAsync();
                 return CreateRouletteResponse.Fail(ex.Message);
             }
         }

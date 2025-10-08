@@ -32,14 +32,14 @@ namespace Roulette.Application.Test
         */
         [Fact]
         [Trait("Category", "GetAllRoulette")]
-        public void Execute_ShouldReturnListOfRoulettes_WhenRoulettesExist()
+        public async Task Execute_ShouldReturnListOfRoulettes_WhenRoulettesExist()
         {
             // Arrange
-            _repository.Setup(r => r.GetAll()).Returns(_roulettes);
+            _repository.Setup(r => r.GetAllAsync()).ReturnsAsync(_roulettes);
             var service = new GetAllRouletteService(_repository.Object);
 
             // Act
-            var response = service.Execute();
+            var response = await service.ExecuteAsync();
 
             // Assert
             response.Roulettes.Should().NotBeEmpty();
@@ -54,14 +54,14 @@ namespace Roulette.Application.Test
         */
         [Fact]
         [Trait("Category", "GetAllRoulette")]
-        public void Execute_ShouldReturnEmptyList_WhenNoRoulettesExist()
+        public async Task Execute_ShouldReturnEmptyList_WhenNoRoulettesExist()
         {
             // Arrange
-            _repository.Setup(r => r.GetAll()).Returns([]);
+            _repository.Setup(r => r.GetAllAsync()).ReturnsAsync([]);
             var service = new GetAllRouletteService(_repository.Object);
 
             // Act
-            var response = service.Execute();
+            var response = await service.ExecuteAsync();
 
             // Assert
             response.Roulettes.Should().BeEmpty();
@@ -76,14 +76,14 @@ namespace Roulette.Application.Test
         */
         [Fact]
         [Trait("Category", "GetAllRoulette")]
-        public void Execute_ShouldReturnErrorResponse_WhenRepositoryThrowsException()
+        public async Task Execute_ShouldReturnErrorResponse_WhenRepositoryThrowsException()
         {
             // Arrange
-            _repository.Setup(r => r.GetAll()).Throws(new Exception("Db Error"));
+            _repository.Setup(r => r.GetAllAsync()).Throws(new Exception("Db Error"));
             var service = new GetAllRouletteService(_repository.Object);
 
             // Act
-            var response = service.Execute();
+            var response = await service.ExecuteAsync();
 
             // Assert
             response.Roulettes.Should().BeEmpty();

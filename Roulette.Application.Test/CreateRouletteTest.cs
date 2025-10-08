@@ -17,7 +17,7 @@ namespace Roulette.Application.Test
         */
         [Fact]
         [Trait("Category", "CrearRoulette")]
-        public void Execute_ShouldCreateRouletteSuccessfully()
+        public async Task Execute_ShouldCreateRouletteSuccessfully()
         {
             // Arrange
             var repository = new Mock<IRouletteRepository>();
@@ -25,7 +25,7 @@ namespace Roulette.Application.Test
             var service = new CreateRouletteService(repository.Object, unitOfWork.Object);
 
             // Act
-            var response = service.Execute();
+            var response = await service.ExecuteAsync();
 
             // Assert
             response.Id.Should().NotBeNull();
@@ -42,19 +42,19 @@ namespace Roulette.Application.Test
         */
         [Fact]
         [Trait("Category", "CrearRoulette")]
-        public void Execute_WhenAddThrowsException_ShouldReturnErrorResponse()
+        public async Task Execute_WhenAddThrowsException_ShouldReturnErrorResponse()
         {
             // Arrange
             var repository = new Mock<IRouletteRepository>();
             var unitOfWork = new Mock<IUnitOfWork>();
 
-            repository.Setup(r => r.Add(It.IsAny<RouletteEntity>()))
+            repository.Setup(r => r.AddAsync(It.IsAny<RouletteEntity>()))
                     .Throws(new Exception("DB error"));
 
             var service = new CreateRouletteService(repository.Object, unitOfWork.Object);
 
             // Act
-            var response = service.Execute();
+            var response = await service.ExecuteAsync();
 
             // Assert
             response.Id.Should().BeNull();
@@ -71,19 +71,19 @@ namespace Roulette.Application.Test
         */
         [Fact]
         [Trait("Category", "CrearRoulette")]
-        public void Execute_WhenCommitThrowsException_ShouldReturnErrorResponse()
+        public async Task Execute_WhenCommitThrowsException_ShouldReturnErrorResponse()
         {
             // Arrange
             var repository = new Mock<IRouletteRepository>();
             var unitOfWork = new Mock<IUnitOfWork>();
 
-            unitOfWork.Setup(u => u.CommitTransaction())
+            unitOfWork.Setup(u => u.CommitTransactionAsync())
                       .Throws(new Exception("Transaction error"));
 
             var service = new CreateRouletteService(repository.Object, unitOfWork.Object);
 
             // Act
-            var response = service.Execute();
+            var response = await service.ExecuteAsync();
 
             // Assert
             response.Id.Should().BeNull();
@@ -100,7 +100,7 @@ namespace Roulette.Application.Test
         */
         [Fact]
         [Trait("Category", "CrearRoulette")]
-        public void Execute_ShouldCallAddAndCommitOnce()
+        public async Task Execute_ShouldCallAddAndCommitOnce()
         {
             // Arrange
             var repository = new Mock<IRouletteRepository>();
@@ -109,11 +109,11 @@ namespace Roulette.Application.Test
             var service = new CreateRouletteService(repository.Object, unitOfWork.Object);
 
             // Act
-            service.Execute();
+            await service.ExecuteAsync();
 
             // Assert
-            repository.Verify(r => r.Add(It.IsAny<Domain.Entities.RouletteEntity>()), Times.Once);
-            unitOfWork.Verify(u => u.CommitTransaction(), Times.Once);
+            repository.Verify(r => r.AddAsync(It.IsAny<Domain.Entities.RouletteEntity>()), Times.Once);
+            unitOfWork.Verify(u => u.CommitTransactionAsync(), Times.Once);
         }
     }
 }

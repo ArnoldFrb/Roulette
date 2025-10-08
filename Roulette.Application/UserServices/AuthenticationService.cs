@@ -10,14 +10,14 @@ namespace Roulette.Application.UserServices
     {
         private readonly IUserRepository _userRepository = userRepository;
 
-        public AuthenticationResponse Execute(AuthenticationRequest request)
+        public async Task<AuthenticationResponse> ExecuteAsync(AuthenticationRequest request)
         {
             try
             {
                 UserEntity. IsValidUsername(request.UserName);
                 UserEntity.IsValidPassword(request.Password);
 
-                var user = _userRepository.FindSingleOrDefault(u => u.Username == request.UserName);
+                var user = await _userRepository.FindSingleOrDefaultAsync(u => u.Username == request.UserName);
                 if (user == null)
                     return AuthenticationResponse.Fail("User not found.");
 

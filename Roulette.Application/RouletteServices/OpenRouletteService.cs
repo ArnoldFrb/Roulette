@@ -10,24 +10,26 @@ namespace Roulette.Application.RouletteServices
         private readonly IRouletteRepository _rouletteRepository = rouletteRepository;
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
-        public OpenRouletteResponse Execute(int rouletteId)
+        public async Task<OpenRouletteResponse> ExecuteAsync(int rouletteId)
         {
-            _unitOfWork.BeginTransaction();
+            await _unitOfWork.BeginTransactionAsync();
             try
             {
-                var roulette = _rouletteRepository.FindSingleOrDefault(r => r.Id == rouletteId);
+                var roulette = await _rouletteRepository.FindSingleOrDefaultAsync(r => r.Id == rouletteId);
                 if (roulette == null)
                     return OpenRouletteResponse.Fail("Roulette not found.");
 
                 roulette.OpenBet();
-                _rouletteRepository.Edit(roulette);
-                _unitOfWork.CommitTransaction();
+                await _rouletteRepository.EditAsync(roulette);
+
+                await _unitOfWork.CommitAsync();
+                await _unitOfWork.CommitTransactionAsync();
 
                 return OpenRouletteResponse.Success(roulette.Id, roulette.Status.ToString(), roulette.CreatedAt, roulette.OpenedAt);
             }
             catch (Exception ex)
             {
-                _unitOfWork.RollbackTransaction();
+                await _unitOfWork.RollbackTransactionAsync();
                 return OpenRouletteResponse.Fail(ex.Message);
             }
         }

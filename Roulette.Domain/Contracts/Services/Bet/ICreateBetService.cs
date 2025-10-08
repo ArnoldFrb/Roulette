@@ -1,7 +1,7 @@
 ﻿namespace Roulette.Domain.Contracts.Services.Bet
 {
-    public interface ICreateBetService<in Request, out Response>
+    public interface ICreateBetService<in Request, Response>
     {
-        public Response Execute(int userId, Request request);
+        public Task<Response> ExecuteAsync(int userId, Request request);
     }
 }

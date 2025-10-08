@@ -1,9 +1,10 @@
 ﻿namespace Roulette.Domain.Contracts.Services
 {
-    public interface IUnitOfWork
+    public interface IUnitOfWork : IAsyncDisposable
     {
-        public void BeginTransaction();
-        public void CommitTransaction();
-        public void RollbackTransaction();
+        Task CommitAsync();
+        Task BeginTransactionAsync();
+        Task CommitTransactionAsync();
+        Task RollbackTransactionAsync();
     }
 }

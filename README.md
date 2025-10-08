@@ -1,2 +1,6 @@
 # Roulette
  Prueba tecnica de reuleta
+
+## Migration
+ dotnet ef migrations add InitialCreate
+ dotnet ef database update

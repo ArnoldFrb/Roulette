@@ -13,16 +13,17 @@ namespace Roulette.Application.RouletteServices
         private readonly IBetRepository _betRepository = betRepository;
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
-        public CloseRouletteResponse Execute(int rouletteId)
+        public async Task<CloseRouletteResponse> ExecuteAsync(int rouletteId)
         {
-            _unitOfWork.BeginTransaction();
+            await _unitOfWork.BeginTransactionAsync();
             try
             {
-                var roulette = _rouletteRepository.FindSingleOrDefault(r => r.Id == rouletteId);
+                var roulette = await _rouletteRepository.FindSingleOrDefaultAsync(r => r.Id == rouletteId);
                 if (roulette == null)
                     return CloseRouletteResponse.Fail("Roulette not found.");
 
-                var bets = _betRepository.FindBy(b => b.Roulette.Id == rouletteId).ToList() ?? [];
+                var resultBets = await _betRepository.FindByAsync(b => b.Roulette.Id == rouletteId) ?? [];
+                var bets = resultBets.ToList();
 
                 roulette.CloseBet();
                 roulette.GenerateWinningBet();
@@ -31,12 +32,14 @@ namespace Roulette.Application.RouletteServices
 
                 foreach (var bet in bets)
                 {
-                    _userRepository.Edit(bet.User);
-                    _betRepository.Edit(bet);
+                    await _userRepository.EditAsync(bet.User);
+                    await _betRepository.EditAsync(bet);
                 }
 
-                _rouletteRepository.Edit(roulette);
-                _unitOfWork.CommitTransaction();
+                await _rouletteRepository.EditAsync(roulette);
+
+                await _unitOfWork.CommitAsync();
+                await _unitOfWork.CommitTransactionAsync();
 
                 var message = bets.Count != 0
                     ? "Roulette closed successfully."
@@ -54,7 +57,7 @@ namespace Roulette.Application.RouletteServices
             }
             catch (Exception ex)
             {
-                _unitOfWork.RollbackTransaction();
+                await _unitOfWork.RollbackTransactionAsync();
                 return CloseRouletteResponse.Fail(ex.Message);
             }
         }
