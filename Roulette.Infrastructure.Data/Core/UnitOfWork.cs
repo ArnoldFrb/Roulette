@@ -1,9 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore.Storage;
 using Roulette.Domain.Contracts.Services;
 
-namespace Roulette.Infrastructure.Core
+namespace Roulette.Infrastructure.Data.Core
 {
-    public class UnitOfWork(RouletteDbContext context) : IUnitOfWork
+    internal class UnitOfWork(RouletteDbContext context) : IUnitOfWork
     {
         private readonly RouletteDbContext _context = context;
         private IDbContextTransaction? _transaction;
@@ -41,7 +41,7 @@ namespace Roulette.Infrastructure.Core
 
         public async Task RollbackTransactionAsync()
         {
-           if (_transaction != null)
+            if (_transaction != null)
             {
                 await _transaction.RollbackAsync();
                 await _transaction.DisposeAsync();

@@ -1,8 +1,8 @@
 ﻿using Roulette.Domain.Contracts.Repositories;
 using Roulette.Domain.Entities;
-using Roulette.Infrastructure.Core;
+using Roulette.Infrastructure.Data.Core;
 
-namespace Roulette.Infrastructure.Repositories
+namespace Roulette.Infrastructure.Data.Repositories
 {
     public class BetRepository(RouletteDbContext context) : CoreRepository<BetEntity>(context), IBetRepository;
 }

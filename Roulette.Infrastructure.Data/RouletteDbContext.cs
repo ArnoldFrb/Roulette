@@ -1,9 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Roulette.Domain.Entities;
 
-namespace Roulette.Infrastructure
+namespace Roulette.Infrastructure.Data
 {
-    public class RouletteDbContext(DbContextOptions<RouletteDbContext> options) : DbContext(options)
+    public class RouletteDbContext : DbContext
     {
         public DbSet<UserEntity> Users { get; set; }
         public DbSet<RouletteEntity> Roulettes { get; set; }
@@ -12,7 +12,7 @@ namespace Roulette.Infrastructure
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            
+
             modelBuilder.Entity<UserEntity>(entity =>
             {
                 entity.HasKey(e => e.Id);
@@ -58,7 +58,7 @@ namespace Roulette.Infrastructure
         protected static void SeedUser(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<UserEntity>().HasData(
-                new UserEntity("admin", "adminpass", 1000m, true) { Id = 1 },
+                new UserEntity("admin", "admin0pass", 1000m, true) { Id = 1 },
                 new UserEntity("user1", "user1pass", 500m) { Id = 2 },
                 new UserEntity("user2", "user2pass", 300m) { Id = 3 },
                 new UserEntity("user3", "user3pass", 200m) { Id = 4 }

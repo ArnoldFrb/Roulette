@@ -2,7 +2,7 @@
 using Roulette.Domain.Contracts.Repositories.Base;
 using System.Linq.Expressions;
 
-namespace Roulette.Infrastructure.Core
+namespace Roulette.Infrastructure.Data.Core
 {
     public class CoreRepository<T>(RouletteDbContext context) : ICoreRepository<T> where T : class
     {
