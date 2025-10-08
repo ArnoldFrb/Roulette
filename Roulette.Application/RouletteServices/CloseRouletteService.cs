@@ -1,4 +1,5 @@
 ﻿using Roulette.Application.Models.Responses;
+using Roulette.Domain.Contracts.Redis;
 using Roulette.Domain.Contracts.Repositories;
 using Roulette.Domain.Contracts.Services;
 using Roulette.Domain.Contracts.Services.Roulette;
@@ -6,12 +7,13 @@ using Roulette.Domain.Entities;
 
 namespace Roulette.Application.RouletteServices
 {
-    public class CloseRouletteService(IRouletteRepository rouletteRepository, IBetRepository betRepository, IUserRepository userRepository, IUnitOfWork unitOfWork) : ICloseRouletteService<CloseRouletteResponse>
+    public class CloseRouletteService(IRouletteRepository rouletteRepository, IBetRepository betRepository, IUserRepository userRepository, IUnitOfWork unitOfWork, IRedisCacheService redis) : ICloseRouletteService<CloseRouletteResponse>
     {
         private readonly IRouletteRepository _rouletteRepository = rouletteRepository;
         private readonly IUserRepository _userRepository = userRepository;
         private readonly IBetRepository _betRepository = betRepository;
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly IRedisCacheService _redis = redis;
 
         public async Task<CloseRouletteResponse> ExecuteAsync(int rouletteId)
         {
@@ -40,6 +42,8 @@ namespace Roulette.Application.RouletteServices
 
                 await _unitOfWork.CommitAsync();
                 await _unitOfWork.CommitTransactionAsync();
+
+                await _redis.RemoveAsync(GetAllRouletteService.CacheKey);
 
                 var message = bets.Count != 0
                     ? "Roulette closed successfully."
