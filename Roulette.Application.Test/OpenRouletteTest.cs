@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using Moq;
 using Roulette.Application.RouletteServices;
+using Roulette.Domain.Contracts.Redis;
 using Roulette.Domain.Contracts.Repositories;
 using Roulette.Domain.Contracts.Services;
 using Roulette.Domain.Entities;
@@ -10,9 +11,17 @@ namespace Roulette.Application.Test
 {
     public class OpenRouletteTest
     {
+        private readonly Mock<IRouletteRepository> _repository;
+        private readonly Mock<IUnitOfWork> _unitOfWork;
+        private readonly Mock<IRedisCacheService> _redis;
+
         private readonly RouletteEntity _roulette;
         public OpenRouletteTest()
         {
+            _repository = new Mock<IRouletteRepository>();
+            _unitOfWork = new Mock<IUnitOfWork>();
+            _redis = new Mock<IRedisCacheService>();
+
             _roulette = new RouletteEntity() { Id = 1 };
         }
 
@@ -27,9 +36,7 @@ namespace Roulette.Application.Test
         public async Task Execute_WhenRouletteNotFound_ShouldReturnErrorResponse()
         {
             // Arrange
-            var repository = new Mock<IRouletteRepository>();
-            var unitOfWork = new Mock<IUnitOfWork>();
-            var service = new OpenRouletteService(repository.Object, unitOfWork.Object);
+            var service = new OpenRouletteService(_repository.Object, _unitOfWork.Object, _redis.Object);
 
             // Act
             var response = await service.ExecuteAsync(5);
@@ -49,10 +56,8 @@ namespace Roulette.Application.Test
         public async Task Execute_WhenRouletteExists_ShouldOpenSuccessfully()
         {
             // Arrange
-            var repository = new Mock<IRouletteRepository>();
-            var unitOfWork = new Mock<IUnitOfWork>();
-            repository.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).ReturnsAsync(_roulette);
-            var service = new OpenRouletteService(repository.Object, unitOfWork.Object);
+            _repository.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).ReturnsAsync(_roulette);
+            var service = new OpenRouletteService(_repository.Object, _unitOfWork.Object, _redis.Object);
 
             // Act
             var response = await service.ExecuteAsync(1);
@@ -75,10 +80,8 @@ namespace Roulette.Application.Test
         public async Task Execute_WhenFindThrowsException_ShouldReturnErrorResponse()
         {
             // Arrange
-            var repository = new Mock<IRouletteRepository>();
-            var unitOfWork = new Mock<IUnitOfWork>();
-            repository.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).Throws(new Exception("DB error."));
-            var service = new OpenRouletteService(repository.Object, unitOfWork.Object);
+            _repository.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).Throws(new Exception("DB error."));
+            var service = new OpenRouletteService(_repository.Object, _unitOfWork.Object, _redis.Object);
 
             // Act
             var response = await service.ExecuteAsync(1);
@@ -101,11 +104,9 @@ namespace Roulette.Application.Test
         public async Task Execute_WhenEditThrowsException_ShouldReturnErrorResponse()
         {
             // Arrange
-            var repository = new Mock<IRouletteRepository>();
-            var unitOfWork = new Mock<IUnitOfWork>();
-            repository.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).ReturnsAsync(_roulette);
-            repository.Setup(r => r.EditAsync(It.IsAny<RouletteEntity>())).Throws(new Exception("Update error."));
-            var service = new OpenRouletteService(repository.Object, unitOfWork.Object);
+            _repository.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).ReturnsAsync(_roulette);
+            _repository.Setup(r => r.EditAsync(It.IsAny<RouletteEntity>())).Throws(new Exception("Update error."));
+            var service = new OpenRouletteService(_repository.Object, _unitOfWork.Object, _redis.Object);
 
             // Act
             var response = await service.ExecuteAsync(1);
@@ -128,11 +129,9 @@ namespace Roulette.Application.Test
         public async Task Execute_WhenCommitThrowsException_ShouldReturnErrorResponse()
         {
             // Arrange
-            var repository = new Mock<IRouletteRepository>();
-            var unitOfWork = new Mock<IUnitOfWork>();
-            repository.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).ReturnsAsync(_roulette);
-            unitOfWork.Setup(u => u.CommitTransactionAsync()).Throws(new Exception("Transaction error."));
-            var service = new OpenRouletteService(repository.Object, unitOfWork.Object);
+            _repository.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).ReturnsAsync(_roulette);
+            _unitOfWork.Setup(u => u.CommitTransactionAsync()).Throws(new Exception("Transaction error."));
+            var service = new OpenRouletteService(_repository.Object, _unitOfWork.Object, _redis.Object);
 
             // Act
             var response = await service.ExecuteAsync(1);
@@ -155,17 +154,15 @@ namespace Roulette.Application.Test
         public async Task Execute_ShouldCallEditAndCommitOnce()
         {
             // Arrange
-            var repository = new Mock<IRouletteRepository>();
-            var unitOfWork = new Mock<IUnitOfWork>();
-            repository.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).ReturnsAsync(_roulette);
-            var service = new OpenRouletteService(repository.Object, unitOfWork.Object);
+            _repository.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).ReturnsAsync(_roulette);
+            var service = new OpenRouletteService(_repository.Object, _unitOfWork.Object, _redis.Object);
 
             // Act
             await service.ExecuteAsync(1);
 
             // Assert
-            repository.Verify(r => r.EditAsync(It.IsAny<RouletteEntity>()), Times.Once);
-            unitOfWork.Verify(u => u.CommitTransactionAsync(), Times.Once);
+            _repository.Verify(r => r.EditAsync(It.IsAny<RouletteEntity>()), Times.Once);
+            _unitOfWork.Verify(u => u.CommitTransactionAsync(), Times.Once);
         }
     }
 }

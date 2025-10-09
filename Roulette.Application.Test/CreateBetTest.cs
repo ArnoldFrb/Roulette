@@ -7,6 +7,7 @@ using Roulette.Application.Models.Requests;
 using System.Linq.Expressions;
 using FluentAssertions;
 using Roulette.Application.RouletteServices;
+using Roulette.Domain.Contracts.Redis;
 
 namespace Roulette.Application.Test
 {
@@ -20,6 +21,7 @@ namespace Roulette.Application.Test
         private readonly Mock<IUserRepository> _userR;
         private readonly Mock<IBetRepository> _betR;
         private readonly Mock<IUnitOfWork> _unitOfWork;
+        private readonly Mock<IRedisCacheService> _redis;
 
         public CreateBetTest()
         {
@@ -28,6 +30,7 @@ namespace Roulette.Application.Test
             _userR = new Mock<IUserRepository>();
             _betR = new Mock<IBetRepository>();
             _unitOfWork = new Mock<IUnitOfWork>();
+            _redis = new Mock<IRedisCacheService>();
 
             _roulette = new RouletteEntity() { Id = 1 };
             _user = new UserEntity("Jose Carlos", "@#Hl1g2l34", 50000) { Id = 1 };
@@ -119,7 +122,7 @@ namespace Roulette.Application.Test
             _userR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<UserEntity, bool>>>())).ReturnsAsync(user);
             _rouletteR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).ReturnsAsync(_roulette);
 
-            await new OpenRouletteService(_rouletteR.Object, _unitOfWork.Object).ExecuteAsync(1);
+            await new OpenRouletteService(_rouletteR.Object, _unitOfWork.Object, _redis.Object).ExecuteAsync(1);
 
             var service = new CreateBetService(_betR.Object, _userR.Object, _rouletteR.Object, _unitOfWork.Object);
             var request = new CreateBetRequest(100, BetType.Color, nameof(RouletteColor.Red), 1);
@@ -146,7 +149,7 @@ namespace Roulette.Application.Test
             _rouletteR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).ReturnsAsync(_roulette);
             _betR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<BetEntity, bool>>>())).ReturnsAsync(_bet);
 
-            await new OpenRouletteService(_rouletteR.Object, _unitOfWork.Object).ExecuteAsync(1);
+            await new OpenRouletteService(_rouletteR.Object, _unitOfWork.Object, _redis.Object).ExecuteAsync(1);
 
             var service = new CreateBetService(_betR.Object, _userR.Object, _rouletteR.Object, _unitOfWork.Object);
             var request = new CreateBetRequest(100, BetType.Color, nameof(RouletteColor.Red), 1);
@@ -174,7 +177,7 @@ namespace Roulette.Application.Test
             _userR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<UserEntity, bool>>>())).ReturnsAsync(_user);
             _rouletteR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).ReturnsAsync(_roulette);
 
-            await new OpenRouletteService(_rouletteR.Object, _unitOfWork.Object).ExecuteAsync(1);
+            await new OpenRouletteService(_rouletteR.Object, _unitOfWork.Object, _redis.Object).ExecuteAsync(1);
 
             var service = new CreateBetService(_betR.Object, _userR.Object, _rouletteR.Object, _unitOfWork.Object);
             var request = new CreateBetRequest(amount, BetType.Color, nameof(RouletteColor.Red), 1);
@@ -200,7 +203,7 @@ namespace Roulette.Application.Test
             _userR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<UserEntity, bool>>>())).ReturnsAsync(_user);
             _rouletteR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).ReturnsAsync(_roulette);
 
-            await new OpenRouletteService(_rouletteR.Object, _unitOfWork.Object).ExecuteAsync(1);
+            await new OpenRouletteService(_rouletteR.Object, _unitOfWork.Object, _redis.Object).ExecuteAsync(1);
 
             var service = new CreateBetService(_betR.Object, _userR.Object, _rouletteR.Object, _unitOfWork.Object);
             var request = new CreateBetRequest(100, BetType.Color + 10, nameof(RouletteColor.Red), 1);
@@ -226,7 +229,7 @@ namespace Roulette.Application.Test
             _userR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<UserEntity, bool>>>())).ReturnsAsync(_user);
             _rouletteR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).ReturnsAsync(_roulette);
 
-            await new OpenRouletteService(_rouletteR.Object, _unitOfWork.Object).ExecuteAsync(1);
+            await new OpenRouletteService(_rouletteR.Object, _unitOfWork.Object, _redis.Object).ExecuteAsync(1);
 
             var service = new CreateBetService(_betR.Object, _userR.Object, _rouletteR.Object, _unitOfWork.Object);
             var request = new CreateBetRequest(100, BetType.Color, nameof(RouletteColor.Red), 1);
@@ -252,7 +255,7 @@ namespace Roulette.Application.Test
             _userR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<UserEntity, bool>>>())).ReturnsAsync(_user);
             _rouletteR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).ReturnsAsync(_roulette);
 
-            await new OpenRouletteService(_rouletteR.Object, _unitOfWork.Object).ExecuteAsync(1);
+            await new OpenRouletteService(_rouletteR.Object, _unitOfWork.Object, _redis.Object).ExecuteAsync(1);
 
             var service = new CreateBetService(_betR.Object, _userR.Object, _rouletteR.Object, _unitOfWork.Object);
             var request = new CreateBetRequest(100, BetType.Number, "5", 1);
@@ -279,7 +282,7 @@ namespace Roulette.Application.Test
             _rouletteR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).ReturnsAsync(_roulette);
             _betR.Setup(r => r.AddAsync(It.IsAny<BetEntity>())).Throws(new Exception("Unexpected error."));
 
-            await   new OpenRouletteService(_rouletteR.Object, _unitOfWork.Object).ExecuteAsync(1);
+            await   new OpenRouletteService(_rouletteR.Object, _unitOfWork.Object, _redis.Object).ExecuteAsync(1);
 
             var service = new CreateBetService(_betR.Object, _userR.Object, _rouletteR.Object, _unitOfWork.Object);
             var request = new CreateBetRequest(100, BetType.Number, "5", 1);

@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using Moq;
 using Roulette.Application.RouletteServices;
+using Roulette.Domain.Contracts.Redis;
 using Roulette.Domain.Contracts.Repositories;
 using Roulette.Domain.Contracts.Repositories.Base;
 using Roulette.Domain.Contracts.Services;
@@ -12,12 +13,14 @@ namespace Roulette.Application.Test
     public class CloseRouletteTest
     {
         private readonly RouletteEntity _roulette;
+        private readonly UserEntity _user;
+        private readonly List<BetEntity> _bet;
+
         private readonly Mock<IRouletteRepository> _rouletteR;
         private readonly Mock<IUserRepository> _userR;
         private readonly Mock<IBetRepository> _betR;
         private readonly Mock<IUnitOfWork> _unitOfWork;
-        private readonly UserEntity _user;
-        private readonly List<BetEntity> _bet;
+        private readonly Mock<IRedisCacheService> _redis;
 
         public CloseRouletteTest()
         {
@@ -26,6 +29,7 @@ namespace Roulette.Application.Test
             _userR = new Mock<IUserRepository>();
             _betR = new Mock<IBetRepository>();
             _unitOfWork = new Mock<IUnitOfWork>();
+            _redis = new Mock<IRedisCacheService>();
 
             _user = new UserEntity("Jose Carlos", "@#Hl1g2l34", 50000) { Id = 1 };
             _roulette = new RouletteEntity() { Id = 1};
@@ -47,7 +51,7 @@ namespace Roulette.Application.Test
         public async Task Execute_ShouldReturnNotFound_WhenRouletteDoesNotExist()
         {
             // Arrange
-            var service = new CloseRouletteService(_rouletteR.Object, _betR.Object, _userR.Object, _unitOfWork.Object);
+            var service = new CloseRouletteService(_rouletteR.Object, _betR.Object, _userR.Object, _unitOfWork.Object, _redis.Object);
 
             // Act
             var response = await service.ExecuteAsync(5);
@@ -73,10 +77,10 @@ namespace Roulette.Application.Test
             _rouletteR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).ReturnsAsync(_roulette);
             _betR.Setup(r => r.FindByAsync(It.IsAny<Expression<Func<BetEntity, bool>>>())).ReturnsAsync(_bet);
 
-            var serviceO = new OpenRouletteService(_rouletteR.Object, _unitOfWork.Object);
+            var serviceO = new OpenRouletteService(_rouletteR.Object, _unitOfWork.Object, _redis.Object);
             await serviceO.ExecuteAsync(1);
 
-            var serviceC = new CloseRouletteService(_rouletteR.Object, _betR.Object, _userR.Object, _unitOfWork.Object);
+            var serviceC = new CloseRouletteService(_rouletteR.Object, _betR.Object, _userR.Object, _unitOfWork.Object, _redis.Object);
 
             // Act
             var response = await serviceC.ExecuteAsync(1);
@@ -103,10 +107,10 @@ namespace Roulette.Application.Test
             _rouletteR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).ReturnsAsync(_roulette);
             _betR.Setup(r => r.FindByAsync(It.IsAny<Expression<Func<BetEntity, bool>>>())).ReturnsAsync([]);
 
-            var serviceO = new OpenRouletteService(_rouletteR.Object, _unitOfWork.Object);
+            var serviceO = new OpenRouletteService(_rouletteR.Object, _unitOfWork.Object, _redis.Object);
             await serviceO.ExecuteAsync(1);
 
-            var serviceC = new CloseRouletteService(_rouletteR.Object, _betR.Object, _userR.Object, _unitOfWork.Object);
+            var serviceC = new CloseRouletteService(_rouletteR.Object, _betR.Object, _userR.Object, _unitOfWork.Object, _redis.Object);
 
             // Act
             var response = await serviceC.ExecuteAsync(1);
@@ -131,7 +135,7 @@ namespace Roulette.Application.Test
         {
             // Arrange
             _rouletteR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).Throws(new Exception("DB error."));
-            var service = new CloseRouletteService(_rouletteR.Object, _betR.Object, _userR.Object, _unitOfWork.Object);
+            var service = new CloseRouletteService(_rouletteR.Object, _betR.Object, _userR.Object, _unitOfWork.Object, _redis.Object);
 
             // Act
             var response = await service.ExecuteAsync(1);
@@ -156,7 +160,7 @@ namespace Roulette.Application.Test
             // Arrange
             _rouletteR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).ReturnsAsync(_roulette);
             _betR.Setup(r => r.FindByAsync(It.IsAny<Expression<Func<BetEntity, bool>>>())).Throws(new Exception("Search error."));
-            var service = new CloseRouletteService(_rouletteR.Object, _betR.Object, _userR.Object, _unitOfWork.Object);
+            var service = new CloseRouletteService(_rouletteR.Object, _betR.Object, _userR.Object, _unitOfWork.Object, _redis.Object);
 
             // Act
             var response = await service.ExecuteAsync(1);
@@ -181,7 +185,7 @@ namespace Roulette.Application.Test
             // Arrange
             _rouletteR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).ReturnsAsync(_roulette);
             _betR.Setup(r => r.FindByAsync(It.IsAny<Expression<Func<BetEntity, bool>>>())).ReturnsAsync(_bet);
-            var service = new CloseRouletteService(_rouletteR.Object, _betR.Object, _userR.Object, _unitOfWork.Object);
+            var service = new CloseRouletteService(_rouletteR.Object, _betR.Object, _userR.Object, _unitOfWork.Object, _redis.Object);
 
             // Act
             var response = await service.ExecuteAsync(1);
@@ -205,7 +209,7 @@ namespace Roulette.Application.Test
         {
             // Arrange
             _rouletteR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).Throws(new Exception("Db Error."));
-            var service = new CloseRouletteService(_rouletteR.Object, _betR.Object, _userR.Object, _unitOfWork.Object);
+            var service = new CloseRouletteService(_rouletteR.Object, _betR.Object, _userR.Object, _unitOfWork.Object, _redis.Object);
 
             // Act
             var response = await service.ExecuteAsync(1);

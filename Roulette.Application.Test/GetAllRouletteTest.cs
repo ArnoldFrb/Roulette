@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using Moq;
 using Roulette.Application.RouletteServices;
+using Roulette.Domain.Contracts.Redis;
 using Roulette.Domain.Contracts.Repositories;
 using Roulette.Domain.Entities;
 
@@ -10,10 +11,12 @@ namespace Roulette.Application.Test
     {
         private readonly IEnumerable<RouletteEntity> _roulettes;
         private readonly Mock<IRouletteRepository> _repository;
+        private readonly Mock<IRedisCacheService> _redis;
 
         public GetAllRouletteTest()
         {
             _repository = new Mock<IRouletteRepository>();
+            _redis = new Mock<IRedisCacheService>();
 
             _roulettes = [
                 new RouletteEntity() { Id = 1 },
@@ -36,7 +39,7 @@ namespace Roulette.Application.Test
         {
             // Arrange
             _repository.Setup(r => r.GetAllAsync()).ReturnsAsync(_roulettes);
-            var service = new GetAllRouletteService(_repository.Object);
+            var service = new GetAllRouletteService(_repository.Object, _redis.Object);
 
             // Act
             var response = await service.ExecuteAsync();
@@ -58,7 +61,7 @@ namespace Roulette.Application.Test
         {
             // Arrange
             _repository.Setup(r => r.GetAllAsync()).ReturnsAsync([]);
-            var service = new GetAllRouletteService(_repository.Object);
+            var service = new GetAllRouletteService(_repository.Object, _redis.Object);
 
             // Act
             var response = await service.ExecuteAsync();
@@ -80,7 +83,7 @@ namespace Roulette.Application.Test
         {
             // Arrange
             _repository.Setup(r => r.GetAllAsync()).Throws(new Exception("Db Error"));
-            var service = new GetAllRouletteService(_repository.Object);
+            var service = new GetAllRouletteService(_repository.Object, _redis.Object);
 
             // Act
             var response = await service.ExecuteAsync();

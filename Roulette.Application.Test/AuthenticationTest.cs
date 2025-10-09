@@ -10,9 +10,11 @@ namespace Roulette.Application.Test
 {
     public class AuthenticationTest
     {
+        private readonly Mock<IUserRepository> _repository;
         private readonly UserEntity _user;
         public AuthenticationTest()
         {
+            _repository = new Mock<IUserRepository>();
             _user = new UserEntity("Jose Carlos", "@#Hl1g2l34", 50000) { Id = 1 };
         }
 
@@ -28,9 +30,7 @@ namespace Roulette.Application.Test
         {
 
             // Arrange
-            var repository = new Mock<IUserRepository>();
-
-            var service = new AuthenticationService(repository.Object);
+            var service = new AuthenticationService(_repository.Object);
             var request = new AuthenticationRequest("pepe", "password123");
 
             // Act
@@ -54,12 +54,10 @@ namespace Roulette.Application.Test
         {
 
             // Arrange
-            var repository = new Mock<IUserRepository>();
-
-            repository.Setup(repo => repo.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<UserEntity, bool>>>()))
+            _repository.Setup(repo => repo.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<UserEntity, bool>>>()))
             .ReturnsAsync(_user);
 
-            var service = new AuthenticationService(repository.Object);
+            var service = new AuthenticationService(_repository.Object);
             var request = new AuthenticationRequest("Jose Carlos", "@#Hl1g2l34");
 
             // Act
@@ -83,12 +81,10 @@ namespace Roulette.Application.Test
         {
 
             // Arrange
-            var repository = new Mock<IUserRepository>();
-
-            repository.Setup(repo => repo.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<UserEntity, bool>>>()))
+            _repository.Setup(repo => repo.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<UserEntity, bool>>>()))
             .ReturnsAsync(_user);
 
-            var service = new AuthenticationService(repository.Object);
+            var service = new AuthenticationService(_repository.Object);
             var request = new AuthenticationRequest("Jose Carlos", "password123");
 
             // Act
