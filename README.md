@@ -1,6 +1,7 @@
 # Roulette
  Prueba tecnica de reuleta
 
+<<<<<<< HEAD
 ## Construir y Ejecutar
  docker compose up --build
 
@@ -15,3 +16,8 @@
 
 ## Detener y borrar también volúmenes
  docker compose down -v
+=======
+## Migration
+ dotnet ef migrations add InitialCreate
+ dotnet ef database update
+>>>>>>> dev
