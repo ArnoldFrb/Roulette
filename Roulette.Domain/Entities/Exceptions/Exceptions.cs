@@ -5,7 +5,7 @@
     /// </summary>
     public class InvalidUsernameOrPasswordException : Exception
     {
-        public InvalidUsernameOrPasswordException() : base("Invalid username or password.") { }
+        public InvalidUsernameOrPasswordException() : base("The credentials are incorrect.") { }
 
         public InvalidUsernameOrPasswordException(string? message) : base(message)
         {
@@ -16,15 +16,15 @@
         }
     }
 
-    public class InsufficientCreditsException : Exception
+    public class InvalidCreditOperationException : Exception
     {
-        public InsufficientCreditsException() : base("Insufficient credits.") { }
+        public InvalidCreditOperationException() : base("Insufficient credits.") { }
 
-        public InsufficientCreditsException(string? message) : base(message)
+        public InvalidCreditOperationException(string? message) : base(message)
         {
         }
 
-        public InsufficientCreditsException(string? message, Exception? innerException) : base(message, innerException)
+        public InvalidCreditOperationException(string? message, Exception? innerException) : base(message, innerException)
         {
         }
     }

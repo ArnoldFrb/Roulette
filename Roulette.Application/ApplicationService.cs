@@ -16,7 +16,8 @@ namespace Roulette.Application
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection services)
         {
-            services.AddScoped<IAuthenticationService<AuthenticationRequest, AuthenticationResponse>, AuthenticationService>();
+            services.AddScoped<IAuthenticationService<AuthenticationRequest, UserResponse>, AuthenticationService>();
+            services.AddScoped<IGetGamblerService<UserResponse>, GetGamblerService>();
             services.AddScoped<ICreateRouletteService<CreateRouletteResponse>, CreateRouletteService>();
             services.AddScoped<IOpenRouletteService<OpenRouletteResponse>, OpenRouletteService>();
             services.AddScoped<ICloseRouletteService<CloseRouletteResponse>, CloseRouletteService>();

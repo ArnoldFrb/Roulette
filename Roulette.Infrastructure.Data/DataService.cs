@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Roulette.Domain.Contracts.Repositories;
 using Roulette.Domain.Contracts.Services;
 using Roulette.Infrastructure.Data.Core;
@@ -15,9 +14,11 @@ namespace Roulette.Infrastructure.Data
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             // Register Repositories
-            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<ICrupierRepository, CrupierRepository>();
+            services.AddScoped<IGamblerRepository, GamblerRepository>();
             services.AddScoped<IRouletteRepository, RouletteRepository>();
             services.AddScoped<IBetRepository, BetRepository>();
+
             return services;
         }
     }

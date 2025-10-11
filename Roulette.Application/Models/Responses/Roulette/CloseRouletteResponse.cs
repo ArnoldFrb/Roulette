@@ -3,13 +3,13 @@ using Roulette.Domain.Entities;
 
 namespace Roulette.Application.Models.Responses.Roulette
 {
-    public record BetResponse(int Id, decimal Amount, string BetType, string BetValue, bool IsWinner);
+    public record BetDto(int Id, decimal Amount, string BetType, string BetValue, string Result, decimal Winning, DateTime CreatedAt);
     public record CloseRouletteDto : OpenRouletteDto
     {
         public DateTime? ClosedAt { get; init; }
         public int? NumberWinner { get; init; }
         public RouletteColor? ColorWinner { get; init; }
-        public IEnumerable<BetResponse>? Bets { get; init; }
+        public IEnumerable<BetDto>? Bets { get; init; }
     }
     public record CloseRouletteResponse : BaseResponse<CloseRouletteDto>
     {

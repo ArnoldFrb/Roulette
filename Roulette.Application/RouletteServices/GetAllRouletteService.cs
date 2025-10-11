@@ -22,15 +22,17 @@ namespace Roulette.Application.RouletteServices
                 if (cacheRoulettes?.Any() == true)
                     return ListRouletteResponse.Success(cacheRoulettes);
 
-                var roulettes = await _rouletteRepository.GetAllAsync();
+                var roulettes = (await _rouletteRepository.GetAllAsync()).ToList() ?? [];
 
-                var rouletteResponses = roulettes?.Select(MapRouletteToResponse).ToList() ?? [];
-                if (rouletteResponses.Count == 0)
-                    return ListRouletteResponse.Fail(AppCodes.Roulette.ROULETTE_NOT_FOUND, "No roulettes found.");
+                if (roulettes.Count == 0)
+                    return ListRouletteResponse.Success([], "No roulettes found.");
 
-                await _redis.SetAsync(CacheKey, rouletteResponses);
+                if (roulettes.Count > 0)
+                    await _redis.SetAsync(CacheKey, roulettes);
 
-                return ListRouletteResponse.Success(rouletteResponses);
+                var rouletteDto = roulettes.ConvertAll(MapRouletteToDto);
+
+                return ListRouletteResponse.Success(rouletteDto);
             }
             catch (Exception ex)
             {
@@ -47,7 +49,7 @@ namespace Roulette.Application.RouletteServices
                 _ => DateTime.MinValue
             };
 
-        private static RouletteDto MapRouletteToResponse(RouletteEntity roulette) =>
+        private static RouletteDto MapRouletteToDto(RouletteEntity roulette) =>
             new(
                 roulette.Id,
                 roulette.Status.ToString(),

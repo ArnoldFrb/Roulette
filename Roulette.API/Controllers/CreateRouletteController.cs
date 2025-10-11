@@ -11,11 +11,11 @@ namespace Roulette.API.Controllers
     {
         private readonly ICreateRouletteService<CreateRouletteResponse> _createRouletteService = createRouletteService;
 
-        [HttpPost("Roulette")]
+        [HttpPost("create")]
         public async Task<ActionResult<CreateRouletteResponse>> CreateRoulette()
         {
-            var result = await _createRouletteService.ExecuteAsync();
-            return result.IsSuccess ? Ok(result) : BadRequest(result);
+            var response = await _createRouletteService.ExecuteAsync();
+            return response.IsSuccess ? Ok(response) : StatusCode(500, response);
         }
     }
 }

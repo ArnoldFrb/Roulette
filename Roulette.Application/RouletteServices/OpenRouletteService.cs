@@ -4,6 +4,7 @@ using Roulette.Domain.Contracts.Redis;
 using Roulette.Domain.Contracts.Repositories;
 using Roulette.Domain.Contracts.Services;
 using Roulette.Domain.Contracts.Services.Roulette;
+using Roulette.Domain.Entities.Exceptions;
 
 namespace Roulette.Application.RouletteServices
 {
@@ -19,10 +20,10 @@ namespace Roulette.Application.RouletteServices
             try
             {
                 var roulette = await _rouletteRepository.FindSingleOrDefaultAsync(r => r.Id == rouletteId);
-                if (roulette == null)
+                if (roulette is null)
                     return OpenRouletteResponse.Fail(AppCodes.Roulette.ROULETTE_NOT_FOUND, "Roulette not found.");
 
-                roulette.OpenBet();
+                roulette.OpenRoulette();
                 await _rouletteRepository.EditAsync(roulette);
 
                 await _unitOfWork.CommitAsync();
@@ -37,6 +38,11 @@ namespace Roulette.Application.RouletteServices
                     CreatedAt = roulette.CreatedAt,
                     OpenedAt = roulette.OpenedAt
                 });
+            }
+            catch (InvalidRouletteStatusException ex)
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                return OpenRouletteResponse.Fail(AppCodes.Roulette.ROULETTE_OPEN_ERROR, ex.Message);
             }
             catch (Exception ex)
             {

@@ -1,18 +1,18 @@
 ﻿using Roulette.Application.Models;
-using Roulette.Application.Models.Responses.Bet;
 using Roulette.Application.Models.Responses.Roulette;
 using Roulette.Domain.Contracts.Redis;
 using Roulette.Domain.Contracts.Repositories;
 using Roulette.Domain.Contracts.Services;
 using Roulette.Domain.Contracts.Services.Roulette;
 using Roulette.Domain.Entities;
+using Roulette.Domain.Entities.Exceptions;
 
 namespace Roulette.Application.RouletteServices
 {
-    public class CloseRouletteService(IRouletteRepository rouletteRepository, IBetRepository betRepository, IUserRepository userRepository, IUnitOfWork unitOfWork, IRedisCacheService redis) : ICloseRouletteService<CloseRouletteResponse>
+    public class CloseRouletteService(IRouletteRepository rouletteRepository, IBetRepository betRepository, IGamblerRepository gamblerRepository, IUnitOfWork unitOfWork, IRedisCacheService redis) : ICloseRouletteService<CloseRouletteResponse>
     {
         private readonly IRouletteRepository _rouletteRepository = rouletteRepository;
-        private readonly IUserRepository _userRepository = userRepository;
+        private readonly IGamblerRepository _gamblerRepository = gamblerRepository;
         private readonly IBetRepository _betRepository = betRepository;
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly IRedisCacheService _redis = redis;
@@ -23,22 +23,14 @@ namespace Roulette.Application.RouletteServices
             try
             {
                 var roulette = await _rouletteRepository.FindSingleOrDefaultAsync(r => r.Id == rouletteId);
-                if (roulette == null)
+                if (roulette is null)
                     return CloseRouletteResponse.Fail(AppCodes.Roulette.ROULETTE_NOT_FOUND, "Roulette not found.");
 
-                var resultBets = await _betRepository.FindByAsync(b => b.Roulette.Id == rouletteId) ?? [];
-                var bets = resultBets.ToList();
+                roulette.CloseRoulette();
 
-                roulette.CloseBet();
-                roulette.GenerateWinningBet();
+                var bets = (await _betRepository.FindByAsync(b => b.RouletteId == rouletteId)).ToList() ?? [];
 
-                ApplyBetResults(bets);
-
-                foreach (var bet in bets)
-                {
-                    await _userRepository.EditAsync(bet.User);
-                    await _betRepository.EditAsync(bet);
-                }
+                await ProcessBetsAsync(bets, roulette);
 
                 await _rouletteRepository.EditAsync(roulette);
 
@@ -47,9 +39,9 @@ namespace Roulette.Application.RouletteServices
 
                 await _redis.RemoveAsync(GetAllRouletteService.CacheKey);
 
-                var message = bets.Count != 0
-                    ? "Roulette closed successfully."
-                    : "Roulette closed successfully. No bets found for this roulette.";
+                var message = bets.Count == 0
+                    ? "Roulette closed successfully. No bets found for this roulette."
+                    : "Roulette closed successfully.";
 
                 return CloseRouletteResponse.Success(new CloseRouletteDto()
                 {
@@ -60,9 +52,13 @@ namespace Roulette.Application.RouletteServices
                     ClosedAt = roulette.ClosedAt,
                     NumberWinner = roulette.NumberWinner,
                     ColorWinner = roulette.ColorWinner,
-                    Bets = bets?.Select(MapBetToResponse).ToList(),
-                },
-                message);
+                    Bets = bets.ConvertAll(MapBetToResponse)
+                }, message);
+            }
+            catch (InvalidRouletteStatusException ex)
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                return CloseRouletteResponse.Fail(AppCodes.Roulette.ROULETTE_CLOSE_ERROR, ex.Message);
             }
             catch (Exception ex)
             {
@@ -71,23 +67,37 @@ namespace Roulette.Application.RouletteServices
             }
         }
 
-        private static void ApplyBetResults(IEnumerable<BetEntity> bets)
+        private async Task ProcessBetsAsync(List<BetEntity> bets, RouletteEntity roulette)
         {
+            if (bets.Count == 0) return;
+
             foreach (var bet in bets)
             {
-                if (!bet.IsWinner()) continue;
-                decimal payout = bet.GetWinnings();
-                bet.User.PayCredit(payout);
+                bet.GetResult(roulette);
+
+                if (bet.Result == BetResult.Win)
+                {
+                    var gambler = await _gamblerRepository.FindSingleOrDefaultAsync(g => g.Id == bet.GamblerId);
+                    if (gambler is not null)
+                    {
+                        gambler.PayCredit(bet.Winnings);
+                        await _gamblerRepository.EditAsync(gambler);
+                    }
+                }
+
+                await _betRepository.EditAsync(bet);
             }
         }
 
-        private static BetResponse MapBetToResponse(BetEntity bet) =>
+        private static BetDto MapBetToResponse(BetEntity bet) =>
             new(
                 bet.Id,
                 bet.Amount,
                 bet.BetType.ToString(),
                 bet.BetType == BetType.Number ? bet.Number?.ToString() ?? "N/A" : bet.Color?.ToString() ?? "N/A",
-                bet.IsWinner()
+                bet.Result.ToString(),
+                bet.Winnings,
+                bet.CreatedAt
             );
     }
 }

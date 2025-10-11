@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Roulette.Application.Models;
 using Roulette.Application.Models.Responses.Roulette;
 using Roulette.Domain.Contracts.Services.Roulette;
 
@@ -14,8 +15,18 @@ namespace Roulette.API.Controllers
         [HttpPut("open/{id:int}")]
         public async Task<ActionResult<OpenRouletteResponse>> OpenRoulette(int id)
         {
-            var result = await _openRouletteService.ExecuteAsync(id);
-            return result.IsSuccess ? Ok(result) : BadRequest(result);
+            var response = await _openRouletteService.ExecuteAsync(id);
+
+            if (!response.IsSuccess )
+            {
+                return response.Code switch
+                {
+                    AppCodes.Roulette.ROULETTE_NOT_FOUND => NotFound(response),
+                    AppCodes.System.INTERNAL_ERROR => StatusCode(500, response),
+                    _ => BadRequest(response),
+                };
+            }
+            return Ok(response);
         }
     }
 }

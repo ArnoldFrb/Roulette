@@ -9,10 +9,10 @@ using Roulette.Domain.Entities.Exceptions;
 
 namespace Roulette.Application.BetServices
 {
-    public class CreateBetService(IBetRepository betRepository, IUserRepository userRepository, IRouletteRepository rouletteRepository, IUnitOfWork unitOfWork) : ICreateBetService<CreateBetRequest, CreateBetResponse>
+    public class CreateBetService(IBetRepository betRepository, IGamblerRepository gamblerRepository, IRouletteRepository rouletteRepository, IUnitOfWork unitOfWork) : ICreateBetService<CreateBetRequest, CreateBetResponse>
     {
         private readonly IBetRepository _betRepository = betRepository;
-        private readonly IUserRepository _userRepository = userRepository;
+        private readonly IGamblerRepository _gamblerRepository = gamblerRepository;
         private readonly IRouletteRepository _rouletteRepository = rouletteRepository;
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
@@ -21,26 +21,25 @@ namespace Roulette.Application.BetServices
             await _unitOfWork.BeginTransactionAsync();
             try
             {
-                var user = await _userRepository.FindSingleOrDefaultAsync(u => u.Id == userId);
-                if (user == null)
+                var user = await _gamblerRepository.FindSingleOrDefaultAsync(u => u.Id == userId);
+                if (user is null)
                     return CreateBetResponse.Fail(AppCodes.User.USER_NOT_FOUND, "User not found.");
 
                 var roulette = await _rouletteRepository.FindSingleOrDefaultAsync(r => r.Id == request.RouletteId);
-                if (roulette == null)
+                if (roulette is null)
                     return CreateBetResponse.Fail(AppCodes.Roulette.ROULETTE_NOT_FOUND, "Roulette not found.");
 
                 roulette.EnsureIsOpenForBets();
 
-                var existingBet = await _betRepository.FindSingleOrDefaultAsync(b => b.Roulette.Id == roulette.Id && b.User.Id == user.Id);
-                if (existingBet != null)
+                var existingBet = await _betRepository.FindSingleOrDefaultAsync(b => b.RouletteId == roulette.Id && b.GamblerId == user.Id);
+                if (existingBet is not null)
                     return CreateBetResponse.Fail(AppCodes.Bet.BET_CREATION_ERROR, "You already placed a bet on this roulette.");
 
                 var bet = CreateBet(request, user, roulette);
                 bet.ValidateBet();
 
                 user.DeductCredit(request.Amount);
-                await _userRepository.EditAsync(user);
-
+                await _gamblerRepository.EditAsync(user);
                 await _betRepository.AddAsync(bet);
 
                 await _unitOfWork.CommitAsync();
@@ -57,34 +56,50 @@ namespace Roulette.Application.BetServices
             catch (Exception ex)
             {
                 await _unitOfWork.RollbackTransactionAsync();
-                return CreateBetResponse.Fail(AppCodes.System.INTERNAL_ERROR, ex.Message);
+
+                var code = ex switch
+                {
+                    InvalidOperationException => AppCodes.Bet.BET_CREATION_ERROR,
+                    InvalidBetNumberException => AppCodes.Bet.INVALID_BET_NUMBER,
+                    InvalidBetColorException => AppCodes.Bet.INVALID_BET_COLOR,
+                    InvalidCreditOperationException => AppCodes.Bet.INVALID_BET_AMOUNT,
+                    _ => AppCodes.System.INTERNAL_ERROR
+                };
+
+                return CreateBetResponse.Fail(code, ex.Message);
             }
         }
 
-        private static BetEntity CreateBet(CreateBetRequest request, UserEntity user, RouletteEntity roulette)
+        private static BetEntity CreateBet(CreateBetRequest request, GamblerEntity user, RouletteEntity roulette)
         {
             return request.Type switch
             {
-                BetType.Number => CreateNumberBet(request, user, roulette),
-                BetType.Color => CreateColorBet(request, user, roulette),
+                BetType.Number => CreateNumberBet(request, user.Id, roulette.Id),
+                BetType.Color => CreateColorBet(request, user.Id, roulette.Id),
                 _ => throw new InvalidBetTypeException()
             };
         }
 
-        private static BetEntity CreateNumberBet(CreateBetRequest request, UserEntity user, RouletteEntity roulette)
+        private static BetEntity CreateNumberBet(CreateBetRequest request, int userId, int rouletteId)
         {
-            if (!int.TryParse(request.Value, out int number) || !BetEntity.IsValidNumber(number))
-                    throw new InvalidBetNumberException();
+            if (!int.TryParse(request.Value, out int number))
+                throw new InvalidBetNumberException("The provided number is not valid.");
 
-            return new BetEntity(request.Amount, BetType.Number, null, number, user.Id, roulette.Id);
+            if (number < RouletteConstants.MinBet || number > RouletteConstants.MaxBet)
+                throw new InvalidBetNumberException();
+
+            return new BetEntity(request.Amount, BetType.Number, null, number, userId, rouletteId);
         }
 
-        private static BetEntity CreateColorBet(CreateBetRequest request, UserEntity user, RouletteEntity roulette)
+        private static BetEntity CreateColorBet(CreateBetRequest request, int userId, int rouletteId)
         {
-            if (!Enum.TryParse<RouletteColor>(request.Value, true, out var color) || !BetEntity.IsValidColor(request.Value))
+            if (!Enum.TryParse<RouletteColor>(request.Value, true, out var color))
+                throw new InvalidBetColorException($"Color '{request.Value}' is not valid. Must be RED or BLACK.");
+
+            if (color != RouletteColor.Red && color != RouletteColor.Black)
                 throw new InvalidBetColorException();
 
-            return new BetEntity(request.Amount, BetType.Color, color, null, user.Id, roulette.Id);
+            return new BetEntity(request.Amount, BetType.Color, color, null, userId, rouletteId);
         }
     }
 }

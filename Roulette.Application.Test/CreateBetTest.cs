@@ -14,11 +14,11 @@ namespace Roulette.Application.Test
     public class CreateBetTest
     {
         private readonly RouletteEntity _roulette;
-        private readonly UserEntity _user;
+        private readonly GamblerEntity _user;
         private readonly BetEntity _bet;
 
         private readonly Mock<IRouletteRepository> _rouletteR;
-        private readonly Mock<IUserRepository> _userR;
+        private readonly Mock<IGamblerRepository> _userR;
         private readonly Mock<IBetRepository> _betR;
         private readonly Mock<IUnitOfWork> _unitOfWork;
         private readonly Mock<IRedisCacheService> _redis;
@@ -27,13 +27,13 @@ namespace Roulette.Application.Test
         {
 
             _rouletteR = new Mock<IRouletteRepository>();
-            _userR = new Mock<IUserRepository>();
+            _userR = new Mock<IGamblerRepository>();
             _betR = new Mock<IBetRepository>();
             _unitOfWork = new Mock<IUnitOfWork>();
             _redis = new Mock<IRedisCacheService>();
 
             _roulette = new RouletteEntity() { Id = 1 };
-            _user = new UserEntity("Jose Carlos", "@#Hl1g2l34", 50000) { Id = 1 };
+            _user = new GamblerEntity("Jose Carlos", 50000) { Id = 1 };
             _bet =  new(100, BetType.Color, RouletteColor.Red, null, _user.Id, _roulette.Id);
         }
 
@@ -48,7 +48,7 @@ namespace Roulette.Application.Test
         public async Task Execute_ShouldReturnRouletteNotFound_WhenRouletteDoesNotExist()
         {
             // Arrange
-            _userR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<UserEntity, bool>>>())).ReturnsAsync(_user);
+            _userR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<GamblerEntity, bool>>>())).ReturnsAsync(_user);
 
             var service = new CreateBetService(_betR.Object, _userR.Object, _rouletteR.Object, _unitOfWork.Object);
             var request = new CreateBetRequest(100, BetType.Color, nameof(RouletteColor.Red), 1);
@@ -94,7 +94,7 @@ namespace Roulette.Application.Test
         public async Task Execute_ShouldReturnError_WhenRouletteIsNotOpen()
         {
             // Arrange
-            _userR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<UserEntity, bool>>>())).ReturnsAsync(_user);
+            _userR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<GamblerEntity, bool>>>())).ReturnsAsync(_user);
             _rouletteR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).ReturnsAsync(_roulette);
 
             var service = new CreateBetService(_betR.Object, _userR.Object, _rouletteR.Object, _unitOfWork.Object);
@@ -118,8 +118,8 @@ namespace Roulette.Application.Test
         public async Task Execute_ShouldReturnError_WhenUserHasInsufficientCredit()
         {
             // Arrange
-            var user = new UserEntity("Jose Carlos", "@#Hl1g2l34", 99) { Id = 1 };
-            _userR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<UserEntity, bool>>>())).ReturnsAsync(user);
+            var user = new GamblerEntity("Jose Carlos", 99) { Id = 1 };
+            _userR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<GamblerEntity, bool>>>())).ReturnsAsync(user);
             _rouletteR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).ReturnsAsync(_roulette);
 
             await new OpenRouletteService(_rouletteR.Object, _unitOfWork.Object, _redis.Object).ExecuteAsync(1);
@@ -131,7 +131,7 @@ namespace Roulette.Application.Test
             var action = await service.ExecuteAsync(1, request);
 
             // Assert
-            action.Message.Should().Be("Error creating bet: Insufficient credits.");
+            action.Message.Should().Be("Error creating bet: Not enough credit to perform this operation.");
         }
 
         /*
@@ -145,7 +145,7 @@ namespace Roulette.Application.Test
         public async Task Execute_ShouldReturnError_WhenUserAlreadyPlacedBetOnSameRoulette()
         {
             // Arrange
-            _userR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<UserEntity, bool>>>())).ReturnsAsync(_user);
+            _userR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<GamblerEntity, bool>>>())).ReturnsAsync(_user);
             _rouletteR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).ReturnsAsync(_roulette);
             _betR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<BetEntity, bool>>>())).ReturnsAsync(_bet);
 
@@ -174,7 +174,7 @@ namespace Roulette.Application.Test
         public async Task Execute_ShouldThrowInvalidBetAmountException_WhenAmountIsOutOfRange(int amount)
         {
             // Arrange
-            _userR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<UserEntity, bool>>>())).ReturnsAsync(_user);
+            _userR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<GamblerEntity, bool>>>())).ReturnsAsync(_user);
             _rouletteR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).ReturnsAsync(_roulette);
 
             await new OpenRouletteService(_rouletteR.Object, _unitOfWork.Object, _redis.Object).ExecuteAsync(1);
@@ -200,7 +200,7 @@ namespace Roulette.Application.Test
         public async Task Execute_ShouldThrowInvalidBetTypeException_WhenBetTypeIsInvalid()
         {
             // Arrange
-            _userR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<UserEntity, bool>>>())).ReturnsAsync(_user);
+            _userR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<GamblerEntity, bool>>>())).ReturnsAsync(_user);
             _rouletteR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).ReturnsAsync(_roulette);
 
             await new OpenRouletteService(_rouletteR.Object, _unitOfWork.Object, _redis.Object).ExecuteAsync(1);
@@ -226,7 +226,7 @@ namespace Roulette.Application.Test
         public async Task Execute_ShouldCreateNumberBetSuccessfully_WhenValidRequest()
         {
             // Arrange
-            _userR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<UserEntity, bool>>>())).ReturnsAsync(_user);
+            _userR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<GamblerEntity, bool>>>())).ReturnsAsync(_user);
             _rouletteR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).ReturnsAsync(_roulette);
 
             await new OpenRouletteService(_rouletteR.Object, _unitOfWork.Object, _redis.Object).ExecuteAsync(1);
@@ -252,7 +252,7 @@ namespace Roulette.Application.Test
         public async Task Execute_ShouldCreateColorBetSuccessfully_WhenValidRequest()
         {
             // Arrange
-            _userR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<UserEntity, bool>>>())).ReturnsAsync(_user);
+            _userR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<GamblerEntity, bool>>>())).ReturnsAsync(_user);
             _rouletteR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).ReturnsAsync(_roulette);
 
             await new OpenRouletteService(_rouletteR.Object, _unitOfWork.Object, _redis.Object).ExecuteAsync(1);
@@ -278,7 +278,7 @@ namespace Roulette.Application.Test
         public async Task Execute_ShouldRollbackTransaction_WhenUnexpectedErrorOccurs()
         {
             // Arrange
-            _userR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<UserEntity, bool>>>())).ReturnsAsync(_user);
+            _userR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<GamblerEntity, bool>>>())).ReturnsAsync(_user);
             _rouletteR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).ReturnsAsync(_roulette);
             _betR.Setup(r => r.AddAsync(It.IsAny<BetEntity>())).Throws(new Exception("Unexpected error."));
 

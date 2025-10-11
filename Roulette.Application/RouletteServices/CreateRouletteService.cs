@@ -20,8 +20,8 @@ namespace Roulette.Application.RouletteServices
             try
             {
                 var roulette = new RouletteEntity();
-                await _rouletteRepository.AddAsync(roulette);
 
+                await _rouletteRepository.AddAsync(roulette);
                 await _unitOfWork.CommitAsync();
                 await _unitOfWork.CommitTransactionAsync();
 

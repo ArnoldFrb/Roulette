@@ -4,7 +4,6 @@ using Roulette.Application.Models;
 using Roulette.Application.RouletteServices;
 using Roulette.Domain.Contracts.Redis;
 using Roulette.Domain.Contracts.Repositories;
-using Roulette.Domain.Contracts.Repositories.Base;
 using Roulette.Domain.Contracts.Services;
 using Roulette.Domain.Entities;
 using System.Linq.Expressions;
@@ -14,11 +13,11 @@ namespace Roulette.Application.Test
     public class CloseRouletteTest
     {
         private readonly RouletteEntity _roulette;
-        private readonly UserEntity _user;
+        private readonly GamblerEntity _user;
         private readonly List<BetEntity> _bet;
 
         private readonly Mock<IRouletteRepository> _rouletteR;
-        private readonly Mock<IUserRepository> _userR;
+        private readonly Mock<IGamblerRepository> _userR;
         private readonly Mock<IBetRepository> _betR;
         private readonly Mock<IUnitOfWork> _unitOfWork;
         private readonly Mock<IRedisCacheService> _redis;
@@ -27,12 +26,12 @@ namespace Roulette.Application.Test
         {
 
             _rouletteR = new Mock<IRouletteRepository>();
-            _userR = new Mock<IUserRepository>();
+            _userR = new Mock<IGamblerRepository>();
             _betR = new Mock<IBetRepository>();
             _unitOfWork = new Mock<IUnitOfWork>();
             _redis = new Mock<IRedisCacheService>();
 
-            _user = new UserEntity("Jose Carlos", "@#Hl1g2l34", 50000) { Id = 1 };
+            _user = new GamblerEntity("Jose Carlos", 50000) { Id = 1 };
             _roulette = new RouletteEntity() { Id = 1};
 
             _bet =
@@ -155,6 +154,9 @@ namespace Roulette.Application.Test
             // Arrange
             _rouletteR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).ReturnsAsync(_roulette);
             _betR.Setup(r => r.FindByAsync(It.IsAny<Expression<Func<BetEntity, bool>>>())).Throws(new Exception("Search error."));
+
+            _roulette.OpenRoulette();
+
             var service = new CloseRouletteService(_rouletteR.Object, _betR.Object, _userR.Object, _unitOfWork.Object, _redis.Object);
 
             // Act
@@ -186,7 +188,7 @@ namespace Roulette.Application.Test
 
             // Assert
             response.IsSuccess.Should().BeFalse();
-            response.Code.Should().Be(AppCodes.System.INTERNAL_ERROR);
+            response.Code.Should().Be(AppCodes.Roulette.ROULETTE_CLOSE_ERROR);
             response.Message.Should().Be("Error closing roulette: Expected status Open, but current is Created.");
         }
 

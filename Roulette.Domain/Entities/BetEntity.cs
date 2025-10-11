@@ -9,6 +9,12 @@ namespace Roulette.Domain.Entities
         Color
     }
 
+    public enum BetResult{
+        Win,
+        Lose,
+        Pending
+    }
+
     public class BetEntity : Entity<int>
     {
 
@@ -16,70 +22,73 @@ namespace Roulette.Domain.Entities
         public BetType BetType { get; protected set; }
         public RouletteColor? Color { get; protected set; }
         public int? Number { get; protected set; }
+        public DateTime CreatedAt { get; protected set; }
+        public decimal Winnings { get; protected set; }
+        public BetResult Result { get; set; }
 
-        public int UserId { get; protected set; }
-        public UserEntity User { get; protected set; } = default!;
-
+        public int GamblerId { get; protected set; }
+        public GamblerEntity Gambler { get; protected set; } = default!;
         public int RouletteId { get; protected set; }
         public RouletteEntity Roulette { get; protected set; } = default!;
 
-        public BetEntity(decimal amount, BetType betType, RouletteColor? color, int? number, int userId, int rouletteId)
+        private BetEntity() { }
+
+        public BetEntity(decimal amount, BetType betType, RouletteColor? color, int? number, int gamblerId, int rouletteId)
         {
             Amount = ValidateAmount(amount);
             BetType = betType;
             Color = color;
             Number = number;
-            UserId = userId;
+            GamblerId = gamblerId;
             RouletteId = rouletteId;
-        }
+            CreatedAt = DateTime.UtcNow;
+            Winnings = decimal.Zero;
+            Result = BetResult.Pending;
 
-        public BetEntity() { }
+            ValidateBet();
+        }
 
         public void ValidateBet()
         {
-            if (BetType == BetType.Color)
-            {
-                if (Color is null || (Color != RouletteColor.Red && Color != RouletteColor.Black))
-                    throw new InvalidBetColorException();
-            }
-            else if (BetType == BetType.Number)
-            {
-                if (Number is null || Number < RouletteConstants.MinNumber || Number > RouletteConstants.MaxNumber)
-                    throw new InvalidBetNumberException();
-            }
-            else
-            {
-                throw new InvalidBetTypeException();
-            }
+            if (BetType == BetType.Color) EnsureValidColor();
+            if (BetType == BetType.Number) EnsureValidNumber();
         }
 
-        public bool IsWinner()
+        private void EnsureValidColor()
         {
-            if (BetType == BetType.Color)
-            {
-                return Color == Roulette.ColorWinner;
-            }
-            else if (BetType == BetType.Number)
-            {
-                return Number == Roulette.NumberWinner;
-            }
-            return false;
+            if (Color is null || (Color != RouletteColor.Red && Color != RouletteColor.Black))
+                throw new InvalidBetColorException();
         }
 
-        public decimal GetWinnings()
+        private void EnsureValidNumber()
         {
-            if (IsWinner())
+            if (Number is null || Number < RouletteConstants.MinNumber || Number > RouletteConstants.MaxNumber)
+                throw new InvalidBetNumberException();
+        }
+
+        public void GetResult(RouletteEntity roulette)
+        {
+            Result = IsWinner(roulette) ? BetResult.Win : BetResult.Lose;
+            if (Result == BetResult.Win)
+                CalculateWinnings();
+        }
+
+        private bool IsWinner(RouletteEntity roulette) =>
+            BetType switch
             {
-                if (BetType == BetType.Color)
-                {
-                    return Amount * 1.8m;
-                }
-                else if (BetType == BetType.Number)
-                {
-                    return Amount * 5m;
-                }
-            }
-            return 0;
+                BetType.Color => Color == roulette.ColorWinner,
+                BetType.Number => Number == roulette.NumberWinner,
+                _ => false
+            };
+
+        private void CalculateWinnings()
+        {
+            Winnings = BetType switch
+            {
+                BetType.Color => Amount * 1.8m,
+                BetType.Number => Amount * 5m,
+                _ => 0m
+            };
         }
 
         public static decimal ValidateAmount(decimal amount)
@@ -89,12 +98,7 @@ namespace Roulette.Domain.Entities
             return amount;
         }
 
-        public static bool IsValidAmount(decimal amount) => amount > RouletteConstants.MinBet && amount <= RouletteConstants.MaxBet;
-
-        public static bool IsValidNumber(int number) => number >= RouletteConstants.MinNumber && number <= RouletteConstants.MaxNumber;
-
-        public static bool IsValidColor(string color) =>
-            color.Equals(nameof(RouletteColor.Red), StringComparison.CurrentCultureIgnoreCase) ||
-            color.Equals(nameof(RouletteColor.Black), StringComparison.CurrentCultureIgnoreCase);
+        public static bool IsValidAmount(decimal amount) =>
+            amount > RouletteConstants.MinBet && amount <= RouletteConstants.MaxBet;
     }
 }

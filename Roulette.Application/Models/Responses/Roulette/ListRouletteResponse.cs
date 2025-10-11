@@ -7,8 +7,8 @@
         {
         }
 
-        public static ListRouletteResponse Success(IEnumerable<RouletteDto> data) =>
-            new(true, AppCodes.Roulette.ROULETTE_LISTED, "Roulettes retrieved successfully.", data);
+        public static ListRouletteResponse Success(IEnumerable<RouletteDto> data, string message = "Roulettes retrieved successfully.") =>
+            new(true, AppCodes.Roulette.ROULETTE_LISTED, message, data);
 
         public static ListRouletteResponse Fail(string code, string message) =>
             new(false, code, $"Error retrieving roulettes: {message}", default);

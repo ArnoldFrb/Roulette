@@ -4,5 +4,5 @@ using Roulette.Infrastructure.Data.Core;
 
 namespace Roulette.Infrastructure.Data.Repositories
 {
-    public class UserRepository(RouletteDbContext context) : CoreRepository<UserEntity>(context), IUserRepository;
+    public class GamblerRepository(RouletteDbContext context) : CoreRepository<GamblerEntity>(context), IGamblerRepository;
 }

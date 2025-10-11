@@ -4,92 +4,14 @@ using Roulette.Domain.Entities.Exceptions;
 
 namespace Roulette.Domain.Test
 {
-    public class UserTest
+    public class GamblerTest
     {
-        /// <summary>
-        ///  PASSWORD TESTS
-        /// </summary>
+        private readonly GamblerEntity _user;
 
-        /*
-         1.	Contraseña válida
-            •	Dado un usuario con contraseña "@#Hl1g2l34"
-            •	Cuando se valida la contraseña ingresando "@#Hl1g2l34"
-            •	Entonces la validación es exitosa (no se lanza excepción).
-        */
-        [Fact]
-        [Trait("Category", "Password")]
-        public void IsValidPassword_WithCorrectPassword_ShouldNotThrow()
+        public GamblerTest()
         {
-            // Arrange
-            var user = new UserEntity("Jose Carlos", "@#Hl1g2l34", 50000) { Id = 1 };
-
-            // Act
-            var action = user.ValidatePassword(user.Password);
-
-            // Assert
-            action.Should().BeTrue();
+            _user = new GamblerEntity("Jose Carlos", 100) { Id = 1 };
         }
-
-        /*
-         2.	Contraseña inválida
-            •	Dado un usuario con contraseña "@#Hl1g2l34"
-            •	Cuando se valida la contraseña ingresando "contraseña123"
-            •	Entonces se debe retornar false.
-        */
-        [Fact]
-        [Trait("Category", "Password")]
-        public void IsValidPassword_WithIncorrectPassword_ShouldThrowException()
-        {
-            // Arrange
-            var user = new UserEntity("Jose Carlos", "@#Hl1g2l34", 50000) { Id = 1 };
-
-            // Act
-            var action = user.ValidatePassword("contraseña123");
-
-            // Assert
-            action.Should().BeFalse();
-        }
-
-        /*
-         3.	Contraseña vacía
-            •	Dado un usuario con contraseña "@#Hl1g2l34"
-            •	Cuando se valida la contraseña ingresando ""
-            •	Entonces se debe retornar false.
-        */
-        [Fact]
-        [Trait("Category", "Password")]
-        public void IsValidPassword_WithEmptyPassword_ShouldThrowException()
-        {
-            // Arrange
-            var user = new UserEntity("Jose Carlos", "@#Hl1g2l34", 50000) { Id = 1 };
-
-            // Act
-            var action = user.ValidatePassword("");
-
-            // Assert
-            action.Should().BeFalse();
-        }
-
-        /*
-         4.	Contraseña nula
-            •	Dado un usuario con contraseña "@#Hl1g2l34"
-            •	Cuando se valida la contraseña ingresando null
-            •	Entonces se debe retornar false.
-        */
-        [Fact]
-        [Trait("Category", "Password")]
-        public void IsValidPassword_WithNullPassword_ShouldThrowException()
-        {
-            // Arrange
-            var user = new UserEntity("Jose Carlos", "@#Hl1g2l34", 50000) { Id = 1 };
-
-            // Act
-            var action = user.ValidatePassword(null!);
-
-            // Assert
-            action.Should().BeFalse();
-        }
-
 
         /// <summary>
         ///  USERNAME TESTS
@@ -99,7 +21,7 @@ namespace Roulette.Domain.Test
          1.	Nombre de usuario vacío
             •	Dado un usuario con nombre "Jose Carlos"
             •	Cuando ingresa un nombre vacío ""
-            •	Entonces se lanza una excepción con el mensaje "Invalid username or password."
+            •	Entonces se lanza una excepción con el mensaje "The credentials are incorrect."
         */
         [Fact]
         [Trait("Category", "Usernames")]
@@ -111,14 +33,14 @@ namespace Roulette.Domain.Test
 
             // Assert
             action.Should().Throw<InvalidUsernameOrPasswordException>()
-                .WithMessage("Invalid username or password.");
+                .WithMessage("The credentials are incorrect.");
         }
 
         /*
          2.	Nombre de usuario nulo
             •	Dado un usuario con nombre "Jose Carlos"
             •	Cuando se valida el nombre ingresando null
-            •	Entonces se lanza una excepción (puede ser por error de referencia o "Invalid username or password." según implementación).
+            •	Entonces se lanza una excepción (puede ser por error de referencia o "The credentials are incorrect." según implementación).
         */
         [Fact]
         [Trait("Category", "Usernames")]
@@ -130,7 +52,7 @@ namespace Roulette.Domain.Test
 
             // Assert
             action.Should().Throw<InvalidUsernameOrPasswordException>()
-                .WithMessage("Invalid username or password.");
+                .WithMessage("The credentials are incorrect.");
         }
 
 
@@ -149,13 +71,12 @@ namespace Roulette.Domain.Test
         public void IncreaseCredit_WithValidAmount_ShouldUpdateCredit()
         {
             // Arrange
-            var user = new UserEntity("Jose Carlos", "@#Hl1g2l34", 100) { Id = 1 };
 
             // Act
-            user.PayCredit(50);
+            _user.PayCredit(50);
 
             // Assert
-            user.Credit.Should().Be(150);
+            _user.Credit.Should().Be(150);
         }
 
         /*
@@ -169,13 +90,12 @@ namespace Roulette.Domain.Test
         public void IncreaseCredit_WithZeroAmount_ShouldThrowException()
         {
             // Arrange
-            var user = new UserEntity("Jose Carlos", "@#Hl1g2l34", 100) { Id = 1 };
 
             // Act
-            var action = () => user.PayCredit(0);
+            var action = () => _user.PayCredit(0);
 
             // Assert
-            action.Should().Throw<InsufficientCreditsException>()
+            action.Should().Throw<InvalidCreditOperationException>()
                 .WithMessage("Invalid credits amount. Must be greater than 0.");
         }
 
@@ -190,13 +110,12 @@ namespace Roulette.Domain.Test
         public void IncreaseCredit_WithNegativeAmount_ShouldThrowException()
         {
             // Arrange
-            var user = new UserEntity("Jose Carlos", "@#Hl1g2l34", 100) { Id = 1 };
 
             // Act
-            var action = () => user.PayCredit(-10);
+            var action = () => _user.PayCredit(-10);
 
             // Assert
-            action.Should().Throw<InsufficientCreditsException>()
+            action.Should().Throw<InvalidCreditOperationException>()
                 .WithMessage("Invalid credits amount. Must be greater than 0.");
         }
 
@@ -216,13 +135,12 @@ namespace Roulette.Domain.Test
         public void DeductCredit_WithValidAmount_ShouldUpdateCredit()
         {
             // Arrange
-            var user = new UserEntity("Jose Carlos", "@#Hl1g2l34", 100) { Id = 1 };
 
             // Act
-            user.DeductCredit(50);
+            _user.DeductCredit(50);
 
             // Assert
-            user.Credit.Should().Be(50);
+            _user.Credit.Should().Be(50);
         }
 
         /*
@@ -236,13 +154,12 @@ namespace Roulette.Domain.Test
         public void DeductCredit_WithAmountEqualToCredit_ShouldSetCreditToZero()
         {
             // Arrange
-            var user = new UserEntity("Jose Carlos", "@#Hl1g2l34", 100) { Id = 1 };
 
             // Act
-            user.DeductCredit(100);
+            _user.DeductCredit(100);
 
             // Assert
-            user.Credit.Should().Be(0);
+            _user.Credit.Should().Be(0);
         }
 
         /*
@@ -256,14 +173,13 @@ namespace Roulette.Domain.Test
         public void DeductCredit_WithAmountExceedingCredit_ShouldThrowException()
         {
             // Arrange
-            var user = new UserEntity("Jose Carlos", "@#Hl1g2l34", 100) { Id = 1 };
 
             // Act
-            var action = () => user.DeductCredit(150);
+            var action = () => _user.DeductCredit(150);
 
             // Assert
-            action.Should().Throw<InsufficientCreditsException>()
-                .WithMessage("Insufficient credits.");
+            action.Should().Throw<InvalidCreditOperationException>()
+                .WithMessage("Not enough credit to perform this operation.");
         }
 
         /*
@@ -277,13 +193,12 @@ namespace Roulette.Domain.Test
         public void DeductCredit_WithZeroAmount_ShouldThrowException()
         {
             // Arrange
-            var user = new UserEntity("Jose Carlos", "@#Hl1g2l34", 100) { Id = 1 };
 
             // Act
-            var action = () => user.DeductCredit(0);
+            var action = () => _user.DeductCredit(0);
 
             // Assert
-            action.Should().Throw<InsufficientCreditsException>()
+            action.Should().Throw<InvalidCreditOperationException>()
                 .WithMessage("Invalid credits amount. Must be greater than 0.");
         }
 
@@ -298,13 +213,12 @@ namespace Roulette.Domain.Test
         public void DeductCredit_WithNegativeAmount_ShouldThrowException()
         {
             // Arrange
-            var user = new UserEntity("Jose Carlos", "@#Hl1g2l34", 100) { Id = 1 };
 
             // Act
-            var action = () => user.DeductCredit(-10);
+            var action = () => _user.DeductCredit(-10);
 
             // Assert
-            action.Should().Throw<InsufficientCreditsException>()
+            action.Should().Throw<InvalidCreditOperationException>()
                 .WithMessage("Invalid credits amount. Must be greater than 0.");
         }
     }

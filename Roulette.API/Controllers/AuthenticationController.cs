@@ -9,18 +9,29 @@ namespace Roulette.API.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [ApiExplorerSettings(GroupName = "Auth")]
-    public class AuthenticationController(IAuthenticationService<AuthenticationRequest, AuthenticationResponse> authenticationService) : ControllerBase
+    public class AuthenticationController(IAuthenticationService<AuthenticationRequest, UserResponse> authenticationService) : ControllerBase
     {
-        private readonly IAuthenticationService<AuthenticationRequest, AuthenticationResponse> _authenticationService = authenticationService;
+        private readonly IAuthenticationService<AuthenticationRequest, UserResponse> _authenticationService = authenticationService;
 
         [HttpPost("login")]
-        public async Task<ActionResult<AuthenticationResponse>> Authenticate([FromBody] AuthenticationRequest request)
+        public async Task<ActionResult<UserResponse>> Authenticate([FromBody] AuthenticationRequest request)
         {
             if (!ModelState.IsValid)
-                return BadRequest(AuthenticationResponse.Fail(AppCodes.Auth.INVALID_AUTH, "Invalid login data."));
+                return BadRequest(UserResponse.Fail(AppCodes.Auth.INVALID_AUTH, "Invalid login data."));
 
-            var result = await _authenticationService.ExecuteAsync(request);
-            return result.IsSuccess ? Ok(result) : BadRequest(result);
+            var response = await _authenticationService.ExecuteAsync(request);
+
+            if (!response.IsSuccess)
+            {
+                return response.Code switch
+                {
+                    AppCodes.Auth.INVALID_AUTH => Unauthorized(response),
+                    AppCodes.User.USER_NOT_FOUND => NotFound(response),
+                    AppCodes.System.INTERNAL_ERROR => StatusCode(500, response),
+                    _ => BadRequest(response)
+                };
+            }
+            return Ok(response);
         }
     }
 }

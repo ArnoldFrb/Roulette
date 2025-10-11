@@ -18,8 +18,19 @@ namespace Roulette.API.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(CreateBetResponse.Fail(AppCodes.System.VALIDATION_ERROR, "Invalid input data."));
 
-            var result = await _createBetService.ExecuteAsync(userId, request);
-            return result.IsSuccess ? Ok(result) : BadRequest(result);
+            var response = await _createBetService.ExecuteAsync(userId, request);
+            if (!response.IsSuccess)
+            {
+                return response.Code switch
+                {
+                    AppCodes.User.USER_NOT_FOUND => NotFound(response),
+                    AppCodes.Roulette.ROULETTE_NOT_FOUND => NotFound(response),
+                    AppCodes.Bet.BET_CREATION_ERROR => StatusCode(500, response),
+                    AppCodes.System.INTERNAL_ERROR => StatusCode(500, response),
+                    _ => BadRequest(response),
+                };
+            }
+            return Ok(response);
         }
     }
 }

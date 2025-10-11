@@ -69,9 +69,9 @@ namespace Roulette.Application.Test
             var response = await service.ExecuteAsync();
 
             // Assert
-            response.IsSuccess.Should().BeFalse();
-            response.Code.Should().Be(AppCodes.Roulette.ROULETTE_NOT_FOUND);
-            response.Message.Should().Be("Error retrieving roulettes: No roulettes found.");
+            response.IsSuccess.Should().BeTrue();
+            response.Code.Should().Be(AppCodes.Roulette.ROULETTE_LISTED);
+            response.Message.Should().Be("No roulettes found.");
         }
 
         /*

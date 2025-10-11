@@ -25,15 +25,12 @@ namespace Roulette.Domain.Test
         [Fact]
         public void OpenBet_WithCreatedStatus_ShouldSetStatusToOpenAndUpdateOpenedAt()
         {
-            // Arrange
-            var roulette = _roulette;
-
             // Act
-            roulette.OpenBet();
+            _roulette.OpenRoulette();
 
             // Assert
-            roulette.Status.Should().Be(RouletteStatus.Open);
-            roulette.OpenedAt.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(2));
+            _roulette.Status.Should().Be(RouletteStatus.Open);
+            _roulette.OpenedAt.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(2));
         }
 
         /*
@@ -46,11 +43,10 @@ namespace Roulette.Domain.Test
         public void OpenBet_WithOpenStatus_ShouldThrowException()
         {
             // Arrange
-            var roulette = _roulette;
-            roulette.OpenBet();
+            _roulette.OpenRoulette();
 
             // Act
-            var action = () => roulette.OpenBet();
+            var action = () => _roulette.OpenRoulette();
 
             // Assert
             action.Should().Throw<InvalidRouletteStatusException>()
@@ -67,12 +63,11 @@ namespace Roulette.Domain.Test
         public void OpenBet_WithClosedStatus_ShouldThrowException()
         {
             // Arrange
-            var roulette = _roulette;
-            roulette.OpenBet();
-            roulette.CloseBet();
+            _roulette.OpenRoulette();
+            _roulette.CloseRoulette();
 
             // Act
-            var action = () => roulette.OpenBet();
+            var action = () => _roulette.OpenRoulette();
 
             // Assert
             action.Should().Throw<InvalidRouletteStatusException>()
@@ -94,15 +89,14 @@ namespace Roulette.Domain.Test
         public void CloseBet_WithOpenStatus_ShouldSetStatusToClosedAndUpdateClosedAt()
         {
             // Arrange
-            var roulette = _roulette;
-            roulette.OpenBet();
+            _roulette.OpenRoulette();
 
             // Act
-            roulette.CloseBet();
+            _roulette.CloseRoulette();
 
             // Assert
-            roulette.Status.Should().Be(RouletteStatus.Closed);
-            roulette.ClosedAt.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(2));
+            _roulette.Status.Should().Be(RouletteStatus.Closed);
+            _roulette.ClosedAt.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(2));
         }
 
         /*
@@ -118,7 +112,7 @@ namespace Roulette.Domain.Test
             var roulette = _roulette;
 
             // Act
-            var action = () => roulette.CloseBet();
+            var action = () => roulette.CloseRoulette();
 
             // Assert
             action.Should().Throw<InvalidRouletteStatusException>()
@@ -135,12 +129,11 @@ namespace Roulette.Domain.Test
         public void CloseBet_WithClosedStatus_ShouldThrowException()
         {
             // Arrange
-            var roulette = _roulette;
-            roulette.OpenBet();
-            roulette.CloseBet();
+            _roulette.OpenRoulette();
+            _roulette.CloseRoulette();
 
             // Act
-            var action = () => roulette.CloseBet();
+            var action = () => _roulette.CloseRoulette();
 
             // Assert
             action.Should().Throw<InvalidRouletteStatusException>()
@@ -162,100 +155,18 @@ namespace Roulette.Domain.Test
         public void RouletteConstructor_WithValidAmount_ShouldInitializeProperties()
         {
             // Arrange
-            var roulette = _roulette;
+            _roulette.OpenRoulette();
 
             // Act
-            roulette.GenerateWinningBet();
+            _roulette.CloseRoulette();
 
             // Assert
-            roulette.NumberWinner.Should().BeInRange(0, 36);
-            roulette.ColorWinner.Should().BeOneOf(RouletteColor.Red, RouletteColor.Black);
-            roulette.Status.Should().Be(RouletteStatus.Created);
-            roulette.CreatedAt.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(2));
-            roulette.OpenedAt.Should().Be(DateTime.MinValue);
-            roulette.ClosedAt.Should().Be(DateTime.MinValue);
-        }
-
-        /*
-         2.	Color ganador para número dentro de rango
-            •	Dado un número ganador mayor que 0 o menor que 36
-            •	Cuando se obtiene el color ganador
-            •	Entonces debería manejarse el caso (según la lógica de negocio).
-        */
-        [Fact]
-        public void IsValidNumberWinner_WithValidNumber_ShouldReturnNumber()
-        {
-            // Arrange
-            const int numberWinner = 15;
-
-            // Act
-            var number = RouletteEntity.IsValidNumberWinner(numberWinner);
-
-            // Assert
-            number.Should().Be(numberWinner);
-        }
-
-        /*
-         3.	Validar número ganador para número fuera de rango
-            •	Dado un número ganador menor que 0 o mayor que 36
-            •	Cuando se obtiene el color ganador
-            •	Entonces debería manejarse el caso (según la lógica de negocio).
-        */
-        [Theory]
-        [InlineData(37)]
-        [InlineData(50)]
-        [InlineData(100)]
-        [InlineData(-10)]
-        [InlineData(-100)]
-        public void IsValidNumberWinner_WithOutOfRangeValue_ShouldThrowException(int numberWinner)
-        {
-            // Act
-            var action = () => RouletteEntity.IsValidNumberWinner(numberWinner);
-
-            // Assert
-            action.Should().Throw<InvalidNumberWinnerException>().WithMessage("Invalid Number. Must be between 0 and 36.");
-        }
-
-        /*
-         4.	Validar color ganador para número par
-            •	Dado un número ganador par
-            •	Cuando se genera el color ganador
-            •	Entonces el color debe ser Red
-        */
-        [Theory]
-        [InlineData(0)]
-        [InlineData(2)]
-        [InlineData(4)]
-        [InlineData(10)]
-        [InlineData(36)]
-        public void GetWinnerColor_WithEvenNumber_ShouldReturnRed(int numberWinner)
-        {
-            // Act
-            var color = RouletteEntity.GetWinnerColor(numberWinner);
-
-            // Assert
-            color.Should().Be(RouletteColor.Red);
-        }
-
-        /*
-         5.	Validar color ganador para número impar
-            •	Dado un número ganador impar
-            •	Cuando se genera el color ganador
-            •	Entonces el color debe ser Black
-        */
-        [Theory]
-        [InlineData(1)]
-        [InlineData(3)]
-        [InlineData(15)]
-        [InlineData(21)]
-        [InlineData(35)]
-        public void GetWinnerColor_WithOddNumber_ShouldReturnBlack(int numberWinner)
-        {
-            // Act
-            var color = RouletteEntity.GetWinnerColor(numberWinner);
-
-            // Assert
-            color.Should().Be(RouletteColor.Black);
+            _roulette.NumberWinner.Should().BeInRange(0, 36);
+            _roulette.ColorWinner.Should().BeOneOf(RouletteColor.Red, RouletteColor.Black);
+            _roulette.Status.Should().Be(RouletteStatus.Closed);
+            _roulette.CreatedAt.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(2));
+            _roulette.OpenedAt.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(2));
+            _roulette.ClosedAt.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(2));
         }
     }
 }

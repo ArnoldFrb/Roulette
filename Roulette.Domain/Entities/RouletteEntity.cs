@@ -21,9 +21,17 @@ namespace Roulette.Domain.Entities
     {
         private static readonly Random _random = new();
 
+        public int NumberWinner { get; protected set; }
+        public RouletteColor ColorWinner { get; protected set; }
+        public RouletteStatus Status { get; protected set; }
+        public DateTime CreatedAt { get; protected set; }
+        public DateTime OpenedAt { get; protected set; }
+        public DateTime ClosedAt { get; protected set; }
+        public ICollection<BetEntity> Bets { get; protected set; } = [];
+
+
         public RouletteEntity()
         {
-            RouletteId = 0;
             NumberWinner = -1;
             ColorWinner = RouletteColor.Colorless;
             Status = RouletteStatus.Created;
@@ -31,30 +39,24 @@ namespace Roulette.Domain.Entities
             OpenedAt = DateTime.MinValue;
             ClosedAt = DateTime.MinValue;
         }
+        protected RouletteEntity(bool _) { }
 
-        public int RouletteId { get; protected set; }
-        public int NumberWinner { get; protected set; }
-        public RouletteColor ColorWinner { get; protected set; }
-        public RouletteStatus Status { get; protected set; }
-        public DateTime CreatedAt { get; protected set; }
-        public DateTime OpenedAt { get; protected set; }
-        public DateTime ClosedAt { get; protected set; }
-
-        public void OpenBet()
+        public void OpenRoulette()
         {
-            EnsureHasStatus(RouletteStatus.Created);
+            EnsureStatus(RouletteStatus.Created);
             Status = RouletteStatus.Open;
             OpenedAt = DateTime.UtcNow;
         }
 
-        public void CloseBet()
+        public void CloseRoulette()
         {
-            EnsureHasStatus(RouletteStatus.Open);
+            EnsureStatus(RouletteStatus.Open);
             Status = RouletteStatus.Closed;
             ClosedAt = DateTime.UtcNow;
+            GenerateWinningResult();
         }
 
-        private void EnsureHasStatus(RouletteStatus expected)
+        private void EnsureStatus(RouletteStatus expected)
         {
             if (Status == RouletteStatus.Closed)
                 throw new InvalidRouletteStatusException("The roulette is already closed.");
@@ -62,18 +64,11 @@ namespace Roulette.Domain.Entities
             if (Status != expected)
                 throw new InvalidRouletteStatusException($"Expected status {expected}, but current is {Status}.");
         }
-        public void GenerateWinningBet()
+
+        private void GenerateWinningResult()
         {
-            NumberWinner = IsValidNumberWinner(_random.Next(RouletteConstants.MinNumber, RouletteConstants.MaxNumber+1));
-            ColorWinner = GetWinnerColor(NumberWinner);
-        }
-
-        public static RouletteColor GetWinnerColor(int numberWinner) => (numberWinner % 2 == 0) ? RouletteColor.Red : RouletteColor.Black;
-
-        public static int IsValidNumberWinner(int numberWinner) {
-            if (numberWinner < RouletteConstants.MinNumber || numberWinner > RouletteConstants.MaxNumber)
-                throw new InvalidNumberWinnerException();
-            return numberWinner;
+            NumberWinner = _random.Next(RouletteConstants.MinNumber, RouletteConstants.MaxNumber + 1);
+            ColorWinner = (NumberWinner % 2 == 0) ? RouletteColor.Red : RouletteColor.Black;
         }
 
         public void EnsureIsOpenForBets()

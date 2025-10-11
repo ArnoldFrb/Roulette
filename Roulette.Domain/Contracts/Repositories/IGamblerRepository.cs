@@ -3,5 +3,5 @@ using Roulette.Domain.Entities;
 
 namespace Roulette.Domain.Contracts.Repositories
 {
-    public interface IUserRepository : ICoreRepository<UserEntity>;
+    public interface IGamblerRepository : ICoreRepository<GamblerEntity>;
 }

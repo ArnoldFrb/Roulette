@@ -11,12 +11,12 @@ namespace Roulette.Application.Test
 {
     public class AuthenticationTest
     {
-        private readonly Mock<IUserRepository> _repository;
-        private readonly UserEntity _user;
+        private readonly Mock<ICrupierRepository> _repository;
+        private readonly CrupierEntity _user;
         public AuthenticationTest()
         {
-            _repository = new Mock<IUserRepository>();
-            _user = new UserEntity("Jose Carlos", "@#Hl1g2l34", 50000) { Id = 1 };
+            _repository = new Mock<ICrupierRepository>();
+            _user = new CrupierEntity("Jose Carlos", "@#Hl1g2l34") { Id = 1 };
         }
 
         /*
@@ -55,7 +55,7 @@ namespace Roulette.Application.Test
         {
 
             // Arrange
-            _repository.Setup(repo => repo.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<UserEntity, bool>>>()))
+            _repository.Setup(repo => repo.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<CrupierEntity, bool>>>()))
             .ReturnsAsync(_user);
 
             var service = new AuthenticationService(_repository.Object);
@@ -82,7 +82,7 @@ namespace Roulette.Application.Test
         {
 
             // Arrange
-            _repository.Setup(repo => repo.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<UserEntity, bool>>>()))
+            _repository.Setup(repo => repo.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<CrupierEntity, bool>>>()))
             .ReturnsAsync(_user);
 
             var service = new AuthenticationService(_repository.Object);
