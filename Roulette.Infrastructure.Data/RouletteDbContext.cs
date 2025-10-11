@@ -3,7 +3,7 @@ using Roulette.Domain.Entities;
 
 namespace Roulette.Infrastructure.Data
 {
-    public class RouletteDbContext : DbContext
+    public class RouletteDbContext(DbContextOptions<RouletteDbContext> options) : DbContext(options)
     {
         public DbSet<UserEntity> Users { get; set; }
         public DbSet<RouletteEntity> Roulettes { get; set; }
@@ -43,16 +43,16 @@ namespace Roulette.Infrastructure.Data
 
                 entity.HasOne(e => e.User)
                       .WithMany()
-                      .HasForeignKey(e => e.User)
+                      .HasForeignKey(e => e.UserId)
                       .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasOne(e => e.Roulette)
                       .WithMany()
-                      .HasForeignKey(e => e.Roulette)
+                      .HasForeignKey(e => e.RouletteId)
                       .OnDelete(DeleteBehavior.Cascade);
-
-                SeedUser(modelBuilder);
             });
+
+            SeedUser(modelBuilder);
         }
 
         protected static void SeedUser(ModelBuilder modelBuilder)

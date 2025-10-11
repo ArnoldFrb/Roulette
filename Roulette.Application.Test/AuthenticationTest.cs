@@ -5,6 +5,7 @@ using Roulette.Domain.Entities;
 using Roulette.Application.UserServices;
 using Roulette.Application.Models.Requests;
 using System.Linq.Expressions;
+using Roulette.Application.Models;
 
 namespace Roulette.Application.Test
 {
@@ -22,7 +23,7 @@ namespace Roulette.Application.Test
          1.	Usuario no existe
             •	Dado un usuario con Username "pepe" y Password "password123" que no existe en la base de datos
             •	Cuando se llama al método de autentificación con Username "pepe" y Password "password123"
-            •	Entonces se debe devolver un UserResponse con Id null, UserName null y Message "An error occurred during authentication.\nException: User not found"
+            •	Entonces se debe devolver un UserResponse con Id null, UserName null y Message "Authentication failed: User not found"
         */
         [Fact]
         [Trait("Category", "Auth")]
@@ -37,9 +38,9 @@ namespace Roulette.Application.Test
             var response = await service.ExecuteAsync(request);
 
             // Assert
-            response.Id.Should().BeNull();
-            response.UserName.Should().BeNull();
-            response.Message.Should().Be("An error occurred during authentication.\nException: User not found.");
+            response.IsSuccess.Should().BeFalse();
+            response.Code.Should().Be(AppCodes.User.USER_NOT_FOUND);
+            response.Message.Should().Be("Authentication failed: User not found.");
         }
 
         /*
@@ -64,8 +65,8 @@ namespace Roulette.Application.Test
             var response = await service.ExecuteAsync(request);
 
             // Assert
-            response.Id.Should().Be(1);
-            response.UserName.Should().Be("Jose Carlos");
+            response.IsSuccess.Should().BeTrue();
+            response.Code.Should().Be(AppCodes.Auth.AUTH_SUCCESS);
             response.Message.Should().Be("Authentication successful.");
         }
 
@@ -73,7 +74,7 @@ namespace Roulette.Application.Test
          3.	Usuario existe pero contraseña inválida
             •	Dado un usuario con Username "Jose Carlos" y Password "password123" que existe en la base de datos
             •	Cuando se llama al método de autentificación con Username "Jose Carlos" y Password "password123"
-            •	Entonces se debe devolver un UserResponse con Id null, UserName Jose Carlos y Message "An error occurred during authentication.\nException: Invalid password"
+            •	Entonces se debe devolver un UserResponse con Id null, UserName Jose Carlos y Message "Authentication failed: Invalid password"
         */
         [Fact]
         [Trait("Category", "Auth")]
@@ -91,9 +92,9 @@ namespace Roulette.Application.Test
             var response = await service.ExecuteAsync(request);
 
             // Assert
-            response.Id.Should().BeNull();
-            response.UserName.Should().BeNull();
-            response.Message.Should().Be("An error occurred during authentication.\nException: Invalid password.");
+            response.IsSuccess.Should().BeFalse();
+            response.Code.Should().Be(AppCodes.Auth.AUTH_FAILED);
+            response.Message.Should().Be("Authentication failed: Invalid password.");
         }
     }
 }

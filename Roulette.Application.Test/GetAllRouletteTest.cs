@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using Moq;
+using Roulette.Application.Models;
 using Roulette.Application.RouletteServices;
 using Roulette.Domain.Contracts.Redis;
 using Roulette.Domain.Contracts.Repositories;
@@ -45,7 +46,8 @@ namespace Roulette.Application.Test
             var response = await service.ExecuteAsync();
 
             // Assert
-            response.Roulettes.Should().NotBeEmpty();
+            response.IsSuccess.Should().BeTrue();
+            response.Code.Should().Be(AppCodes.Roulette.ROULETTE_LISTED);
             response.Message.Should().Be("Roulettes retrieved successfully.");
         }
 
@@ -67,7 +69,8 @@ namespace Roulette.Application.Test
             var response = await service.ExecuteAsync();
 
             // Assert
-            response.Roulettes.Should().BeEmpty();
+            response.IsSuccess.Should().BeFalse();
+            response.Code.Should().Be(AppCodes.Roulette.ROULETTE_NOT_FOUND);
             response.Message.Should().Be("Error retrieving roulettes: No roulettes found.");
         }
 
@@ -89,7 +92,8 @@ namespace Roulette.Application.Test
             var response = await service.ExecuteAsync();
 
             // Assert
-            response.Roulettes.Should().BeEmpty();
+            response.IsSuccess.Should().BeFalse();
+            response.Code.Should().Be(AppCodes.System.INTERNAL_ERROR);
             response.Message.Should().Be("Error retrieving roulettes: Db Error");
         }
     }

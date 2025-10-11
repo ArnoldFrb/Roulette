@@ -9,14 +9,31 @@ namespace Roulette.Domain.Entities
         Color
     }
 
-    public class BetEntity(decimal amount, BetType betType, RouletteColor? color, int? number, UserEntity user, RouletteEntity roulette) : Entity<int>
+    public class BetEntity : Entity<int>
     {
-        public decimal Amount { get; protected set; } = ValidateAmount(amount);
-        public BetType BetType { get; protected set; } = betType;
-        public RouletteColor? Color { get; protected set; } = color;
-        public int? Number { get; protected set; } = number;
-        public UserEntity User { get; protected set; } = user;
-        public RouletteEntity Roulette { get; protected set; } = roulette;
+
+        public decimal Amount { get; protected set; }
+        public BetType BetType { get; protected set; }
+        public RouletteColor? Color { get; protected set; }
+        public int? Number { get; protected set; }
+
+        public int UserId { get; protected set; }
+        public UserEntity User { get; protected set; } = default!;
+
+        public int RouletteId { get; protected set; }
+        public RouletteEntity Roulette { get; protected set; } = default!;
+
+        public BetEntity(decimal amount, BetType betType, RouletteColor? color, int? number, int userId, int rouletteId)
+        {
+            Amount = ValidateAmount(amount);
+            BetType = betType;
+            Color = color;
+            Number = number;
+            UserId = userId;
+            RouletteId = rouletteId;
+        }
+
+        public BetEntity() { }
 
         public void ValidateBet()
         {

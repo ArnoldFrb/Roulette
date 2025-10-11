@@ -10,4 +10,8 @@
     <ProjectReference Include="..\Roulette.Domain\Roulette.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.9" />
+  </ItemGroup>
+
 </Project>

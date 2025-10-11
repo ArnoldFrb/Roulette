@@ -1,4 +1,5 @@
-﻿using Roulette.Application.Models.Responses;
+﻿using Roulette.Application.Models;
+using Roulette.Application.Models.Responses.Roulette;
 using Roulette.Domain.Contracts.Redis;
 using Roulette.Domain.Contracts.Repositories;
 using Roulette.Domain.Contracts.Services.Roulette;
@@ -17,7 +18,7 @@ namespace Roulette.Application.RouletteServices
         {
             try
             {
-                var cacheRoulettes = await _redis.GetListAsync<RouletteResponse>(CacheKey);
+                var cacheRoulettes = await _redis.GetListAsync<RouletteDto>(CacheKey);
                 if (cacheRoulettes?.Any() == true)
                     return ListRouletteResponse.Success(cacheRoulettes);
 
@@ -25,7 +26,7 @@ namespace Roulette.Application.RouletteServices
 
                 var rouletteResponses = roulettes?.Select(MapRouletteToResponse).ToList() ?? [];
                 if (rouletteResponses.Count == 0)
-                    return ListRouletteResponse.Fail("No roulettes found.");
+                    return ListRouletteResponse.Fail(AppCodes.Roulette.ROULETTE_NOT_FOUND, "No roulettes found.");
 
                 await _redis.SetAsync(CacheKey, rouletteResponses);
 
@@ -33,7 +34,7 @@ namespace Roulette.Application.RouletteServices
             }
             catch (Exception ex)
             {
-                return ListRouletteResponse.Fail(ex.Message);
+                return ListRouletteResponse.Fail(AppCodes.System.INTERNAL_ERROR, ex.Message);
             }
         }
 
@@ -46,7 +47,7 @@ namespace Roulette.Application.RouletteServices
                 _ => DateTime.MinValue
             };
 
-        private static RouletteResponse MapRouletteToResponse(RouletteEntity roulette) =>
+        private static RouletteDto MapRouletteToResponse(RouletteEntity roulette) =>
             new(
                 roulette.Id,
                 roulette.Status.ToString(),

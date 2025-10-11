@@ -18,7 +18,7 @@ namespace Roulette.Infrastructure.Data.Core
             return Task.CompletedTask;
         }
 
-        public async Task<IEnumerable<T>> FindByAsync(Expression<Func<T, bool>> predicate) => await _dbSet.Where(predicate).ToListAsync();
+        public async Task<IEnumerable<T>> FindByAsync(Expression<Func<T, bool>> predicate) => await _dbSet.Where(predicate).AsNoTracking().ToListAsync();
 
         public async Task<IEnumerable<T>> FindByAsync(Expression<Func<T, bool>>? predicate = null, Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, string includeProperties = "") => await Task.Run(async () =>
         {
@@ -34,13 +34,13 @@ namespace Roulette.Infrastructure.Data.Core
             if (orderBy != null)
                 query = orderBy(query);
 
-            return await query.ToListAsync();
+            return await query.AsNoTracking().ToListAsync();
 
         });
 
         public async Task<T?> FindSingleOrDefaultAsync(Expression<Func<T, bool>> predicate) => await _dbSet.SingleOrDefaultAsync(predicate);
 
-        public async Task<IEnumerable<T>> GetAllAsync() => await _dbSet.ToListAsync();
+        public async Task<IEnumerable<T>> GetAllAsync() => await _dbSet.AsNoTracking().ToListAsync();
 
         public Task RemoveAsync(T entity)
         {

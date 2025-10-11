@@ -4,9 +4,9 @@ using StackExchange.Redis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Roulette.Infrastructure.Redis
+namespace Roulette.Infrastructure.Redis.Caches
 {
-    public class RedisCacheService(ConnectionMultiplexer connection, RedisSettings settings) : IRedisCacheService
+    public class RedisCacheService(IConnectionMultiplexer connection, RedisSettings settings) : IRedisCacheService
     {
         private readonly IDatabase _db = connection.GetDatabase();
         private readonly RedisSettings _settings = settings;

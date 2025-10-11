@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using Moq;
+using Roulette.Application.Models;
 using Roulette.Application.RouletteServices;
 using Roulette.Domain.Contracts.Redis;
 using Roulette.Domain.Contracts.Repositories;
@@ -63,9 +64,8 @@ namespace Roulette.Application.Test
             var response = await service.ExecuteAsync(1);
 
             // Assert
-            response.Id.Should().Be(1);
-            response.Status.Should().Be("Open");
-            response.OpenedAt.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(5));
+            response.IsSuccess.Should().BeTrue();
+            response.Code.Should().Be(AppCodes.Roulette.ROULETTE_OPENED);
             response.Message.Should().Be("Roulette opened successfully.");
         }
 
@@ -87,9 +87,8 @@ namespace Roulette.Application.Test
             var response = await service.ExecuteAsync(1);
 
             // Assert
-            response.Id.Should().BeNull();
-            response.Status.Should().BeNull();
-            response.OpenedAt.Should().BeNull();
+            response.IsSuccess.Should().BeFalse();
+            response.Code.Should().Be(AppCodes.System.INTERNAL_ERROR);
             response.Message.Should().Be("Error opening roulette: DB error.");
         }
 
@@ -112,9 +111,8 @@ namespace Roulette.Application.Test
             var response = await service.ExecuteAsync(1);
 
             // Assert
-            response.Id.Should().BeNull();
-            response.Status.Should().BeNull();
-            response.OpenedAt.Should().BeNull();
+            response.IsSuccess.Should().BeFalse();
+            response.Code.Should().Be(AppCodes.System.INTERNAL_ERROR);
             response.Message.Should().Be("Error opening roulette: Update error.");
         }
 
@@ -137,9 +135,8 @@ namespace Roulette.Application.Test
             var response = await service.ExecuteAsync(1);
 
             // Assert
-            response.Id.Should().BeNull();
-            response.Status.Should().BeNull();
-            response.OpenedAt.Should().BeNull();
+            response.IsSuccess.Should().BeFalse();
+            response.Code.Should().Be(AppCodes.System.INTERNAL_ERROR);
             response.Message.Should().Be("Error opening roulette: Transaction error.");
         }
 

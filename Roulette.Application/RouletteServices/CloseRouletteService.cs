@@ -1,4 +1,6 @@
-﻿using Roulette.Application.Models.Responses;
+﻿using Roulette.Application.Models;
+using Roulette.Application.Models.Responses.Bet;
+using Roulette.Application.Models.Responses.Roulette;
 using Roulette.Domain.Contracts.Redis;
 using Roulette.Domain.Contracts.Repositories;
 using Roulette.Domain.Contracts.Services;
@@ -22,7 +24,7 @@ namespace Roulette.Application.RouletteServices
             {
                 var roulette = await _rouletteRepository.FindSingleOrDefaultAsync(r => r.Id == rouletteId);
                 if (roulette == null)
-                    return CloseRouletteResponse.Fail("Roulette not found.");
+                    return CloseRouletteResponse.Fail(AppCodes.Roulette.ROULETTE_NOT_FOUND, "Roulette not found.");
 
                 var resultBets = await _betRepository.FindByAsync(b => b.Roulette.Id == rouletteId) ?? [];
                 var bets = resultBets.ToList();
@@ -49,20 +51,23 @@ namespace Roulette.Application.RouletteServices
                     ? "Roulette closed successfully."
                     : "Roulette closed successfully. No bets found for this roulette.";
 
-                return CloseRouletteResponse.Success(
-                    roulette.Id,
-                    roulette.Status.ToString(),
-                    roulette.CreatedAt, roulette.OpenedAt,
-                    roulette.ClosedAt,
-                    roulette.NumberWinner,
-                    roulette.ColorWinner,
-                    bets?.Select(MapBetToResponse).ToList(),
-                    message);
+                return CloseRouletteResponse.Success(new CloseRouletteDto()
+                {
+                    Id = roulette.Id,
+                    Status = roulette.Status.ToString(),
+                    CreatedAt = roulette.CreatedAt,
+                    OpenedAt = roulette.OpenedAt,
+                    ClosedAt = roulette.ClosedAt,
+                    NumberWinner = roulette.NumberWinner,
+                    ColorWinner = roulette.ColorWinner,
+                    Bets = bets?.Select(MapBetToResponse).ToList(),
+                },
+                message);
             }
             catch (Exception ex)
             {
                 await _unitOfWork.RollbackTransactionAsync();
-                return CloseRouletteResponse.Fail(ex.Message);
+                return CloseRouletteResponse.Fail(AppCodes.System.INTERNAL_ERROR, ex.Message);
             }
         }
 

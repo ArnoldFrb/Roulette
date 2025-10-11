@@ -1,7 +1,6 @@
 # Roulette
  Prueba tecnica de reuleta
 
-<<<<<<< HEAD
 ## Construir y Ejecutar
  docker compose up --build
 
@@ -16,8 +15,10 @@
 
 ## Detener y borrar también volúmenes
  docker compose down -v
-=======
+
 ## Migration
- dotnet ef migrations add InitialCreate
- dotnet ef database update
->>>>>>> dev
+ dotnet ef migrations add InitialCreate (solo docker)
+ dotnet ef database update (local)
+
+ dotnet ef migrations add InitialCreate --project Roulette.Infrastructure.Data --startup-project Roulette.API (solo docker)
+ dotnet ef database update --project Roulette.Infrastructure.Data --startup-project Roulette.API (local)

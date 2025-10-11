@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using Moq;
+using Roulette.Application.Models;
 using Roulette.Application.RouletteServices;
 using Roulette.Domain.Contracts.Redis;
 using Roulette.Domain.Contracts.Repositories;
@@ -36,7 +37,7 @@ namespace Roulette.Application.Test
 
             _bet =
             [
-                new(100, BetType.Color, RouletteColor.Red, null, _user, _roulette) { Id = 1 },
+                new(100, BetType.Color, RouletteColor.Red, null, _user.Id, _roulette.Id) { Id = 1 },
             ];
         }
 
@@ -57,9 +58,8 @@ namespace Roulette.Application.Test
             var response = await service.ExecuteAsync(5);
 
             // Assert
-            response.Id.Should().BeNull();
-            response.Status.Should().BeNull();
-            response.ClosedAt.Should().BeNull();
+            response.IsSuccess.Should().BeFalse();
+            response.Code.Should().Be(AppCodes.Roulette.ROULETTE_NOT_FOUND);
             response.Message.Should().Be("Error closing roulette: Roulette not found.");
         }
 
@@ -86,10 +86,8 @@ namespace Roulette.Application.Test
             var response = await serviceC.ExecuteAsync(1);
 
             // Assert
-            response.Id.Should().Be(1);
-            response.Status.Should().Be("Closed");
-            response.ClosedAt.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(5));
-            response.Bets.Should().NotBeNull();
+            response.IsSuccess.Should().BeTrue();
+            response.Code.Should().Be(AppCodes.Roulette.ROULETTE_CLOSED);
             response.Message.Should().Be("Roulette closed successfully.");
         }
 
@@ -116,10 +114,8 @@ namespace Roulette.Application.Test
             var response = await serviceC.ExecuteAsync(1);
 
             // Assert
-            response.Id.Should().Be(1);
-            response.Status.Should().Be("Closed");
-            response.ClosedAt.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(5));
-            response.Bets.Should().BeEmpty();
+            response.IsSuccess.Should().BeTrue();
+            response.Code.Should().Be(AppCodes.Roulette.ROULETTE_CLOSED);
             response.Message.Should().Be("Roulette closed successfully. No bets found for this roulette.");
         }
 
@@ -141,9 +137,8 @@ namespace Roulette.Application.Test
             var response = await service.ExecuteAsync(1);
 
             // Assert
-            response.Id.Should().BeNull();
-            response.Status.Should().BeNull();
-            response.ClosedAt.Should().BeNull();
+            response.IsSuccess.Should().BeFalse();
+            response.Code.Should().Be(AppCodes.System.INTERNAL_ERROR);
             response.Message.Should().Be("Error closing roulette: DB error.");
         }
 
@@ -166,9 +161,8 @@ namespace Roulette.Application.Test
             var response = await service.ExecuteAsync(1);
 
             // Assert
-            response.Id.Should().BeNull();
-            response.Status.Should().BeNull();
-            response.ClosedAt.Should().BeNull();
+            response.IsSuccess.Should().BeFalse();
+            response.Code.Should().Be(AppCodes.System.INTERNAL_ERROR);
             response.Message.Should().Be("Error closing roulette: Search error.");
         }
 
@@ -191,9 +185,8 @@ namespace Roulette.Application.Test
             var response = await service.ExecuteAsync(1);
 
             // Assert
-            response.Id.Should().BeNull();
-            response.Status.Should().BeNull();
-            response.ClosedAt.Should().BeNull();
+            response.IsSuccess.Should().BeFalse();
+            response.Code.Should().Be(AppCodes.System.INTERNAL_ERROR);
             response.Message.Should().Be("Error closing roulette: Expected status Open, but current is Created.");
         }
 
@@ -215,9 +208,8 @@ namespace Roulette.Application.Test
             var response = await service.ExecuteAsync(1);
 
             // Assert
-            response.Id.Should().BeNull();
-            response.Status.Should().BeNull();
-            response.ClosedAt.Should().BeNull();
+            response.IsSuccess.Should().BeFalse();
+            response.Code.Should().Be(AppCodes.System.INTERNAL_ERROR);
             response.Message.Should().Be("Error closing roulette: Db Error.");
         }
     }

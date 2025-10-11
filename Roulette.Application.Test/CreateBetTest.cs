@@ -34,7 +34,7 @@ namespace Roulette.Application.Test
 
             _roulette = new RouletteEntity() { Id = 1 };
             _user = new UserEntity("Jose Carlos", "@#Hl1g2l34", 50000) { Id = 1 };
-            _bet =  new(100, BetType.Color, RouletteColor.Red, null, _user, _roulette);
+            _bet =  new(100, BetType.Color, RouletteColor.Red, null, _user.Id, _roulette.Id);
         }
 
         /*

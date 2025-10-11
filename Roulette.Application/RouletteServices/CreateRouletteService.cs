@@ -1,4 +1,5 @@
-﻿using Roulette.Application.Models.Responses;
+﻿using Roulette.Application.Models;
+using Roulette.Application.Models.Responses.Roulette;
 using Roulette.Domain.Contracts.Redis;
 using Roulette.Domain.Contracts.Repositories;
 using Roulette.Domain.Contracts.Services;
@@ -26,12 +27,17 @@ namespace Roulette.Application.RouletteServices
 
                 await _redis.RemoveAsync(GetAllRouletteService.CacheKey);
 
-                return CreateRouletteResponse.Success(roulette.Id, roulette.Status.ToString(), roulette.CreatedAt);
+                return CreateRouletteResponse.Success(new CreateRouletteDto()
+                {
+                    Id = roulette.Id,
+                    Status = roulette.Status.ToString(),
+                    CreatedAt = roulette.CreatedAt,
+                });
             }
             catch (Exception ex)
             {
                 await _unitOfWork.RollbackTransactionAsync();
-                return CreateRouletteResponse.Fail(ex.Message);
+                return CreateRouletteResponse.Fail(AppCodes.System.INTERNAL_ERROR, ex.Message);
             }
         }
     }

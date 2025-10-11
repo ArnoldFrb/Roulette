@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using Moq;
+using Roulette.Application.Models;
 using Roulette.Application.RouletteServices;
 using Roulette.Domain.Contracts.Redis;
 using Roulette.Domain.Contracts.Repositories;
@@ -38,9 +39,8 @@ namespace Roulette.Application.Test
             var response = await service.ExecuteAsync();
 
             // Assert
-            response.Id.Should().NotBeNull();
-            response.Status.Should().Be("Created");
-            response.CreatedAt.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(5));
+            response.IsSuccess.Should().BeTrue();
+            response.Code.Should().Be(AppCodes.Roulette.ROULETTE_CREATED);
             response.Message.Should().Be("Roulette created successfully.");
         }
 
@@ -64,9 +64,8 @@ namespace Roulette.Application.Test
             var response = await service.ExecuteAsync();
 
             // Assert
-            response.Id.Should().BeNull();
-            response.Status.Should().BeNull();
-            response.CreatedAt.Should().BeNull();
+            response.IsSuccess.Should().BeFalse();
+            response.Code.Should().Be(AppCodes.System.INTERNAL_ERROR);
             response.Message.Should().Be("Error creating roulette: DB error");
         }
 
@@ -90,9 +89,8 @@ namespace Roulette.Application.Test
             var response = await service.ExecuteAsync();
 
             // Assert
-            response.Id.Should().BeNull();
-            response.Status.Should().BeNull();
-            response.CreatedAt.Should().BeNull();
+            response.IsSuccess.Should().BeFalse();
+            response.Code.Should().Be(AppCodes.System.INTERNAL_ERROR);
             response.Message.Should().Be("Error creating roulette: Transaction error");
         }
 

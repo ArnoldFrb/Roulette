@@ -30,7 +30,7 @@ namespace Roulette.Domain.Test
         {
             var user = _user;
             var roulette = _roulette;
-            var bet = new BetEntity(100, BetType.Color, RouletteColor.Red, null, user, roulette) { Id = 1 };
+            var bet = new BetEntity(100, BetType.Color, RouletteColor.Red, null, user.Id, roulette.Id) { Id = 1 };
 
             // Act
             var action = () => bet.ValidateBet();
@@ -52,7 +52,7 @@ namespace Roulette.Domain.Test
         {
             var user = _user;
             var roulette = _roulette;
-            var bet = new BetEntity(100, BetType.Color, null, null, user, roulette) { Id = 1 };
+            var bet = new BetEntity(100, BetType.Color, null, null, user.Id, roulette.Id) { Id = 1 };
 
             // Act
             var action = () => bet.ValidateBet();
@@ -72,7 +72,7 @@ namespace Roulette.Domain.Test
         {
             var user = _user;
             var roulette = _roulette;
-            var bet = new BetEntity(100, BetType.Number, null, 15, user, roulette) { Id = 1 };
+            var bet = new BetEntity(100, BetType.Number, null, 15, user.Id, roulette.Id) { Id = 1 };
 
             // Act
             var action = () => bet.ValidateBet();
@@ -94,7 +94,7 @@ namespace Roulette.Domain.Test
         {
             var user = _user;
             var roulette = _roulette;
-            var bet = new BetEntity(100, BetType.Number, null, null, user, roulette) { Id = 1 };
+            var bet = new BetEntity(100, BetType.Number, null, null, user.Id, roulette.Id) { Id = 1 };
 
             // Act
             var action = () => bet.ValidateBet();
@@ -114,7 +114,7 @@ namespace Roulette.Domain.Test
         {
             var user = _user;
             var roulette = _roulette;
-            var bet = new BetEntity(100, BetType.Number, null, 50, user, roulette) { Id = 1 };
+            var bet = new BetEntity(100, BetType.Number, null, 50, user.Id, roulette.Id) { Id = 1 };
 
             // Act
             var action = () => bet.ValidateBet();
@@ -134,7 +134,7 @@ namespace Roulette.Domain.Test
         {
             var user = _user;
             var roulette = _roulette;
-            var bet = new BetEntity(100, BetType.Number, null, -10, user, roulette) { Id = 1 };
+            var bet = new BetEntity(100, BetType.Number, null, -10, user.Id, roulette.Id) { Id = 1 };
 
             // Act
             var action = () => bet.ValidateBet();
@@ -154,7 +154,7 @@ namespace Roulette.Domain.Test
         {
             var user = _user;
             var roulette = _roulette;
-            var bet = new BetEntity(105, BetType.Number, null, 15, user, roulette) { Id = 1 };
+            var bet = new BetEntity(105, BetType.Number, null, 15, user.Id, roulette.Id) { Id = 1 };
 
             // Act
             var action = () => bet.ValidateBet();
@@ -178,7 +178,7 @@ namespace Roulette.Domain.Test
             var roulette = _roulette;
 
             // Act
-            var action = () => new BetEntity(10005, BetType.Number, null, 15, user, roulette) { Id = 1 };
+            var action = () => new BetEntity(10005, BetType.Number, null, 15, user.Id, roulette.Id) { Id = 1 };
 
             // Assert
             action.Should().Throw<InvalidBetAmountException>().WithMessage("Bet amount must be between $ 1,00 and $ 10.000,00.");
@@ -197,7 +197,7 @@ namespace Roulette.Domain.Test
             var roulette = _roulette;
 
             // Act
-            var action = () => new BetEntity(-25, BetType.Number, null, 15, user, roulette) { Id = 1 };
+            var action = () => new BetEntity(-25, BetType.Number, null, 15, user.Id, roulette.Id) { Id = 1 };
 
             // Assert
             action.Should().Throw<InvalidBetAmountException>().WithMessage("Bet amount must be between $ 1,00 and $ 10.000,00.");
@@ -219,7 +219,7 @@ namespace Roulette.Domain.Test
         {
             var user = _user;
             var roulette = _roulette;
-            var bet = new BetEntity(100, BetType.Color, RouletteColor.Red, null, user, roulette) { Id = 1 };
+            var bet = new BetEntity(100, BetType.Color, RouletteColor.Red, null, user.Id, roulette.Id) { Id = 1 };
 
             // Act
             var action = () => bet.ValidateBet();
@@ -256,7 +256,7 @@ namespace Roulette.Domain.Test
         {
             var user = _user;
             var roulette = _roulette;
-            var bet = new BetEntity(100, BetType.Number, null, 15, user, roulette) { Id = 1 };
+            var bet = new BetEntity(100, BetType.Number, null, 15, user.Id, roulette.Id) { Id = 1 };
 
             // Act
             var action = () => bet.ValidateBet();
@@ -299,7 +299,7 @@ namespace Roulette.Domain.Test
         {
             var user = _user;
             var roulette = _roulette;
-            var bet = new BetEntity(100, BetType.Color, RouletteColor.Red, null, user, roulette) { Id = 1 };
+            var bet = new BetEntity(100, BetType.Color, RouletteColor.Red, null, user.Id, roulette.Id) { Id = 1 };
 
             // Act
             var action = () => bet.ValidateBet();
@@ -338,7 +338,7 @@ namespace Roulette.Domain.Test
         {
             var user = _user;
             var roulette = _roulette;
-            var bet = new BetEntity(100, BetType.Number, null, 15, user, roulette) { Id = 1 };
+            var bet = new BetEntity(100, BetType.Number, null, 15, user.Id, roulette.Id) { Id = 1 };
 
             // Act
             var action = () => bet.ValidateBet();

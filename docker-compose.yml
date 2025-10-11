@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
   roulette.api:
     build:
@@ -10,23 +8,39 @@ services:
       - "8080:8080"
       - "8081:8081"
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Data Source=/app/data/roulette.db
-      - Redis__Connection=redis:6379
+      ASPNETCORE_ENVIRONMENT: "Development"
+      # SQLite connection path persistente
+      ConnectionStrings__DefaultConnection: "Data Source=/app/data/roulette.db"
+      # Config Redis — asegúrate de usar la clave correcta según tu RedisSettings
+      Redis__ConnectionString: "redis:6379"
+      Redis__InstanceName: "roulette:"
+      Redis__DefaultTimeoutInSeconds: "120"
     volumes:
       - roulette_data:/app/data
     depends_on:
-      - redis
+      redis:
+        condition: service_healthy
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/swagger || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
 
   redis:
     image: redis:7.4-alpine
     container_name: redis
+    command: ["redis-server", "--appendonly", "yes"]
     ports:
       - "6379:6379"
     volumes:
       - redis_data:/data
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   roulette_data:

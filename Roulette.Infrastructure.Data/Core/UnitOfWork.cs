@@ -3,7 +3,7 @@ using Roulette.Domain.Contracts.Services;
 
 namespace Roulette.Infrastructure.Data.Core
 {
-    internal class UnitOfWork(RouletteDbContext context) : IUnitOfWork
+    public class UnitOfWork(RouletteDbContext context) : IUnitOfWork
     {
         private readonly RouletteDbContext _context = context;
         private IDbContextTransaction? _transaction;
@@ -37,6 +37,8 @@ namespace Roulette.Infrastructure.Data.Core
             }
 
             await _context.DisposeAsync();
+
+            GC.SuppressFinalize(this);
         }
 
         public async Task RollbackTransactionAsync()
