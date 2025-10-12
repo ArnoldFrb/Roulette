@@ -6,7 +6,6 @@ namespace Roulette.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [ApiExplorerSettings(GroupName = "Roulette")]
     public class CreateRouletteController(ICreateRouletteService<CreateRouletteResponse> createRouletteService) : ControllerBase
     {
         private readonly ICreateRouletteService<CreateRouletteResponse> _createRouletteService = createRouletteService;

@@ -7,7 +7,6 @@ namespace Roulette.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [ApiExplorerSettings(GroupName = "Roulette")]
     public class OpenRouletteController(IOpenRouletteService<OpenRouletteResponse> openRouletteService) : ControllerBase
     {
         private readonly IOpenRouletteService<OpenRouletteResponse> _openRouletteService = openRouletteService;
@@ -22,6 +21,7 @@ namespace Roulette.API.Controllers
                 return response.Code switch
                 {
                     AppCodes.Roulette.ROULETTE_NOT_FOUND => NotFound(response),
+                    AppCodes.Roulette.ROULETTE_OPEN_ERROR => StatusCode(500, response),
                     AppCodes.System.INTERNAL_ERROR => StatusCode(500, response),
                     _ => BadRequest(response),
                 };

@@ -20,5 +20,5 @@
  dotnet ef migrations add InitialCreate (solo docker)
  dotnet ef database update (local)
 
- dotnet ef migrations add InitialCreate --project Roulette.Infrastructure.Data --startup-project Roulette.API (solo docker)
+ dotnet ef migrations add FixEntitiesRelationships --project Roulette.Infrastructure.Data --startup-project Roulette.API (solo docker)
  dotnet ef database update --project Roulette.Infrastructure.Data --startup-project Roulette.API (local)

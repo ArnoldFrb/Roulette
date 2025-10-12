@@ -15,13 +15,20 @@ namespace Roulette.Infrastructure.Data
         {
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.Entity<UserEntity>().ToTable("User");
+            modelBuilder.Entity<CrupierEntity>().ToTable("Crupier");
+            modelBuilder.Entity<GamblerEntity>().ToTable("Gambler");
+
             modelBuilder.Entity<UserEntity>(entity =>
             {
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Username).IsRequired().HasMaxLength(100);
             });
 
-            modelBuilder.Entity<CrupierEntity>(entity => entity.Property(e => e.Password).IsRequired().HasMaxLength(100));
+            modelBuilder.Entity<CrupierEntity>(entity =>
+            {
+                entity.Property(e => e.Password).IsRequired().HasMaxLength(100);
+            });
 
             modelBuilder.Entity<GamblerEntity>(entity =>
             {
@@ -35,13 +42,14 @@ namespace Roulette.Infrastructure.Data
 
             modelBuilder.Entity<RouletteEntity>(entity =>
             {
+                entity.ToTable("Roulette");
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Status).IsRequired().HasConversion<string>().HasMaxLength(10);
-                entity.Property(e => e.ColorWinner).IsRequired().HasConversion<string>().HasMaxLength(10);
-                entity.Property(e => e.NumberWinner).IsRequired();
-                entity.Property(e => e.CreatedAt).IsRequired();
-                entity.Property(e => e.OpenedAt).IsRequired();
-                entity.Property(e => e.ClosedAt).IsRequired();
+                entity.Property(e => e.ColorWinner).HasConversion<string>().HasMaxLength(10);
+                entity.Property(e => e.NumberWinner);
+                entity.Property(e => e.CreatedAt);
+                entity.Property(e => e.OpenedAt);
+                entity.Property(e => e.ClosedAt);
 
                 entity.HasMany(e => e.Bets)
                       .WithOne(e => e.Roulette)
@@ -51,6 +59,7 @@ namespace Roulette.Infrastructure.Data
 
             modelBuilder.Entity<BetEntity>(entity =>
             {
+                entity.ToTable("Bet");
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Amount).IsRequired().HasPrecision(10, 2);
                 entity.Property(e => e.BetType).IsRequired().HasConversion<string>().HasMaxLength(10);
@@ -59,16 +68,6 @@ namespace Roulette.Infrastructure.Data
                 entity.Property(e => e.CreatedAt).IsRequired();
                 entity.Property(e => e.Winnings).IsRequired().HasPrecision(10, 2);
                 entity.Property(e => e.Result).IsRequired().HasConversion<string>().HasMaxLength(10);
-
-                entity.HasOne<RouletteEntity>()
-                      .WithMany()
-                      .HasForeignKey(b => b.RouletteId)
-                      .OnDelete(DeleteBehavior.Cascade);
-
-                entity.HasOne<GamblerEntity>()
-                    .WithMany()
-                    .HasForeignKey(b => b.GamblerId)
-                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             SeedCrupier(modelBuilder);
@@ -85,10 +84,10 @@ namespace Roulette.Infrastructure.Data
         protected static void SeedGambler(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<GamblerEntity>().HasData(
-                new GamblerEntity("user0", 1000m) { Id = 1 },
-                new GamblerEntity("user1", 500m) { Id = 2 },
-                new GamblerEntity("user2", 300m) { Id = 3 },
-                new GamblerEntity("user3", 200m) { Id = 4 }
+                new GamblerEntity("user0", 1000m) { Id = 2 },
+                new GamblerEntity("user1", 500m) { Id = 3 },
+                new GamblerEntity("user2", 300m) { Id = 4 },
+                new GamblerEntity("user3", 200m) { Id = 5 }
             );
         }
     }

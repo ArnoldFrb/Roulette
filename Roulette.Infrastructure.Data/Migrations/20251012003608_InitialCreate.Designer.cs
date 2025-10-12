@@ -11,7 +11,7 @@ using Roulette.Infrastructure.Data;
 namespace Roulette.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(RouletteDbContext))]
-    [Migration("20251010235019_InitialCreate")]
+    [Migration("20251012003608_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -36,26 +36,37 @@ namespace Roulette.Infrastructure.Data.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Color")
+                        .HasMaxLength(10)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("GamblerId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("Number")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Result")
                         .IsRequired()
                         .HasMaxLength(10)
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("Number")
-                        .HasColumnType("INTEGER");
-
                     b.Property<int>("RouletteId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("INTEGER");
+                    b.Property<decimal>("Winnings")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("GamblerId");
+
                     b.HasIndex("RouletteId");
 
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Bets");
+                    b.ToTable("Bet", (string)null);
                 });
 
             modelBuilder.Entity("Roulette.Domain.Entities.RouletteEntity", b =>
@@ -81,9 +92,6 @@ namespace Roulette.Infrastructure.Data.Migrations
                     b.Property<DateTime>("OpenedAt")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("RouletteId")
-                        .HasColumnType("INTEGER");
-
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(10)
@@ -91,7 +99,7 @@ namespace Roulette.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Roulettes");
+                    b.ToTable("Roulette", (string)null);
                 });
 
             modelBuilder.Entity("Roulette.Domain.Entities.UserEntity", b =>
@@ -100,18 +108,6 @@ namespace Roulette.Infrastructure.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<decimal>("Credit")
-                        .HasPrecision(10, 2)
-                        .HasColumnType("TEXT");
-
-                    b.Property<bool>("IsAdmin")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Password")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("Username")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -119,60 +115,113 @@ namespace Roulette.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.ToTable("User", (string)null);
+
+                    b.UseTptMappingStrategy();
+                });
+
+            modelBuilder.Entity("Roulette.Domain.Entities.CrupierEntity", b =>
+                {
+                    b.HasBaseType("Roulette.Domain.Entities.UserEntity");
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.ToTable("Crupier", (string)null);
 
                     b.HasData(
                         new
                         {
                             Id = 1,
-                            Credit = 1000m,
-                            IsAdmin = true,
-                            Password = "admin0pass",
-                            Username = "admin"
-                        },
+                            Username = "crupier1",
+                            Password = "password1"
+                        });
+                });
+
+            modelBuilder.Entity("Roulette.Domain.Entities.GamblerEntity", b =>
+                {
+                    b.HasBaseType("Roulette.Domain.Entities.UserEntity");
+
+                    b.Property<decimal>("Credit")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("TEXT");
+
+                    b.ToTable("Gambler", (string)null);
+
+                    b.HasData(
                         new
                         {
                             Id = 2,
-                            Credit = 500m,
-                            IsAdmin = false,
-                            Password = "user1pass",
-                            Username = "user1"
+                            Username = "user0",
+                            Credit = 1000m
                         },
                         new
                         {
                             Id = 3,
-                            Credit = 300m,
-                            IsAdmin = false,
-                            Password = "user2pass",
-                            Username = "user2"
+                            Username = "user1",
+                            Credit = 500m
                         },
                         new
                         {
                             Id = 4,
-                            Credit = 200m,
-                            IsAdmin = false,
-                            Password = "user3pass",
-                            Username = "user3"
+                            Username = "user2",
+                            Credit = 300m
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Username = "user3",
+                            Credit = 200m
                         });
                 });
 
             modelBuilder.Entity("Roulette.Domain.Entities.BetEntity", b =>
                 {
+                    b.HasOne("Roulette.Domain.Entities.GamblerEntity", "Gambler")
+                        .WithMany("Bets")
+                        .HasForeignKey("GamblerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("Roulette.Domain.Entities.RouletteEntity", "Roulette")
-                        .WithMany()
+                        .WithMany("Bets")
                         .HasForeignKey("RouletteId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Roulette.Domain.Entities.UserEntity", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("Gambler");
 
                     b.Navigation("Roulette");
+                });
 
-                    b.Navigation("User");
+            modelBuilder.Entity("Roulette.Domain.Entities.CrupierEntity", b =>
+                {
+                    b.HasOne("Roulette.Domain.Entities.UserEntity", null)
+                        .WithOne()
+                        .HasForeignKey("Roulette.Domain.Entities.CrupierEntity", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Roulette.Domain.Entities.GamblerEntity", b =>
+                {
+                    b.HasOne("Roulette.Domain.Entities.UserEntity", null)
+                        .WithOne()
+                        .HasForeignKey("Roulette.Domain.Entities.GamblerEntity", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Roulette.Domain.Entities.RouletteEntity", b =>
+                {
+                    b.Navigation("Bets");
+                });
+
+            modelBuilder.Entity("Roulette.Domain.Entities.GamblerEntity", b =>
+                {
+                    b.Navigation("Bets");
                 });
 #pragma warning restore 612, 618
         }

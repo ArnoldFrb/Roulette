@@ -8,7 +8,6 @@ namespace Roulette.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [ApiExplorerSettings(GroupName = "Auth")]
     public class AuthenticationController(IAuthenticationService<AuthenticationRequest, UserResponse> authenticationService) : ControllerBase
     {
         private readonly IAuthenticationService<AuthenticationRequest, UserResponse> _authenticationService = authenticationService;
@@ -26,6 +25,7 @@ namespace Roulette.API.Controllers
                 return response.Code switch
                 {
                     AppCodes.Auth.INVALID_AUTH => Unauthorized(response),
+                    AppCodes.Auth.AUTH_FAILED => StatusCode(401, response),
                     AppCodes.User.USER_NOT_FOUND => NotFound(response),
                     AppCodes.System.INTERNAL_ERROR => StatusCode(500, response),
                     _ => BadRequest(response)

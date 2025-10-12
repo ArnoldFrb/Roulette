@@ -8,7 +8,6 @@ namespace Roulette.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [ApiExplorerSettings(GroupName = "Roulette")]
     public class GetAllRouletteController(IGetAllRouletteService<ListRouletteResponse> getAllRouletteService) : ControllerBase
     {
         private readonly IGetAllRouletteService<ListRouletteResponse> _getAllRouletteService = getAllRouletteService;
