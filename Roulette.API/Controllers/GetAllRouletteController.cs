@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Roulette.Application.Models;
 using Roulette.Application.Models.Responses.Roulette;
@@ -7,11 +8,13 @@ using Roulette.Domain.Contracts.Services.Roulette;
 namespace Roulette.API.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/roulette")]
+    [ApiExplorerSettings(GroupName = "Roulette")]
     public class GetAllRouletteController(IGetAllRouletteService<ListRouletteResponse> getAllRouletteService) : ControllerBase
     {
         private readonly IGetAllRouletteService<ListRouletteResponse> _getAllRouletteService = getAllRouletteService;
 
+        [Authorize(Roles = "Crupier")]
         [HttpGet("all")]
         public async Task<ActionResult<ListRouletteResponse>> GetAllRoulettes()
         {

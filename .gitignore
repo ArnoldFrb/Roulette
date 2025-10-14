@@ -9,6 +9,48 @@
 *.user
 *.userosscache
 *.sln.docstates
+.env
+*.secret.json
+*.local.jso
+
+# Logs
+logs/
+*.log
+Roulette.API/logs/
+Roulette.Infrastructure.Security/logs/
+Roulette.Application/logs/
+Roulette.Infrastructure.Data/logs/
+
+# Db
+*.db
+*.sqlite
+*.sqlite3
+Roulette.API/data/
+Roulette.API/App_Data/
+Roulette.API/roulette.db
+
+# Docker
+**/Dockerfile.*
+**/docker-compose.*.yml
+!.env.example
+.dockerignore
+.docker/
+*.tar
+*.pid
+redis_data/
+roulette_data/
+dataprotection-keys/
+roulette_logs/
+
+# DataProtection
+Roulette.API/DataProtection-Keys/
+Roulette.API/.aspnet/DataProtection-Keys/
+
+# Others
+publish/
+artifacts/
+healthchecksdb
+MigrationBackup/
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs

@@ -1,4 +1,5 @@
-﻿using Roulette.Application.Models;
+﻿using Microsoft.Extensions.Logging;
+using Roulette.Application.Models;
 using Roulette.Application.Models.Requests;
 using Roulette.Application.Models.Responses.Bet;
 using Roulette.Domain.Contracts.Repositories;
@@ -9,15 +10,24 @@ using Roulette.Domain.Entities.Exceptions;
 
 namespace Roulette.Application.BetServices
 {
-    public class CreateBetService(IBetRepository betRepository, IGamblerRepository gamblerRepository, IRouletteRepository rouletteRepository, IUnitOfWork unitOfWork) : ICreateBetService<CreateBetRequest, CreateBetResponse>
+    public class CreateBetService(
+        IBetRepository betRepository,
+        IGamblerRepository gamblerRepository,
+        IRouletteRepository rouletteRepository,
+        IUnitOfWork unitOfWork,
+        ILogger<CreateBetService> logger
+        ) : ICreateBetService<CreateBetRequest, CreateBetResponse>
     {
         private readonly IBetRepository _betRepository = betRepository;
         private readonly IGamblerRepository _gamblerRepository = gamblerRepository;
         private readonly IRouletteRepository _rouletteRepository = rouletteRepository;
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly ILogger<CreateBetService> _logger = logger;
 
         public async Task<CreateBetResponse> ExecuteAsync(int userId, CreateBetRequest request)
         {
+            _logger.LogInformation("Attempt to create a bet by the user {UserId}", userId);
+
             await _unitOfWork.BeginTransactionAsync();
             try
             {
@@ -65,6 +75,8 @@ namespace Roulette.Application.BetServices
                     InvalidCreditOperationException => AppCodes.Bet.INVALID_BET_AMOUNT,
                     _ => AppCodes.System.INTERNAL_ERROR
                 };
+
+                _logger.LogError(ex, "Error to create a bet by the user {UserId}", userId);
 
                 return CreateBetResponse.Fail(code, ex.Message);
             }

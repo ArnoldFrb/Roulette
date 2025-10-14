@@ -1,4 +1,5 @@
-﻿using Roulette.Application.Models;
+﻿using Microsoft.Extensions.Logging;
+using Roulette.Application.Models;
 using Roulette.Application.Models.Responses.Roulette;
 using Roulette.Domain.Contracts.Redis;
 using Roulette.Domain.Contracts.Repositories;
@@ -9,16 +10,25 @@ using Roulette.Domain.Entities.Exceptions;
 
 namespace Roulette.Application.RouletteServices
 {
-    public class CloseRouletteService(IRouletteRepository rouletteRepository, IBetRepository betRepository, IGamblerRepository gamblerRepository, IUnitOfWork unitOfWork, IRedisCacheService redis) : ICloseRouletteService<CloseRouletteResponse>
+    public class CloseRouletteService(
+        IRouletteRepository rouletteRepository,
+        IBetRepository betRepository, IGamblerRepository gamblerRepository,
+        IUnitOfWork unitOfWork,
+        IRedisCacheService redis,
+        ILogger<CloseRouletteService> logger
+        ) : ICloseRouletteService<CloseRouletteResponse>
     {
         private readonly IRouletteRepository _rouletteRepository = rouletteRepository;
         private readonly IGamblerRepository _gamblerRepository = gamblerRepository;
         private readonly IBetRepository _betRepository = betRepository;
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly IRedisCacheService _redis = redis;
+        private readonly ILogger<CloseRouletteService> _logger = logger;
 
         public async Task<CloseRouletteResponse> ExecuteAsync(int rouletteId)
         {
+            _logger.LogInformation("Attempt to open a roulette");
+
             await _unitOfWork.BeginTransactionAsync();
             try
             {
@@ -57,11 +67,14 @@ namespace Roulette.Application.RouletteServices
             }
             catch (InvalidRouletteStatusException ex)
             {
+                _logger.LogError(ex, "Attempt to close a roulette {RouletteId}", rouletteId);
+
                 await _unitOfWork.RollbackTransactionAsync();
                 return CloseRouletteResponse.Fail(AppCodes.Roulette.ROULETTE_CLOSE_ERROR, ex.Message);
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Attempt to close a roulette {RouletteId}", rouletteId);
                 await _unitOfWork.RollbackTransactionAsync();
                 return CloseRouletteResponse.Fail(AppCodes.System.INTERNAL_ERROR, ex.Message);
             }

@@ -1,21 +1,25 @@
-﻿using Roulette.Application.Models;
+﻿using Microsoft.Extensions.Logging;
+using Roulette.Application.Models;
 using Roulette.Application.Models.Responses.Roulette;
 using Roulette.Domain.Contracts.Redis;
 using Roulette.Domain.Contracts.Repositories;
 using Roulette.Domain.Contracts.Services.Roulette;
 using Roulette.Domain.Entities;
+using static Roulette.Application.Models.AppCodes;
 
 namespace Roulette.Application.RouletteServices
 {
-    public class GetAllRouletteService(IRouletteRepository rouletteRepository, IRedisCacheService redis) : IGetAllRouletteService<ListRouletteResponse>
+    public class GetAllRouletteService(IRouletteRepository rouletteRepository, IRedisCacheService redis, ILogger<GetAllRouletteService> logger) : IGetAllRouletteService<ListRouletteResponse>
     {
         private readonly IRouletteRepository _rouletteRepository = rouletteRepository;
         private readonly IRedisCacheService _redis = redis;
+        private readonly ILogger<GetAllRouletteService> _logger = logger;
 
         public static readonly string CacheKey = "roulettes:all";
 
         public async Task<ListRouletteResponse> ExecuteAsync()
         {
+            _logger.LogInformation("Attempt to obtain all roulette wheels");
             try
             {
                 var cacheRoulettes = await _redis.GetListAsync<RouletteDto>(CacheKey);
@@ -36,6 +40,8 @@ namespace Roulette.Application.RouletteServices
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Error to obtain all roulette wheels");
+
                 return ListRouletteResponse.Fail(AppCodes.System.INTERNAL_ERROR, ex.Message);
             }
         }

@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Roulette.Application.Models;
 using Roulette.Application.RouletteServices;
@@ -15,11 +16,15 @@ namespace Roulette.Application.Test
         private readonly Mock<IUnitOfWork> _unitOfWork;
         private readonly Mock<IRedisCacheService> _redis;
 
+        private readonly Mock<ILogger<CreateRouletteService>> _logger;
+
         public CreateRouletteTest()
         {
             _repository = new Mock<IRouletteRepository>();
             _unitOfWork = new Mock<IUnitOfWork>();
             _redis = new Mock<IRedisCacheService>();
+
+            _logger = new Mock<ILogger<CreateRouletteService>>();
         }
 
         /*
@@ -33,7 +38,7 @@ namespace Roulette.Application.Test
         public async Task Execute_ShouldCreateRouletteSuccessfully()
         {
             // Arrange
-            var service = new CreateRouletteService(_repository.Object, _unitOfWork.Object, _redis.Object);
+            var service = new CreateRouletteService(_repository.Object, _unitOfWork.Object, _redis.Object, _logger.Object);
 
             // Act
             var response = await service.ExecuteAsync();
@@ -58,7 +63,7 @@ namespace Roulette.Application.Test
             _repository.Setup(r => r.AddAsync(It.IsAny<RouletteEntity>()))
                     .Throws(new Exception("DB error"));
 
-            var service = new CreateRouletteService(_repository.Object, _unitOfWork.Object, _redis.Object);
+            var service = new CreateRouletteService(_repository.Object, _unitOfWork.Object, _redis.Object, _logger.Object);
 
             // Act
             var response = await service.ExecuteAsync();
@@ -83,7 +88,7 @@ namespace Roulette.Application.Test
             _unitOfWork.Setup(u => u.CommitTransactionAsync())
                       .Throws(new Exception("Transaction error"));
 
-            var service = new CreateRouletteService(_repository.Object, _unitOfWork.Object, _redis.Object);
+            var service = new CreateRouletteService(_repository.Object, _unitOfWork.Object, _redis.Object, _logger.Object);
 
             // Act
             var response = await service.ExecuteAsync();
@@ -105,7 +110,7 @@ namespace Roulette.Application.Test
         public async Task Execute_ShouldCallAddAndCommitOnce()
         {
             // Arrange
-            var service = new CreateRouletteService(_repository.Object, _unitOfWork.Object, _redis.Object);
+            var service = new CreateRouletteService(_repository.Object, _unitOfWork.Object, _redis.Object, _logger.Object);
 
             // Act
             await service.ExecuteAsync();

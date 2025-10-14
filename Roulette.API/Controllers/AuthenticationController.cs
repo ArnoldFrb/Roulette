@@ -2,25 +2,28 @@
 using Roulette.Application.Models;
 using Roulette.Application.Models.Requests;
 using Roulette.Application.Models.Responses.User;
+using Roulette.Domain.Contracts.Security;
 using Roulette.Domain.Contracts.Services.User;
 
 namespace Roulette.API.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
-    public class AuthenticationController(IAuthenticationService<AuthenticationRequest, UserResponse> authenticationService) : ControllerBase
+    [Route("api/auth")]
+    [ApiExplorerSettings(GroupName = "Auth")]
+    public class AuthenticationController(IAuthenticationService<AuthenticationRequest, CrupierResponse> authenticationService, IJwtTokenService jwtTokenService) : ControllerBase
     {
-        private readonly IAuthenticationService<AuthenticationRequest, UserResponse> _authenticationService = authenticationService;
+        private readonly IAuthenticationService<AuthenticationRequest, CrupierResponse> _authenticationService = authenticationService;
+        private readonly IJwtTokenService _jwtTokenService = jwtTokenService;
 
-        [HttpPost("login")]
-        public async Task<ActionResult<UserResponse>> Authenticate([FromBody] AuthenticationRequest request)
+        [HttpPost]
+        public async Task<ActionResult<CrupierResponse>> Authenticate([FromBody] AuthenticationRequest request)
         {
             if (!ModelState.IsValid)
-                return BadRequest(UserResponse.Fail(AppCodes.Auth.INVALID_AUTH, "Invalid login data."));
+                return BadRequest(CrupierResponse.Fail(AppCodes.Auth.INVALID_AUTH, "Invalid login data."));
 
             var response = await _authenticationService.ExecuteAsync(request);
 
-            if (!response.IsSuccess)
+            if (!response.IsSuccess || response.Data is null)
             {
                 return response.Code switch
                 {
@@ -31,7 +34,10 @@ namespace Roulette.API.Controllers
                     _ => BadRequest(response)
                 };
             }
-            return Ok(response);
+
+            var token =_jwtTokenService.GetJwtToken(response.Data.Username, response.Data.Id);
+
+            return Ok(CrupierResponse.Success(new CrupierDto(response.Data.Id, response.Data.Username, token)));
         }
     }
 }

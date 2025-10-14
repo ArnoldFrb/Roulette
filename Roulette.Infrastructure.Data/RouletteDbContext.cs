@@ -25,10 +25,7 @@ namespace Roulette.Infrastructure.Data
                 entity.Property(e => e.Username).IsRequired().HasMaxLength(100);
             });
 
-            modelBuilder.Entity<CrupierEntity>(entity =>
-            {
-                entity.Property(e => e.Password).IsRequired().HasMaxLength(100);
-            });
+            modelBuilder.Entity<CrupierEntity>(entity => entity.Property(e => e.Password).IsRequired().HasMaxLength(100));
 
             modelBuilder.Entity<GamblerEntity>(entity =>
             {

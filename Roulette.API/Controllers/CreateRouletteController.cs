@@ -1,15 +1,18 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Roulette.Application.Models.Responses.Roulette;
 using Roulette.Domain.Contracts.Services.Roulette;
 
 namespace Roulette.API.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/roulette")]
+    [ApiExplorerSettings(GroupName = "Roulette")]
     public class CreateRouletteController(ICreateRouletteService<CreateRouletteResponse> createRouletteService) : ControllerBase
     {
         private readonly ICreateRouletteService<CreateRouletteResponse> _createRouletteService = createRouletteService;
 
+        [Authorize(Roles = "Crupier")]
         [HttpPost("create")]
         public async Task<ActionResult<CreateRouletteResponse>> CreateRoulette()
         {

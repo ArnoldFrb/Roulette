@@ -17,7 +17,6 @@ namespace Roulette.Domain.Entities
 
     public class BetEntity : Entity<int>
     {
-
         public decimal Amount { get; protected set; }
         public BetType BetType { get; protected set; }
         public RouletteColor? Color { get; protected set; }

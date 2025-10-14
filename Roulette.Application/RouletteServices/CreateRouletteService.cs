@@ -1,4 +1,5 @@
-﻿using Roulette.Application.Models;
+﻿using Microsoft.Extensions.Logging;
+using Roulette.Application.Models;
 using Roulette.Application.Models.Responses.Roulette;
 using Roulette.Domain.Contracts.Redis;
 using Roulette.Domain.Contracts.Repositories;
@@ -8,14 +9,16 @@ using Roulette.Domain.Entities;
 
 namespace Roulette.Application.RouletteServices
 {
-    public class CreateRouletteService(IRouletteRepository rouletteRepository, IUnitOfWork unitOfWork, IRedisCacheService redis) : ICreateRouletteService<CreateRouletteResponse>
+    public class CreateRouletteService(IRouletteRepository rouletteRepository, IUnitOfWork unitOfWork, IRedisCacheService redis, ILogger<CreateRouletteService> logger) : ICreateRouletteService<CreateRouletteResponse>
     {
         private readonly IRouletteRepository _rouletteRepository = rouletteRepository;
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly IRedisCacheService _redis = redis;
+        private readonly ILogger<CreateRouletteService> _logger = logger;
 
         public async Task<CreateRouletteResponse> ExecuteAsync()
         {
+            _logger.LogInformation("Attempt to create a roulette");
             await _unitOfWork.BeginTransactionAsync();
             try
             {
@@ -36,6 +39,7 @@ namespace Roulette.Application.RouletteServices
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Attempt to create a roulette");
                 await _unitOfWork.RollbackTransactionAsync();
                 return CreateRouletteResponse.Fail(AppCodes.System.INTERNAL_ERROR, ex.Message);
             }

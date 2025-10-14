@@ -1,4 +1,5 @@
-﻿using Roulette.Application.Models;
+﻿using Microsoft.Extensions.Logging;
+using Roulette.Application.Models;
 using Roulette.Application.Models.Responses.User;
 using Roulette.Domain.Contracts.Repositories;
 using Roulette.Domain.Contracts.Services.User;
@@ -7,27 +8,31 @@ using Roulette.Domain.Entities.Exceptions;
 
 namespace Roulette.Application.UserServices
 {
-    public class GetGamblerService(IGamblerRepository gamblerRepository) : IGetGamblerService<UserResponse>
+    public class GetGamblerService(IGamblerRepository gamblerRepository, ILogger<GetGamblerService> logger) : IGetGamblerService<GamblerResponse>
     {
         private readonly IGamblerRepository _gamblerRepository = gamblerRepository;
-        public async Task<UserResponse> ExecuteAsync(string username)
+        private readonly ILogger<GetGamblerService> _logger = logger;
+        public async Task<GamblerResponse> ExecuteAsync(string username)
         {
+            _logger.LogInformation("Attempt to obtain the user {Username}", username);
             try
             {
                 UserEntity.IsValidUsername(username);
 
                 var gambler = await _gamblerRepository.FindSingleOrDefaultAsync(g => g.Username == username);
                 if (gambler == null)
-                    return UserResponse.Fail(AppCodes.User.USER_NOT_FOUND, "Gambler not found.");
-                return UserResponse.Success(new UserDto(gambler.Id, gambler.Username));
+                    return GamblerResponse.Fail(AppCodes.User.USER_NOT_FOUND, "Gambler not found.");
+                return GamblerResponse.Success(new GamblerDto(gambler.Id, gambler.Username, gambler.Credit));
             }
             catch (InvalidUsernameOrPasswordException ex)
             {
-                return UserResponse.Fail(AppCodes.User.INVALID_CREDENTIALS, ex.Message);
+                _logger.LogError(ex, "Error searching for user {Username}", username);
+                return GamblerResponse.Fail(AppCodes.User.INVALID_CREDENTIALS, ex.Message);
             }
             catch (Exception ex)
             {
-                return UserResponse.Fail(AppCodes.System.INTERNAL_ERROR, ex.Message);
+                _logger.LogError(ex, "Error searching for user {Username}", username);
+                return GamblerResponse.Fail(AppCodes.System.INTERNAL_ERROR, ex.Message);
             }
         }
     }

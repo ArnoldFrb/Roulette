@@ -1,13 +1,15 @@
-﻿using Moq;
+﻿using Castle.Core.Logging;
+using FluentAssertions;
+using Microsoft.Extensions.Logging;
+using Moq;
+using Roulette.Application.BetServices;
+using Roulette.Application.Models.Requests;
+using Roulette.Application.RouletteServices;
+using Roulette.Domain.Contracts.Redis;
 using Roulette.Domain.Contracts.Repositories;
 using Roulette.Domain.Contracts.Services;
 using Roulette.Domain.Entities;
-using Roulette.Application.BetServices;
-using Roulette.Application.Models.Requests;
 using System.Linq.Expressions;
-using FluentAssertions;
-using Roulette.Application.RouletteServices;
-using Roulette.Domain.Contracts.Redis;
 
 namespace Roulette.Application.Test
 {
@@ -17,20 +19,26 @@ namespace Roulette.Application.Test
         private readonly GamblerEntity _user;
         private readonly BetEntity _bet;
 
-        private readonly Mock<IRouletteRepository> _rouletteR;
-        private readonly Mock<IGamblerRepository> _userR;
-        private readonly Mock<IBetRepository> _betR;
+        private readonly Mock<IRouletteRepository> _rouletteRepository;
+        private readonly Mock<IGamblerRepository> _gamblerRepository;
+        private readonly Mock<IBetRepository> _betRepository;
         private readonly Mock<IUnitOfWork> _unitOfWork;
         private readonly Mock<IRedisCacheService> _redis;
+
+        private readonly Mock<ILogger<CreateBetService>> _loggerBet;
+        private readonly Mock<ILogger<OpenRouletteService>> _loggerOpen;
 
         public CreateBetTest()
         {
 
-            _rouletteR = new Mock<IRouletteRepository>();
-            _userR = new Mock<IGamblerRepository>();
-            _betR = new Mock<IBetRepository>();
+            _rouletteRepository = new Mock<IRouletteRepository>();
+            _gamblerRepository = new Mock<IGamblerRepository>();
+            _betRepository = new Mock<IBetRepository>();
             _unitOfWork = new Mock<IUnitOfWork>();
             _redis = new Mock<IRedisCacheService>();
+
+            _loggerBet = new Mock<ILogger<CreateBetService>>();
+            _loggerOpen = new Mock<ILogger<OpenRouletteService>>();
 
             _roulette = new RouletteEntity() { Id = 1 };
             _user = new GamblerEntity("Jose Carlos", 50000) { Id = 1 };
@@ -48,9 +56,9 @@ namespace Roulette.Application.Test
         public async Task Execute_ShouldReturnRouletteNotFound_WhenRouletteDoesNotExist()
         {
             // Arrange
-            _userR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<GamblerEntity, bool>>>())).ReturnsAsync(_user);
+            _gamblerRepository.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<GamblerEntity, bool>>>())).ReturnsAsync(_user);
 
-            var service = new CreateBetService(_betR.Object, _userR.Object, _rouletteR.Object, _unitOfWork.Object);
+            var service = new CreateBetService(_betRepository.Object, _gamblerRepository.Object, _rouletteRepository.Object, _unitOfWork.Object, _loggerBet.Object);
             var request = new CreateBetRequest(100, BetType.Color, nameof(RouletteColor.Red), 1);
 
             // Act
@@ -71,9 +79,9 @@ namespace Roulette.Application.Test
         public async Task Execute_ShouldReturnUserNotFound_WhenUserDoesNotExist()
         {
             // Arrange
-            _rouletteR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).ReturnsAsync(_roulette);
+            _rouletteRepository.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).ReturnsAsync(_roulette);
 
-            var service = new CreateBetService(_betR.Object, _userR.Object, _rouletteR.Object, _unitOfWork.Object);
+            var service = new CreateBetService(_betRepository.Object, _gamblerRepository.Object, _rouletteRepository.Object, _unitOfWork.Object, _loggerBet.Object);
             var request = new CreateBetRequest(100, BetType.Color, nameof(RouletteColor.Red), 1);
 
             // Act
@@ -94,10 +102,10 @@ namespace Roulette.Application.Test
         public async Task Execute_ShouldReturnError_WhenRouletteIsNotOpen()
         {
             // Arrange
-            _userR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<GamblerEntity, bool>>>())).ReturnsAsync(_user);
-            _rouletteR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).ReturnsAsync(_roulette);
+            _gamblerRepository.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<GamblerEntity, bool>>>())).ReturnsAsync(_user);
+            _rouletteRepository.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).ReturnsAsync(_roulette);
 
-            var service = new CreateBetService(_betR.Object, _userR.Object, _rouletteR.Object, _unitOfWork.Object);
+            var service = new CreateBetService(_betRepository.Object, _gamblerRepository.Object, _rouletteRepository.Object, _unitOfWork.Object, _loggerBet.Object);
             var request = new CreateBetRequest(100, BetType.Color, nameof(RouletteColor.Red), 1);
 
             // Act
@@ -119,12 +127,12 @@ namespace Roulette.Application.Test
         {
             // Arrange
             var user = new GamblerEntity("Jose Carlos", 99) { Id = 1 };
-            _userR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<GamblerEntity, bool>>>())).ReturnsAsync(user);
-            _rouletteR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).ReturnsAsync(_roulette);
+            _gamblerRepository.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<GamblerEntity, bool>>>())).ReturnsAsync(user);
+            _rouletteRepository.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).ReturnsAsync(_roulette);
 
-            await new OpenRouletteService(_rouletteR.Object, _unitOfWork.Object, _redis.Object).ExecuteAsync(1);
+            await new OpenRouletteService(_rouletteRepository.Object, _unitOfWork.Object, _redis.Object, _loggerOpen.Object).ExecuteAsync(1);
 
-            var service = new CreateBetService(_betR.Object, _userR.Object, _rouletteR.Object, _unitOfWork.Object);
+            var service = new CreateBetService(_betRepository.Object, _gamblerRepository.Object, _rouletteRepository.Object, _unitOfWork.Object, _loggerBet.Object);
             var request = new CreateBetRequest(100, BetType.Color, nameof(RouletteColor.Red), 1);
 
             // Act
@@ -145,13 +153,13 @@ namespace Roulette.Application.Test
         public async Task Execute_ShouldReturnError_WhenUserAlreadyPlacedBetOnSameRoulette()
         {
             // Arrange
-            _userR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<GamblerEntity, bool>>>())).ReturnsAsync(_user);
-            _rouletteR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).ReturnsAsync(_roulette);
-            _betR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<BetEntity, bool>>>())).ReturnsAsync(_bet);
+            _gamblerRepository.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<GamblerEntity, bool>>>())).ReturnsAsync(_user);
+            _rouletteRepository.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).ReturnsAsync(_roulette);
+            _betRepository.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<BetEntity, bool>>>())).ReturnsAsync(_bet);
 
-            await new OpenRouletteService(_rouletteR.Object, _unitOfWork.Object, _redis.Object).ExecuteAsync(1);
+            await new OpenRouletteService(_rouletteRepository.Object, _unitOfWork.Object, _redis.Object, _loggerOpen.Object).ExecuteAsync(1);
 
-            var service = new CreateBetService(_betR.Object, _userR.Object, _rouletteR.Object, _unitOfWork.Object);
+            var service = new CreateBetService(_betRepository.Object, _gamblerRepository.Object, _rouletteRepository.Object, _unitOfWork.Object, _loggerBet.Object);
             var request = new CreateBetRequest(100, BetType.Color, nameof(RouletteColor.Red), 1);
 
             // Act
@@ -174,12 +182,12 @@ namespace Roulette.Application.Test
         public async Task Execute_ShouldThrowInvalidBetAmountException_WhenAmountIsOutOfRange(int amount)
         {
             // Arrange
-            _userR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<GamblerEntity, bool>>>())).ReturnsAsync(_user);
-            _rouletteR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).ReturnsAsync(_roulette);
+            _gamblerRepository.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<GamblerEntity, bool>>>())).ReturnsAsync(_user);
+            _rouletteRepository.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).ReturnsAsync(_roulette);
 
-            await new OpenRouletteService(_rouletteR.Object, _unitOfWork.Object, _redis.Object).ExecuteAsync(1);
+            await new OpenRouletteService(_rouletteRepository.Object, _unitOfWork.Object, _redis.Object, _loggerOpen.Object).ExecuteAsync(1);
 
-            var service = new CreateBetService(_betR.Object, _userR.Object, _rouletteR.Object, _unitOfWork.Object);
+            var service = new CreateBetService(_betRepository.Object, _gamblerRepository.Object, _rouletteRepository.Object, _unitOfWork.Object, _loggerBet.Object);
             var request = new CreateBetRequest(amount, BetType.Color, nameof(RouletteColor.Red), 1);
 
             // Act
@@ -200,12 +208,12 @@ namespace Roulette.Application.Test
         public async Task Execute_ShouldThrowInvalidBetTypeException_WhenBetTypeIsInvalid()
         {
             // Arrange
-            _userR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<GamblerEntity, bool>>>())).ReturnsAsync(_user);
-            _rouletteR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).ReturnsAsync(_roulette);
+            _gamblerRepository.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<GamblerEntity, bool>>>())).ReturnsAsync(_user);
+            _rouletteRepository.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).ReturnsAsync(_roulette);
 
-            await new OpenRouletteService(_rouletteR.Object, _unitOfWork.Object, _redis.Object).ExecuteAsync(1);
+            await new OpenRouletteService(_rouletteRepository.Object, _unitOfWork.Object, _redis.Object, _loggerOpen.Object).ExecuteAsync(1);
 
-            var service = new CreateBetService(_betR.Object, _userR.Object, _rouletteR.Object, _unitOfWork.Object);
+            var service = new CreateBetService(_betRepository.Object, _gamblerRepository.Object, _rouletteRepository.Object, _unitOfWork.Object, _loggerBet.Object);
             var request = new CreateBetRequest(100, BetType.Color + 10, nameof(RouletteColor.Red), 1);
 
             // Act
@@ -226,12 +234,12 @@ namespace Roulette.Application.Test
         public async Task Execute_ShouldCreateNumberBetSuccessfully_WhenValidRequest()
         {
             // Arrange
-            _userR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<GamblerEntity, bool>>>())).ReturnsAsync(_user);
-            _rouletteR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).ReturnsAsync(_roulette);
+            _gamblerRepository.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<GamblerEntity, bool>>>())).ReturnsAsync(_user);
+            _rouletteRepository.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).ReturnsAsync(_roulette);
 
-            await new OpenRouletteService(_rouletteR.Object, _unitOfWork.Object, _redis.Object).ExecuteAsync(1);
+            await new OpenRouletteService(_rouletteRepository.Object, _unitOfWork.Object, _redis.Object, _loggerOpen.Object).ExecuteAsync(1);
 
-            var service = new CreateBetService(_betR.Object, _userR.Object, _rouletteR.Object, _unitOfWork.Object);
+            var service = new CreateBetService(_betRepository.Object, _gamblerRepository.Object, _rouletteRepository.Object, _unitOfWork.Object, _loggerBet.Object);
             var request = new CreateBetRequest(100, BetType.Color, nameof(RouletteColor.Red), 1);
 
             // Act
@@ -252,12 +260,12 @@ namespace Roulette.Application.Test
         public async Task Execute_ShouldCreateColorBetSuccessfully_WhenValidRequest()
         {
             // Arrange
-            _userR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<GamblerEntity, bool>>>())).ReturnsAsync(_user);
-            _rouletteR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).ReturnsAsync(_roulette);
+            _gamblerRepository.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<GamblerEntity, bool>>>())).ReturnsAsync(_user);
+            _rouletteRepository.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).ReturnsAsync(_roulette);
 
-            await new OpenRouletteService(_rouletteR.Object, _unitOfWork.Object, _redis.Object).ExecuteAsync(1);
+            await new OpenRouletteService(_rouletteRepository.Object, _unitOfWork.Object, _redis.Object, _loggerOpen.Object).ExecuteAsync(1);
 
-            var service = new CreateBetService(_betR.Object, _userR.Object, _rouletteR.Object, _unitOfWork.Object);
+            var service = new CreateBetService(_betRepository.Object, _gamblerRepository.Object, _rouletteRepository.Object, _unitOfWork.Object, _loggerBet.Object);
             var request = new CreateBetRequest(100, BetType.Number, "5", 1);
 
             // Act
@@ -278,13 +286,13 @@ namespace Roulette.Application.Test
         public async Task Execute_ShouldRollbackTransaction_WhenUnexpectedErrorOccurs()
         {
             // Arrange
-            _userR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<GamblerEntity, bool>>>())).ReturnsAsync(_user);
-            _rouletteR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).ReturnsAsync(_roulette);
-            _betR.Setup(r => r.AddAsync(It.IsAny<BetEntity>())).Throws(new Exception("Unexpected error."));
+            _gamblerRepository.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<GamblerEntity, bool>>>())).ReturnsAsync(_user);
+            _rouletteRepository.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).ReturnsAsync(_roulette);
+            _betRepository.Setup(r => r.AddAsync(It.IsAny<BetEntity>())).Throws(new Exception("Unexpected error."));
 
-            await   new OpenRouletteService(_rouletteR.Object, _unitOfWork.Object, _redis.Object).ExecuteAsync(1);
+            await   new OpenRouletteService(_rouletteRepository.Object, _unitOfWork.Object, _redis.Object, _loggerOpen.Object).ExecuteAsync(1);
 
-            var service = new CreateBetService(_betR.Object, _userR.Object, _rouletteR.Object, _unitOfWork.Object);
+            var service = new CreateBetService(_betRepository.Object, _gamblerRepository.Object, _rouletteRepository.Object, _unitOfWork.Object, _loggerBet.Object);
             var request = new CreateBetRequest(100, BetType.Number, "5", 1);
 
             // Act

@@ -10,7 +10,6 @@ namespace Roulette.Infrastructure.Redis
     {
         public static IServiceCollection AddRedisServices(this IServiceCollection services)
         {
-            // Register Redis ConnectionMultiplexer
             services.AddSingleton<IConnectionMultiplexer>(sp =>
             {
                 var settings = sp.GetRequiredService<RedisSettings>();
@@ -33,7 +32,6 @@ namespace Roulette.Infrastructure.Redis
                 return null!;
             });
 
-            // Register Redis Service
             services.AddSingleton<IRedisCacheService, RedisCacheService>();
 
             return services;

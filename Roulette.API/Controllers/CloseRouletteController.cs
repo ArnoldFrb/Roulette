@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Roulette.Application.Models;
 using Roulette.Application.Models.Responses.Roulette;
 using Roulette.Domain.Contracts.Services.Roulette;
@@ -6,11 +7,13 @@ using Roulette.Domain.Contracts.Services.Roulette;
 namespace Roulette.API.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/roulette")]
+    [ApiExplorerSettings(GroupName = "Roulette")]
     public class CloseRouletteController(ICloseRouletteService<CloseRouletteResponse> closeRouletteService) : ControllerBase
     {
         private readonly ICloseRouletteService<CloseRouletteResponse> _closeRouletteService = closeRouletteService;
 
+        [Authorize(Roles = "Crupier")]
         [HttpPut("close/{id:int}")]
         public async Task<ActionResult<CloseRouletteResponse>> CloseRoulette(int id)
         {

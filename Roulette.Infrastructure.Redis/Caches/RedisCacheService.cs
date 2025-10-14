@@ -34,9 +34,9 @@ namespace Roulette.Infrastructure.Redis.Caches
             {
                 await _db.StringSetAsync(fullKey, json, expiry).ConfigureAwait(false);
             }
-            catch (RedisConnectionException)
+            catch (RedisConnectionException ex)
             {
-                // Handle connection issues (e.g., log the error)
+                throw new RedisConnectionException(ex.FailureType, ex.Message);
             }
         }
 

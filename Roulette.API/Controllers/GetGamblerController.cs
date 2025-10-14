@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Roulette.Application.Models;
 using Roulette.Application.Models.Responses.User;
 using Roulette.Domain.Contracts.Services.User;
@@ -6,13 +7,14 @@ using Roulette.Domain.Contracts.Services.User;
 namespace Roulette.API.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
-    public class GetGamblerController(IGetGamblerService<UserResponse> getGamblerService) : ControllerBase
+    [Route("api/gambler")]
+    [ApiExplorerSettings(GroupName = "Gambler")]
+    public class GetGamblerController(IGetGamblerService<GamblerResponse> getGamblerService) : ControllerBase
     {
-        private readonly IGetGamblerService<UserResponse> _getGamblerService = getGamblerService;
+        private readonly IGetGamblerService<GamblerResponse> _getGamblerService = getGamblerService;
 
         [HttpGet("{username}")]
-        public async Task<ActionResult<UserResponse>> GetGamblerByUsername(string username)
+        public async Task<ActionResult<GamblerResponse>> GetGamblerByUsername(string username)
         {
             var response = await _getGamblerService.ExecuteAsync(username);
 

@@ -1,7 +1,9 @@
 ﻿using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Roulette.Application.Models;
 using Roulette.Application.RouletteServices;
+using Roulette.Application.UserServices;
 using Roulette.Domain.Contracts.Redis;
 using Roulette.Domain.Contracts.Repositories;
 using Roulette.Domain.Contracts.Services;
@@ -16,20 +18,26 @@ namespace Roulette.Application.Test
         private readonly GamblerEntity _user;
         private readonly List<BetEntity> _bet;
 
-        private readonly Mock<IRouletteRepository> _rouletteR;
-        private readonly Mock<IGamblerRepository> _userR;
-        private readonly Mock<IBetRepository> _betR;
+        private readonly Mock<IRouletteRepository> _rouletteRepository;
+        private readonly Mock<IGamblerRepository> _gamblerRepository;
+        private readonly Mock<IBetRepository> _betRepository;
         private readonly Mock<IUnitOfWork> _unitOfWork;
         private readonly Mock<IRedisCacheService> _redis;
+
+        private readonly Mock<ILogger<CloseRouletteService>> _loggerClose;
+        private readonly Mock<ILogger<OpenRouletteService>> _loggerOpen;
 
         public CloseRouletteTest()
         {
 
-            _rouletteR = new Mock<IRouletteRepository>();
-            _userR = new Mock<IGamblerRepository>();
-            _betR = new Mock<IBetRepository>();
+            _rouletteRepository = new Mock<IRouletteRepository>();
+            _gamblerRepository = new Mock<IGamblerRepository>();
+            _betRepository = new Mock<IBetRepository>();
             _unitOfWork = new Mock<IUnitOfWork>();
             _redis = new Mock<IRedisCacheService>();
+
+            _loggerClose = new Mock<ILogger<CloseRouletteService>>();
+            _loggerOpen = new Mock<ILogger<OpenRouletteService>>();
 
             _user = new GamblerEntity("Jose Carlos", 50000) { Id = 1 };
             _roulette = new RouletteEntity() { Id = 1};
@@ -51,7 +59,7 @@ namespace Roulette.Application.Test
         public async Task Execute_ShouldReturnNotFound_WhenRouletteDoesNotExist()
         {
             // Arrange
-            var service = new CloseRouletteService(_rouletteR.Object, _betR.Object, _userR.Object, _unitOfWork.Object, _redis.Object);
+            var service = new CloseRouletteService(_rouletteRepository.Object, _betRepository.Object, _gamblerRepository.Object, _unitOfWork.Object, _redis.Object, _loggerClose.Object);
 
             // Act
             var response = await service.ExecuteAsync(5);
@@ -73,13 +81,13 @@ namespace Roulette.Application.Test
         public async Task Execute_ShouldReturnBets_WhenRouletteHasBets()
         {
             // Arrange
-            _rouletteR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).ReturnsAsync(_roulette);
-            _betR.Setup(r => r.FindByAsync(It.IsAny<Expression<Func<BetEntity, bool>>>())).ReturnsAsync(_bet);
+            _rouletteRepository.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).ReturnsAsync(_roulette);
+            _betRepository.Setup(r => r.FindByAsync(It.IsAny<Expression<Func<BetEntity, bool>>>())).ReturnsAsync(_bet);
 
-            var serviceO = new OpenRouletteService(_rouletteR.Object, _unitOfWork.Object, _redis.Object);
+            var serviceO = new OpenRouletteService(_rouletteRepository.Object, _unitOfWork.Object, _redis.Object, _loggerOpen.Object);
             await serviceO.ExecuteAsync(1);
 
-            var serviceC = new CloseRouletteService(_rouletteR.Object, _betR.Object, _userR.Object, _unitOfWork.Object, _redis.Object);
+            var serviceC = new CloseRouletteService(_rouletteRepository.Object, _betRepository.Object, _gamblerRepository.Object, _unitOfWork.Object, _redis.Object, _loggerClose.Object);
 
             // Act
             var response = await serviceC.ExecuteAsync(1);
@@ -101,13 +109,13 @@ namespace Roulette.Application.Test
         public async Task Execute_ShouldCloseRoulette_WhenNoBetsExist()
         {
             // Arrange
-            _rouletteR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).ReturnsAsync(_roulette);
-            _betR.Setup(r => r.FindByAsync(It.IsAny<Expression<Func<BetEntity, bool>>>())).ReturnsAsync([]);
+            _rouletteRepository.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).ReturnsAsync(_roulette);
+            _betRepository.Setup(r => r.FindByAsync(It.IsAny<Expression<Func<BetEntity, bool>>>())).ReturnsAsync([]);
 
-            var serviceO = new OpenRouletteService(_rouletteR.Object, _unitOfWork.Object, _redis.Object);
+            var serviceO = new OpenRouletteService(_rouletteRepository.Object, _unitOfWork.Object, _redis.Object, _loggerOpen.Object);
             await serviceO.ExecuteAsync(1);
 
-            var serviceC = new CloseRouletteService(_rouletteR.Object, _betR.Object, _userR.Object, _unitOfWork.Object, _redis.Object);
+            var serviceC = new CloseRouletteService(_rouletteRepository.Object, _betRepository.Object, _gamblerRepository.Object, _unitOfWork.Object, _redis.Object, _loggerClose.Object);
 
             // Act
             var response = await serviceC.ExecuteAsync(1);
@@ -129,8 +137,8 @@ namespace Roulette.Application.Test
         public async Task Execute_WhenFindThrowsException_ShouldReturnErrorResponse()
         {
             // Arrange
-            _rouletteR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).Throws(new Exception("DB error."));
-            var service = new CloseRouletteService(_rouletteR.Object, _betR.Object, _userR.Object, _unitOfWork.Object, _redis.Object);
+            _rouletteRepository.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).Throws(new Exception("DB error."));
+            var service = new CloseRouletteService(_rouletteRepository.Object, _betRepository.Object, _gamblerRepository.Object, _unitOfWork.Object, _redis.Object, _loggerClose.Object);
 
             // Act
             var response = await service.ExecuteAsync(1);
@@ -152,12 +160,12 @@ namespace Roulette.Application.Test
         public async Task Execute_WhenFindByThrowsException_ShouldReturnErrorResponse()
         {
             // Arrange
-            _rouletteR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).ReturnsAsync(_roulette);
-            _betR.Setup(r => r.FindByAsync(It.IsAny<Expression<Func<BetEntity, bool>>>())).Throws(new Exception("Search error."));
+            _rouletteRepository.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).ReturnsAsync(_roulette);
+            _betRepository.Setup(r => r.FindByAsync(It.IsAny<Expression<Func<BetEntity, bool>>>())).Throws(new Exception("Search error."));
 
             _roulette.OpenRoulette();
 
-            var service = new CloseRouletteService(_rouletteR.Object, _betR.Object, _userR.Object, _unitOfWork.Object, _redis.Object);
+            var service = new CloseRouletteService(_rouletteRepository.Object, _betRepository.Object, _gamblerRepository.Object, _unitOfWork.Object, _redis.Object, _loggerClose.Object);
 
             // Act
             var response = await service.ExecuteAsync(1);
@@ -179,9 +187,9 @@ namespace Roulette.Application.Test
         public async Task Execute_ShouldReturnError_WhenRouletteIsNotOpen()
         {
             // Arrange
-            _rouletteR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).ReturnsAsync(_roulette);
-            _betR.Setup(r => r.FindByAsync(It.IsAny<Expression<Func<BetEntity, bool>>>())).ReturnsAsync(_bet);
-            var service = new CloseRouletteService(_rouletteR.Object, _betR.Object, _userR.Object, _unitOfWork.Object, _redis.Object);
+            _rouletteRepository.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).ReturnsAsync(_roulette);
+            _betRepository.Setup(r => r.FindByAsync(It.IsAny<Expression<Func<BetEntity, bool>>>())).ReturnsAsync(_bet);
+            var service = new CloseRouletteService(_rouletteRepository.Object, _betRepository.Object, _gamblerRepository.Object, _unitOfWork.Object, _redis.Object, _loggerClose.Object);
 
             // Act
             var response = await service.ExecuteAsync(1);
@@ -203,8 +211,8 @@ namespace Roulette.Application.Test
         public async Task Execute_ShouldReturnErrorMessage_WhenExceptionOccurs()
         {
             // Arrange
-            _rouletteR.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).Throws(new Exception("Db Error."));
-            var service = new CloseRouletteService(_rouletteR.Object, _betR.Object, _userR.Object, _unitOfWork.Object, _redis.Object);
+            _rouletteRepository.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).Throws(new Exception("Db Error."));
+            var service = new CloseRouletteService(_rouletteRepository.Object, _betRepository.Object, _gamblerRepository.Object, _unitOfWork.Object, _redis.Object, _loggerClose.Object);
 
             // Act
             var response = await service.ExecuteAsync(1);

@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Roulette.Application.Models;
 using Roulette.Application.RouletteServices;
@@ -16,12 +17,16 @@ namespace Roulette.Application.Test
         private readonly Mock<IUnitOfWork> _unitOfWork;
         private readonly Mock<IRedisCacheService> _redis;
 
+        private readonly Mock<ILogger<OpenRouletteService>> _logger;
+
         private readonly RouletteEntity _roulette;
         public OpenRouletteTest()
         {
             _repository = new Mock<IRouletteRepository>();
             _unitOfWork = new Mock<IUnitOfWork>();
             _redis = new Mock<IRedisCacheService>();
+
+            _logger = new Mock<ILogger<OpenRouletteService>>();
 
             _roulette = new RouletteEntity() { Id = 1 };
         }
@@ -37,7 +42,7 @@ namespace Roulette.Application.Test
         public async Task Execute_WhenRouletteNotFound_ShouldReturnErrorResponse()
         {
             // Arrange
-            var service = new OpenRouletteService(_repository.Object, _unitOfWork.Object, _redis.Object);
+            var service = new OpenRouletteService(_repository.Object, _unitOfWork.Object, _redis.Object, _logger.Object);
 
             // Act
             var response = await service.ExecuteAsync(5);
@@ -58,7 +63,7 @@ namespace Roulette.Application.Test
         {
             // Arrange
             _repository.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).ReturnsAsync(_roulette);
-            var service = new OpenRouletteService(_repository.Object, _unitOfWork.Object, _redis.Object);
+            var service = new OpenRouletteService(_repository.Object, _unitOfWork.Object, _redis.Object, _logger.Object);
 
             // Act
             var response = await service.ExecuteAsync(1);
@@ -81,7 +86,7 @@ namespace Roulette.Application.Test
         {
             // Arrange
             _repository.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).Throws(new Exception("DB error."));
-            var service = new OpenRouletteService(_repository.Object, _unitOfWork.Object, _redis.Object);
+            var service = new OpenRouletteService(_repository.Object, _unitOfWork.Object, _redis.Object, _logger.Object);
 
             // Act
             var response = await service.ExecuteAsync(1);
@@ -105,7 +110,7 @@ namespace Roulette.Application.Test
             // Arrange
             _repository.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).ReturnsAsync(_roulette);
             _repository.Setup(r => r.EditAsync(It.IsAny<RouletteEntity>())).Throws(new Exception("Update error."));
-            var service = new OpenRouletteService(_repository.Object, _unitOfWork.Object, _redis.Object);
+            var service = new OpenRouletteService(_repository.Object, _unitOfWork.Object, _redis.Object, _logger.Object);
 
             // Act
             var response = await service.ExecuteAsync(1);
@@ -129,7 +134,7 @@ namespace Roulette.Application.Test
             // Arrange
             _repository.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).ReturnsAsync(_roulette);
             _unitOfWork.Setup(u => u.CommitTransactionAsync()).Throws(new Exception("Transaction error."));
-            var service = new OpenRouletteService(_repository.Object, _unitOfWork.Object, _redis.Object);
+            var service = new OpenRouletteService(_repository.Object, _unitOfWork.Object, _redis.Object, _logger.Object);
 
             // Act
             var response = await service.ExecuteAsync(1);
@@ -152,7 +157,7 @@ namespace Roulette.Application.Test
         {
             // Arrange
             _repository.Setup(r => r.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<RouletteEntity, bool>>>())).ReturnsAsync(_roulette);
-            var service = new OpenRouletteService(_repository.Object, _unitOfWork.Object, _redis.Object);
+            var service = new OpenRouletteService(_repository.Object, _unitOfWork.Object, _redis.Object, _logger.Object);
 
             // Act
             await service.ExecuteAsync(1);

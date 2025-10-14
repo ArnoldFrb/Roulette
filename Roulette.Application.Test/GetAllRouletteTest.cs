@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Roulette.Application.Models;
 using Roulette.Application.RouletteServices;
@@ -14,10 +15,14 @@ namespace Roulette.Application.Test
         private readonly Mock<IRouletteRepository> _repository;
         private readonly Mock<IRedisCacheService> _redis;
 
+        private readonly Mock<ILogger<GetAllRouletteService>> _logger;
+
         public GetAllRouletteTest()
         {
             _repository = new Mock<IRouletteRepository>();
             _redis = new Mock<IRedisCacheService>();
+
+            _logger = new Mock<ILogger<GetAllRouletteService>>();
 
             _roulettes = [
                 new RouletteEntity() { Id = 1 },
@@ -40,7 +45,7 @@ namespace Roulette.Application.Test
         {
             // Arrange
             _repository.Setup(r => r.GetAllAsync()).ReturnsAsync(_roulettes);
-            var service = new GetAllRouletteService(_repository.Object, _redis.Object);
+            var service = new GetAllRouletteService(_repository.Object, _redis.Object, _logger.Object);
 
             // Act
             var response = await service.ExecuteAsync();
@@ -63,7 +68,7 @@ namespace Roulette.Application.Test
         {
             // Arrange
             _repository.Setup(r => r.GetAllAsync()).ReturnsAsync([]);
-            var service = new GetAllRouletteService(_repository.Object, _redis.Object);
+            var service = new GetAllRouletteService(_repository.Object, _redis.Object, _logger.Object);
 
             // Act
             var response = await service.ExecuteAsync();
@@ -86,7 +91,7 @@ namespace Roulette.Application.Test
         {
             // Arrange
             _repository.Setup(r => r.GetAllAsync()).Throws(new Exception("Db Error"));
-            var service = new GetAllRouletteService(_repository.Object, _redis.Object);
+            var service = new GetAllRouletteService(_repository.Object, _redis.Object, _logger.Object);
 
             // Act
             var response = await service.ExecuteAsync();

@@ -7,16 +7,12 @@ services:
     ports:
       - "8080:8080"
       - "8081:8081"
-    environment:
-      ASPNETCORE_ENVIRONMENT: "Development"
-      # SQLite connection path persistente
-      ConnectionStrings__DefaultConnection: "Data Source=/app/data/roulette.db"
-      # Config Redis — asegúrate de usar la clave correcta según tu RedisSettings
-      Redis__ConnectionString: "redis:6379"
-      Redis__InstanceName: "roulette:"
-      Redis__DefaultTimeoutInSeconds: "120"
+    env_file:
+      - .env
     volumes:
       - roulette_data:/app/data
+      - roulette_logs:/app/logs
+      - dataprotection-keys:/app/DataProtection-Keys
     depends_on:
       redis:
         condition: service_healthy
@@ -44,4 +40,6 @@ services:
 
 volumes:
   roulette_data:
+  roulette_logs:
   redis_data:
+  dataprotection-keys:
