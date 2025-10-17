@@ -2,17 +2,19 @@
 Prueba técnica de ruleta desarrollada en **.NET 8**, con persistencia en **SQLite**, cache con **Redis**, autenticación **JWT**, logging con **Serilog** y soporte para **Docker Compose**.
 
 ## 📁 Estructura del repositorio (resumen) 
+```bash
 /Roulette
-├── Roulette.API
-    ├── Dockerfile 
-├── Roulette.Application
-├── Roulette.Domain
-├── Roulette.Infrastructure.Data
-├── Roulette.Infrastructure.Redis
-├── Roulette.Infrastructure.Security
-├── docker-compose.yml
-├── .env
-└── README.md
+    ├── Roulette.API
+        ├── Dockerfile 
+    ├── Roulette.Application
+    ├── Roulette.Domain
+    ├── Roulette.Infrastructure.Data
+    ├── Roulette.Infrastructure.Redis
+    ├── Roulette.Infrastructure.Security
+    ├── docker-compose.yml
+    ├── .env
+    └── README.md
+```
 
 ---
 
@@ -50,9 +52,9 @@ docker compose down -v
 ```
 
 ## 🧩 Migraciones
-> ⚙️ Ejecuta estos comandos dentro del contenedor o en tu entorno local, según corresponda.
+> ⚙️ Ejecuta estos comandos dentro del contenedor o en tu entorno local.
 
-### Crear migración (solo Docker)
+### Crear migración (local y Docker)
 ```bash
 dotnet ef migrations add InitialCreate
 ```
@@ -62,7 +64,7 @@ dotnet ef migrations add InitialCreate
 dotnet ef database update
 ```
 
-### Crear migración adicional (solo Docker)
+### Crear migración adicional (Local y Docker)
 ```bash
 dotnet ef migrations add InitialCreate --project Roulette.Infrastructure.Data --startup-project Roulette.API
 ```
