@@ -100,16 +100,20 @@ builder.Services.AddSwaggerGen(options =>
     options.SwaggerDoc("Bet", new OpenApiInfo { Title = "Bet API", Version = "v1" });
     options.SwaggerDoc("Gambler", new OpenApiInfo { Title = "Gambler API", Version = "v1" });
 
-    options.TagActionsBy(api => new[] { api.GroupName ?? "v1" });
+    options.TagActionsBy(api => [api.GroupName]);
 
-    options.DocInclusionPredicate((docName, apiDesc) =>
-    {
-        if (!apiDesc.TryGetMethodInfo(out var _))
-            return false;
+    options.DocInclusionPredicate((_, _) => true);
 
-        var groupName = apiDesc.GroupName ?? "v1";
-        return string.Equals(groupName, docName, StringComparison.OrdinalIgnoreCase);
-    });
+    //options.TagActionsBy(api => [api.GroupName ?? "v1"]);
+
+    //options.DocInclusionPredicate((docName, apiDesc) =>
+    //{
+    //    if (!apiDesc.TryGetMethodInfo(out var _))
+    //        return false;
+
+    //    var groupName = apiDesc.GroupName ?? "v1";
+    //    return string.Equals(groupName, docName, StringComparison.OrdinalIgnoreCase);
+    //});
 
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {

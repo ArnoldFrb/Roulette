@@ -1,24 +1,116 @@
-# Roulette
- Prueba tecnica de reuleta
+# 🎰 Roulette
+Prueba técnica de ruleta desarrollada en **.NET 8**, con persistencia en **SQLite**, cache con **Redis**, autenticación **JWT**, logging con **Serilog** y soporte para **Docker Compose**.
 
-## Construir y Ejecutar
- docker compose up --build
+## 📁 Estructura del repositorio (resumen) 
+/Roulette
+├── Roulette.API
+    ├── Dockerfile 
+├── Roulette.Application
+├── Roulette.Domain
+├── Roulette.Infrastructure.Data
+├── Roulette.Infrastructure.Redis
+├── Roulette.Infrastructure.Security
+├── docker-compose.yml
+├── .env
+└── README.md
 
-## Solo Ejecutar
- docker compose up -d
+---
 
-## Logs
- docker compose logs -f
+## 🔧 Requisitos
+- .NET 8 SDK 
+- Docker & Docker Compose (para ejecutar en contenedores)
+- dotnet-ef (opcional, para manejar migraciones)
+```bash
+  dotnet tool install --global dotnet-ef
+```
 
-## Detener y eliminar contenedores (sin borrar volúmenes)
- docker compose down
+## 🏗️ Construir y Ejecutar
+```bash
+docker compose up --build
+```
 
-## Detener y borrar también volúmenes
- docker compose down -v
+## 🚀 Solo Ejecutar
+```bash
+docker compose up -d
+```
 
-## Migration
- dotnet ef migrations add InitialCreate (solo docker)
- dotnet ef database update (local)
+## 📜 Logs
+```bash
+docker compose logs -f
+```
 
- dotnet ef migrations add FixEntitiesRelationships --project Roulette.Infrastructure.Data --startup-project Roulette.API (solo docker)
- dotnet ef database update --project Roulette.Infrastructure.Data --startup-project Roulette.API (local)
+## 🧹 Detener y eliminar contenedores (sin borrar volúmenes)
+```bash
+docker compose down
+```
+
+## 💣 Detener y borrar también volúmenes
+```bash
+docker compose down -v
+```
+
+## 🧩 Migraciones
+> ⚙️ Ejecuta estos comandos dentro del contenedor o en tu entorno local, según corresponda.
+
+### Crear migración (solo Docker)
+```bash
+dotnet ef migrations add InitialCreate
+```
+
+### Aplicar migraciones (local)
+```bash
+dotnet ef database update
+```
+
+### Crear migración adicional (solo Docker)
+```bash
+dotnet ef migrations add InitialCreate --project Roulette.Infrastructure.Data --startup-project Roulette.API
+```
+
+### Aplicar migración adicional (local)
+```bash
+dotnet ef database update --project Roulette.Infrastructure.Data --startup-project Roulette.API
+```
+
+---
+
+## 📦 Variables de entorno (.env)
+Crea el archivo `.env`
+
+### Ejemplo:
+```env
+ASPNETCORE_ENVIRONMENT=Development
+ConnectionStrings__DefaultConnection=Data Source=/app/data/roulette.db
+Redis__ConnectionString=redis:6379
+Redis__InstanceName=roulette:
+Jwt__Key=MiClaveJWT_Super_Secreta_1234
+Jwt__Issuer=Roulette.API
+Jwt__Audience=Roulette.Client
+Jwt__ExpirationMinutes=60
+```
+
+---
+
+## 🌐 Acceso rápido
+- **API:** [http://localhost:8080](http://localhost:8080)
+- **Swagger:** [http://localhost:8080/swagger](http://localhost:8080/swagger)
+
+---
+
+## 👤 Datos de pruebas
+
+| Rol | Usuario | Contraseña |
+|-----|----------|-------------|
+| Crupier | crupier1 | password1 |
+| Gambler | user0 | (sin login, solo apuestas) |
+| Gambler | user1 | (sin login, solo apuestas) |
+| Gambler | user2 | (sin login, solo apuestas) |
+| Gambler | user3 | (sin login, solo apuestas) |
+
+---
+
+## 🧠 Notas
+
+- 🐳 Si usas Docker, las migraciones se aplican automáticamente al iniciar.
+- 🔐 Usa el endpoint `/api/auth` para autenticar al crupier y obtener el token JWT.
+- 🪵 Los logs persistentes, se guarda en `/app/logs/roulette-.log`.
