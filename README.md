@@ -114,7 +114,9 @@ Jwt__ExpirationMinutes=60
 
 ## 🔐 Encriptación de la Base de Datos
 
-La aplicación soporta **encriptación de la base de datos SQLite** usando **SQLCipher**, que proporciona encriptación transparente AES-256.
+La aplicación soporta **encriptación de la base de datos SQLite** usando **SQLCipher** (versión moderna mantenida), que proporciona encriptación transparente AES-256.
+
+📖 **[Ver guía completa de encriptación](ENCRYPTION.md)** para información detallada, troubleshooting y mejores prácticas.
 
 ### ¿Cómo funciona?
 
@@ -163,6 +165,15 @@ Database__EncryptionPassword=TuContraseñaSuperSegura123!
 ### Verificar que funciona
 
 Después de configurar la encriptación, la base de datos estará protegida. Si intentas abrirla con un visor SQLite estándar sin la contraseña, obtendrás un error de "base de datos corrupta" o "no es una base de datos SQLite".
+
+### Tecnología utilizada
+
+- **Paquete**: `SQLitePCLRaw.bundle_sqlcipher` (versión 2.1.10+)
+  - Reemplaza al obsoleto `bundle_e_sqlcipher`
+  - Activamente mantenido y compatible con .NET 8
+  - Incluye binarios nativos de SQLCipher para múltiples plataformas
+- **Algoritmo**: AES-256 en modo CBC
+- **Compatible con**: Linux, Windows, macOS (x64/ARM64)
 
 ---
 
