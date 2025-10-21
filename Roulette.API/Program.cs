@@ -16,6 +16,7 @@ using Serilog.Context;
 using Serilog.Events;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Text;
+using SQLitePCL;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -78,8 +79,22 @@ builder.Services.AddRedisServices();
 #endregion
 
 // Database Context
+// Inicializar SQLCipher
+SQLitePCL.Batteries_V2.Init();
+
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+var encryptionPassword = builder.Configuration["Database:EncryptionPassword"];
+
 builder.Services.AddDbContext<RouletteDbContext>(option =>
-    option.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+{
+    option.UseSqlite(connectionString);
+    
+    // Agregar interceptor para encriptaciÃ³n si se proporciona una contraseÃ±a
+    if (!string.IsNullOrEmpty(encryptionPassword))
+    {
+        option.AddInterceptors(new Roulette.Infrastructure.Data.Core.SqliteCipherConnectionInterceptor(encryptionPassword));
+    }
+});
 
 // Register Data Services
 builder.Services.AddDataServices();
@@ -158,7 +173,7 @@ app.Use(async (context, next) =>
 // Middleware Serilog para requests HTTP
 app.UseSerilogRequestLogging(options =>
 {
-    // Nivel de log según código HTTP
+    // Nivel de log segï¿½n cï¿½digo HTTP
     options.GetLevel = (httpContext, _, ex) =>
     {
         if (ex != null || httpContext.Response.StatusCode >= 500)
