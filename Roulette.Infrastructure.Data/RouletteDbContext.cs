@@ -73,8 +73,9 @@ namespace Roulette.Infrastructure.Data
 
         protected static void SeedCrupier(ModelBuilder modelBuilder)
         {
+            const string pass = "$2a$11$erlnEHHme/pAaVi9IR9QMedGTFrV/9ajOsiycj2ejpRIRd04U8A0q";
             modelBuilder.Entity<CrupierEntity>().HasData(
-                new CrupierEntity("crupier1", "password1") { Id = 1 }
+                new CrupierEntity("crupier1", pass, false) { Id = 1 }
             );
         }
 

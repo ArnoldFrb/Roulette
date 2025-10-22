@@ -1,8 +1,11 @@
-﻿namespace Roulette.Application.Models.Responses.Bet
+﻿using System.Text.Json.Serialization;
+
+namespace Roulette.Application.Models.Responses.Bet
 {
     public record CreateBetDto(decimal? Amount, string? BetType, string? Value);
     public record CreateBetResponse : BaseResponse<CreateBetDto>
     {
+        [JsonConstructor]
         public CreateBetResponse(bool IsSuccess, string Code, string Message, CreateBetDto? Data) : base(IsSuccess, Code, Message, Data)
         {
         }

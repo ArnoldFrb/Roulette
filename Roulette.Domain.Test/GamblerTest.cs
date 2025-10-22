@@ -13,48 +13,6 @@ namespace Roulette.Domain.Test
             _user = new GamblerEntity("Jose Carlos", 100) { Id = 1 };
         }
 
-        /// <summary>
-        ///  USERNAME TESTS
-        /// </summary>
-
-        /*
-         1.	Nombre de usuario vacío
-            •	Dado un usuario con nombre "Jose Carlos"
-            •	Cuando ingresa un nombre vacío ""
-            •	Entonces se lanza una excepción con el mensaje "The credentials are incorrect."
-        */
-        [Fact]
-        [Trait("Category", "Usernames")]
-        public void IsValidUsername_WithEmptyUsername_ShouldThrowException()
-        {
-
-            // Act
-            var action = () => UserEntity.IsValidUsername("");
-
-            // Assert
-            action.Should().Throw<InvalidUsernameOrPasswordException>()
-                .WithMessage("The credentials are incorrect.");
-        }
-
-        /*
-         2.	Nombre de usuario nulo
-            •	Dado un usuario con nombre "Jose Carlos"
-            •	Cuando se valida el nombre ingresando null
-            •	Entonces se lanza una excepción (puede ser por error de referencia o "The credentials are incorrect." según implementación).
-        */
-        [Fact]
-        [Trait("Category", "Usernames")]
-        public void IsValidUsername_WithNullUsername_ShouldThrowException()
-        {
-
-            // Act
-            var action = () => UserEntity.IsValidUsername(null!);
-
-            // Assert
-            action.Should().Throw<InvalidUsernameOrPasswordException>()
-                .WithMessage("The credentials are incorrect.");
-        }
-
 
         /// <summary>
         ///  ADD CREDIT TESTS

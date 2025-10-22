@@ -130,7 +130,7 @@ namespace Roulette.Infrastructure.Data.Migrations
             migrationBuilder.InsertData(
                 table: "Crupier",
                 columns: new[] { "Id", "Password" },
-                values: new object[] { 1, "password1" });
+                values: new object[] { 1, "$2a$11$Y/GfaK4/pbWdyFLu/J9p/.c7YtDutUUsVQm1O35xtXIKc.UL5IaQO" });
 
             migrationBuilder.InsertData(
                 table: "Gambler",

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Roulette.Infrastructure.Data;
 
@@ -10,9 +11,11 @@ using Roulette.Infrastructure.Data;
 namespace Roulette.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(RouletteDbContext))]
-    partial class RouletteDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251021195501_InitialCreate")]
+    partial class InitialCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.10");
@@ -133,7 +136,7 @@ namespace Roulette.Infrastructure.Data.Migrations
                         {
                             Id = 1,
                             Username = "crupier1",
-                            Password = "$2a$11$erlnEHHme/pAaVi9IR9QMedGTFrV/9ajOsiycj2ejpRIRd04U8A0q"
+                            Password = "$2a$11$Y/GfaK4/pbWdyFLu/J9p/.c7YtDutUUsVQm1O35xtXIKc.UL5IaQO"
                         });
                 });
 

@@ -1,24 +1,23 @@
-﻿using Roulette.Domain.Entities.Exceptions;
-
-namespace Roulette.Domain.Entities
+﻿namespace Roulette.Domain.Entities
 {
     public class CrupierEntity : UserEntity
     {
         public string Password { get; protected set; } = string.Empty;
 
         protected CrupierEntity() { }
-        public CrupierEntity(string username, string password) : base(username)
+        public CrupierEntity(string username, string password, bool isHashed = true) : base(username)
         {
-            Password = password;
+            Password = isHashed ? Hash(password) : password;
         }
 
-        public bool ValidatePassword(string password) => Password.Equals(password);
-
-        public static bool IsValidPassword(string password)
+        private static string Hash(string password)
         {
-            if (string.IsNullOrWhiteSpace(password))
-                throw new InvalidUsernameOrPasswordException();
-            return true;
+            return BCrypt.Net.BCrypt.HashPassword(password);
+        }
+
+        public bool ValidatePassword(string password)
+        {
+            return BCrypt.Net.BCrypt.Verify(password, Password);
         }
     }
 }

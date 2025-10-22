@@ -10,10 +10,9 @@ namespace Roulette.API.Controllers
     [ApiController]
     [Route("api/auth")]
     [ApiExplorerSettings(GroupName = "Auth")]
-    public class AuthenticationController(IAuthenticationService<AuthenticationRequest, CrupierResponse> authenticationService, IJwtTokenService jwtTokenService) : ControllerBase
+    public class AuthenticationController(IAuthenticationService<AuthenticationRequest, CrupierResponse> authenticationService) : ControllerBase
     {
         private readonly IAuthenticationService<AuthenticationRequest, CrupierResponse> _authenticationService = authenticationService;
-        private readonly IJwtTokenService _jwtTokenService = jwtTokenService;
 
         [HttpPost]
         public async Task<ActionResult<CrupierResponse>> Authenticate([FromBody] AuthenticationRequest request)
@@ -35,9 +34,7 @@ namespace Roulette.API.Controllers
                 };
             }
 
-            var token =_jwtTokenService.GetJwtToken(response.Data.Username, response.Data.Id);
-
-            return Ok(CrupierResponse.Success(new CrupierDto(response.Data.Id, response.Data.Username, token)));
+            return Ok(response);
         }
     }
 }

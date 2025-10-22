@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Roulette.Application.Models;
 using Roulette.Application.Models.Requests;
 using Roulette.Application.Models.Responses.Bet;

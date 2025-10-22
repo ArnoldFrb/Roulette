@@ -17,8 +17,6 @@ namespace Roulette.Application.UserServices
             _logger.LogInformation("Attempt to obtain the user {Username}", username);
             try
             {
-                UserEntity.IsValidUsername(username);
-
                 var gambler = await _gamblerRepository.FindSingleOrDefaultAsync(g => g.Username == username);
                 if (gambler == null)
                     return GamblerResponse.Fail(AppCodes.User.USER_NOT_FOUND, "Gambler not found.");

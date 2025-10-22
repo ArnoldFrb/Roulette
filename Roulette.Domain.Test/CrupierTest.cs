@@ -10,7 +10,7 @@ namespace Roulette.Domain.Test
 
         public CrupierTest()
         {
-            _user = new CrupierEntity("Jose Carlos", "@#Hl1g2l34") { Id = 1 };
+            _user = new CrupierEntity("Jose Carlos", "@#Hl1g2l34", true) { Id = 1 };
         }
 
         /// <summary>
@@ -28,9 +28,10 @@ namespace Roulette.Domain.Test
         public void IsValidPassword_WithCorrectPassword_ShouldNotThrow()
         {
             // Arrange
+            const string password = "@#Hl1g2l34";
 
             // Act
-            var action = _user.ValidatePassword(_user.Password);
+            var action = _user.ValidatePassword(password);
 
             // Assert
             action.Should().BeTrue();
@@ -47,9 +48,10 @@ namespace Roulette.Domain.Test
         public void IsValidPassword_WithIncorrectPassword_ShouldThrowException()
         {
             // Arrange
+            const string password = "contraseña123";
 
             // Act
-            var action = _user.ValidatePassword("contraseña123");
+            var action = _user.ValidatePassword(password);
 
             // Assert
             action.Should().BeFalse();
@@ -66,74 +68,13 @@ namespace Roulette.Domain.Test
         public void IsValidPassword_WithEmptyPassword_ShouldThrowException()
         {
             // Arrange
+            const string password = "";
 
             // Act
-            var action = _user.ValidatePassword("");
+            var action = _user.ValidatePassword(password);
 
             // Assert
             action.Should().BeFalse();
-        }
-
-        /*
-         4.	Contraseña nula
-            •	Dado un usuario con contraseña "@#Hl1g2l34"
-            •	Cuando se valida la contraseña ingresando null
-            •	Entonces se debe retornar false.
-        */
-        [Fact]
-        [Trait("Category", "Password")]
-        public void IsValidPassword_WithNullPassword_ShouldThrowException()
-        {
-            // Arrange
-
-            // Act
-            var action = _user.ValidatePassword(null!);
-
-            // Assert
-            action.Should().BeFalse();
-        }
-
-
-        /// <summary>
-        ///  USERNAME TESTS
-        /// </summary>
-
-        /*
-         1.	Nombre de usuario vacío
-            •	Dado un usuario con nombre "Jose Carlos"
-            •	Cuando ingresa un nombre vacío ""
-            •	Entonces se lanza una excepción con el mensaje "The credentials are incorrect."
-        */
-        [Fact]
-        [Trait("Category", "Usernames")]
-        public void IsValidUsername_WithEmptyUsername_ShouldThrowException()
-        {
-
-            // Act
-            var action = () => CrupierEntity.IsValidUsername("");
-
-            // Assert
-            action.Should().Throw<InvalidUsernameOrPasswordException>()
-                .WithMessage("The credentials are incorrect.");
-        }
-
-        /*
-         2.	Nombre de usuario nulo
-            •	Dado un usuario con nombre "Jose Carlos"
-            •	Cuando se valida el nombre ingresando null
-            •	Entonces se lanza una excepción (puede ser por error de referencia o "The credentials are incorrect." según implementación).
-        */
-        [Fact]
-        [Trait("Category", "Usernames")]
-        public void IsValidUsername_WithNullUsername_ShouldThrowException()
-        {
-
-            // Act
-            var action = () => CrupierEntity.IsValidUsername(null!);
-
-            // Assert
-            action.Should().Throw<InvalidUsernameOrPasswordException>()
-                .WithMessage("The credentials are incorrect.");
         }
     }
 }

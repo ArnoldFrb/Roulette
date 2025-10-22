@@ -45,6 +45,7 @@
             public const string USER_ALREADY_EXISTS = "USER_ALREADY_EXISTS";      // 409
             public const string INSUFFICIENT_CREDIT = "INSUFFICIENT_CREDIT";      // 400
             public const string USER_VALID = "USER_VALID";                        // 200
+            public const string USER_INVALID = "USER_INVALID";                    // 400
         }
 
         public static class Roulette

@@ -7,6 +7,7 @@ using Microsoft.OpenApi.Models;
 using Roulette.Application;
 using Roulette.Domain.Contracts.Security;
 using Roulette.Infrastructure.Data;
+using Roulette.Infrastructure.Data.Core;
 using Roulette.Infrastructure.Redis;
 using Roulette.Infrastructure.Redis.Settings;
 using Roulette.Infrastructure.Security.Services;
@@ -18,6 +19,11 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Configuration
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
+    .AddEnvironmentVariables();
 
 // Habilitar colores en consola
 #region Logging
@@ -78,8 +84,20 @@ builder.Services.AddRedisServices();
 #endregion
 
 // Database Context
-builder.Services.AddDbContext<RouletteDbContext>(option =>
-    option.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+SQLitePCL.Batteries_V2.Init();
+
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+var encryptionPassword = builder.Configuration["Database:EncryptionPassword"];
+
+builder.Services.AddDbContext<RouletteDbContext>(option => {
+    option.UseSqlite(connectionString);
+
+    if (!string.IsNullOrEmpty(encryptionPassword))
+    {
+        option.AddInterceptors(new SqliteCipherConnectionInterceptor(encryptionPassword));
+    }
+});
+
 
 // Register Data Services
 builder.Services.AddDataServices();
@@ -100,20 +118,16 @@ builder.Services.AddSwaggerGen(options =>
     options.SwaggerDoc("Bet", new OpenApiInfo { Title = "Bet API", Version = "v1" });
     options.SwaggerDoc("Gambler", new OpenApiInfo { Title = "Gambler API", Version = "v1" });
 
-    options.TagActionsBy(api => [api.GroupName]);
+    options.TagActionsBy(api => [api.GroupName ?? "v1"]);
 
-    options.DocInclusionPredicate((_, _) => true);
+    options.DocInclusionPredicate((docName, apiDesc) =>
+    {
+        if (!apiDesc.TryGetMethodInfo(out var _))
+            return false;
 
-    //options.TagActionsBy(api => [api.GroupName ?? "v1"]);
-
-    //options.DocInclusionPredicate((docName, apiDesc) =>
-    //{
-    //    if (!apiDesc.TryGetMethodInfo(out var _))
-    //        return false;
-
-    //    var groupName = apiDesc.GroupName ?? "v1";
-    //    return string.Equals(groupName, docName, StringComparison.OrdinalIgnoreCase);
-    //});
+        var groupName = apiDesc.GroupName ?? "v1";
+        return string.Equals(groupName, docName, StringComparison.OrdinalIgnoreCase);
+    });
 
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
@@ -213,4 +227,9 @@ finally
 {
     Log.Information("Stopping Roulette.API...");
     await Log.CloseAndFlushAsync();
+}
+
+public partial class Program
+{
+    protected Program() { }
 }

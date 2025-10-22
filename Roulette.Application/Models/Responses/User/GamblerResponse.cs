@@ -8,9 +8,9 @@
         }
 
         public static GamblerResponse Success(GamblerDto data) =>
-            new(true, AppCodes.Auth.AUTH_SUCCESS, "Authentication successful.", data);
+            new(true, AppCodes.User.USER_ALREADY_EXISTS, "The user exists.", data);
 
         public static GamblerResponse Fail(string code, string message) =>
-            new(false, code, $"Authentication failed: {message}", null);
+            new(false, code, $"User failed: {message}", null);
     }
 }

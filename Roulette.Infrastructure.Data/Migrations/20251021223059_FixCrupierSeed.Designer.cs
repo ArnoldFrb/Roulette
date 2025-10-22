@@ -11,14 +11,14 @@ using Roulette.Infrastructure.Data;
 namespace Roulette.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(RouletteDbContext))]
-    [Migration("20251012003608_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20251021223059_FixCrupierSeed")]
+    partial class FixCrupierSeed
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "9.0.9");
+            modelBuilder.HasAnnotation("ProductVersion", "9.0.10");
 
             modelBuilder.Entity("Roulette.Domain.Entities.BetEntity", b =>
                 {

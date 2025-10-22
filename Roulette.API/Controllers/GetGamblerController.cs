@@ -16,6 +16,9 @@ namespace Roulette.API.Controllers
         [HttpGet("{username}")]
         public async Task<ActionResult<GamblerResponse>> GetGamblerByUsername(string username)
         {
+            if (string.IsNullOrWhiteSpace(username))
+                return BadRequest(CrupierResponse.Fail(AppCodes.User.USER_INVALID, "The User are incorrect."));
+
             var response = await _getGamblerService.ExecuteAsync(username);
 
             if (!response.IsSuccess)

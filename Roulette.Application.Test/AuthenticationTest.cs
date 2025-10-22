@@ -1,4 +1,3 @@
-using Castle.Core.Logging;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -6,6 +5,7 @@ using Roulette.Application.Models;
 using Roulette.Application.Models.Requests;
 using Roulette.Application.UserServices;
 using Roulette.Domain.Contracts.Repositories;
+using Roulette.Domain.Contracts.Security;
 using Roulette.Domain.Entities;
 using System.Linq.Expressions;
 
@@ -15,12 +15,14 @@ namespace Roulette.Application.Test
     {
         private readonly Mock<ICrupierRepository> _repository;
         private readonly CrupierEntity _user;
+        private readonly Mock<IJwtTokenService> _token;
         private readonly Mock<ILogger<AuthenticationService>> _logger;
 
         public AuthenticationTest()
         {
             _repository = new Mock<ICrupierRepository>();
             _user = new CrupierEntity("Jose Carlos", "@#Hl1g2l34") { Id = 1 };
+            _token = new Mock<IJwtTokenService>();
             _logger = new Mock<ILogger<AuthenticationService>>();
         }
 
@@ -36,7 +38,7 @@ namespace Roulette.Application.Test
         {
 
             // Arrange
-            var service = new AuthenticationService(_repository.Object, _logger.Object);
+            var service = new AuthenticationService(_repository.Object, _token.Object, _logger.Object);
             var request = new AuthenticationRequest("pepe", "password123");
 
             // Act
@@ -63,7 +65,7 @@ namespace Roulette.Application.Test
             _repository.Setup(repo => repo.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<CrupierEntity, bool>>>()))
             .ReturnsAsync(_user);
 
-            var service = new AuthenticationService(_repository.Object, _logger.Object);
+            var service = new AuthenticationService(_repository.Object, _token.Object, _logger.Object);
             var request = new AuthenticationRequest("Jose Carlos", "@#Hl1g2l34");
 
             // Act
@@ -90,7 +92,7 @@ namespace Roulette.Application.Test
             _repository.Setup(repo => repo.FindSingleOrDefaultAsync(It.IsAny<Expression<Func<CrupierEntity, bool>>>()))
             .ReturnsAsync(_user);
 
-            var service = new AuthenticationService(_repository.Object, _logger.Object);
+            var service = new AuthenticationService(_repository.Object, _token.Object, _logger.Object);
             var request = new AuthenticationRequest("Jose Carlos", "password123");
 
             // Act

@@ -31,6 +31,11 @@ Prueba técnica de ruleta desarrollada en **.NET 8**, con persistencia en **SQLi
 docker compose up --build
 ```
 
+## 🏗️ Construir y Limpiar cache
+```bash
+docker compose build -no--cache
+```
+
 ## 🚀 Solo Ejecutar
 ```bash
 docker compose up -d
@@ -82,6 +87,7 @@ Crea el archivo `.env`
 ### Ejemplo:
 ```env
 ASPNETCORE_ENVIRONMENT=Development
+Database__EncryptionPassword=MiClaveEncrypion_Super_Secreta_1234
 ConnectionStrings__DefaultConnection=Data Source=/app/data/roulette.db
 Redis__ConnectionString=redis:6379
 Redis__InstanceName=roulette:
