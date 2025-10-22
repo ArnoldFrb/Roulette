@@ -122,3 +122,4 @@ Jwt__ExpirationMinutes=60
 - 🐳 Si usas Docker, las migraciones se aplican automáticamente al iniciar.
 - 🔐 Usa el endpoint `/api/auth` para autenticar al crupier y obtener el token JWT.
 - 🪵 Los logs persistentes, se guarda en `/app/logs/roulette-.log`.
+- 🔒 La base de datos SQLite ahora soporta encriptación AES-256 con SQLCipher.

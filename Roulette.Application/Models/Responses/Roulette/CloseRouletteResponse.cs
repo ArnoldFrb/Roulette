@@ -1,5 +1,6 @@
 ﻿using Roulette.Application.Models.Responses.Bet;
 using Roulette.Domain.Entities;
+using System.Text.Json.Serialization;
 
 namespace Roulette.Application.Models.Responses.Roulette
 {
@@ -13,6 +14,7 @@ namespace Roulette.Application.Models.Responses.Roulette
     }
     public record CloseRouletteResponse : BaseResponse<CloseRouletteDto>
     {
+        [JsonConstructor]
         public CloseRouletteResponse(bool IsSuccess, string Code, string Message, CloseRouletteDto? Data) : base(IsSuccess, Code, Message, Data)
         {
         }

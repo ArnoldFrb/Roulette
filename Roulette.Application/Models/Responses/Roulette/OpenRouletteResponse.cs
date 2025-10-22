@@ -1,4 +1,6 @@
-﻿namespace Roulette.Application.Models.Responses.Roulette
+﻿using System.Text.Json.Serialization;
+
+namespace Roulette.Application.Models.Responses.Roulette
 {
     public record OpenRouletteDto : CreateRouletteDto
     {
@@ -7,6 +9,7 @@
 
     public record OpenRouletteResponse : BaseResponse<OpenRouletteDto>
     {
+        [JsonConstructor]
         public OpenRouletteResponse(bool IsSuccess, string Code, string Message, OpenRouletteDto? Data) : base(IsSuccess, Code, Message, Data)
         {
         }

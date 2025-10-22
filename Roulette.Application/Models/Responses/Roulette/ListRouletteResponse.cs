@@ -1,8 +1,11 @@
-﻿namespace Roulette.Application.Models.Responses.Roulette
+﻿using System.Text.Json.Serialization;
+
+namespace Roulette.Application.Models.Responses.Roulette
 {
     public record RouletteDto(int Id, string Status, DateTime Date);
     public record ListRouletteResponse : BaseResponse<IEnumerable<RouletteDto>>
     {
+        [JsonConstructor]
         public ListRouletteResponse(bool IsSuccess, string Code, string Message, IEnumerable<RouletteDto>? Data) : base(IsSuccess, Code, Message, Data)
         {
         }
